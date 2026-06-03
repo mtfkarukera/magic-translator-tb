@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "2.0.0",
+  "description": "__MSG_extDescription__",
+  "author": "MTF Karukera",
+  "default_locale": "fr",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "magic-translator@mtfkarukera.net",
+      "strict_min_version": "128.0"
+    }
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "scripting",
+    "messagesRead",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*"
+  ],
+  "commands": {
+    "toggle-translate": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+T",
+        "mac": "MacCtrl+Shift+T"
+      },
+      "description": "__MSG_tooltipExpand__"
+    }
+  }
+}

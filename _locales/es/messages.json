@@ -1,0 +1,53 @@
+{
+  "extName": {
+    "message": "Magic Translator"
+  },
+  "extDescription": {
+    "message": "Traduce tus correos directamente en Thunderbird, de forma reversible, con Google Translate."
+  },
+  "bannerTitle": {
+    "message": "Translator"
+  },
+  "labelFrom": {
+    "message": "DE"
+  },
+  "labelTo": {
+    "message": "A"
+  },
+  "btnTranslate": {
+    "message": "Traducir"
+  },
+  "btnRetranslate": {
+    "message": "Retraducir"
+  },
+  "btnOriginal": {
+    "message": "Original"
+  },
+  "statusTranslating": {
+    "message": "Traduciendo…"
+  },
+  "statusTranslated": {
+    "message": "Traducido"
+  },
+  "statusTranslatedFrom": {
+    "message": "Traducido desde $LANG$",
+    "placeholders": {
+      "lang": { "content": "$1", "example": "inglés" }
+    }
+  },
+  "errorSameLanguage": {
+    "message": "Los idiomas de origen y destino son iguales."
+  },
+  "errorNoText": {
+    "message": "No hay texto para traducir."
+  },
+  "errorGeneric": {
+    "message": "Error: $MSG$",
+    "placeholders": {
+      "msg": { "content": "$1", "example": "Network error" }
+    }
+  },
+  "tooltipExpand": {
+    "message": "Traducir este mensaje"
+  }
+}

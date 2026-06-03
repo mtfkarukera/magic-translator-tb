@@ -1,0 +1,53 @@
+{
+  "extName": {
+    "message": "Magic Translator"
+  },
+  "extDescription": {
+    "message": "Dịch email trực tiếp trong Thunderbird, có thể hoàn tác, bằng Google Translate."
+  },
+  "bannerTitle": {
+    "message": "Translator"
+  },
+  "labelFrom": {
+    "message": "TỪ"
+  },
+  "labelTo": {
+    "message": "SANG"
+  },
+  "btnTranslate": {
+    "message": "Dịch"
+  },
+  "btnRetranslate": {
+    "message": "Dịch lại"
+  },
+  "btnOriginal": {
+    "message": "Bản gốc"
+  },
+  "statusTranslating": {
+    "message": "Đang dịch…"
+  },
+  "statusTranslated": {
+    "message": "Đã dịch"
+  },
+  "statusTranslatedFrom": {
+    "message": "Đã dịch từ $LANG$",
+    "placeholders": {
+      "lang": { "content": "$1", "example": "tiếng Anh" }
+    }
+  },
+  "errorSameLanguage": {
+    "message": "Ngôn ngữ nguồn và đích giống nhau."
+  },
+  "errorNoText": {
+    "message": "Không có văn bản để dịch."
+  },
+  "errorGeneric": {
+    "message": "Lỗi: $MSG$",
+    "placeholders": {
+      "msg": { "content": "$1", "example": "Network error" }
+    }
+  },
+  "tooltipExpand": {
+    "message": "Dịch tin nhắn này"
+  }
+}

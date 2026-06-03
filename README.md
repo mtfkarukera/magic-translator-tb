@@ -1,0 +1,112 @@
+# ✉️ Magic Translator — Extension Thunderbird
+
+Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
+
+## ✨ Fonctionnalités
+
+- **Traduction en un clic** — Pilule `[T]` compacte en haut du message, se déploie en bandeau complet
+- **Auto-détection** de la langue source
+- **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
+- **Restauration** du texte original en un clic
+- **Raccourci clavier** : `Ctrl+Shift+T` (Mac : `⌃⇧T`)
+- **Interface i18n** — L'UI s'adapte à la langue de Thunderbird (FR, EN, ES, DE, VI)
+- **Design sobre et élégant** — Dark glassmorphism, animations fluides, Shadow DOM isolé
+- **Support texte brut** — Les e-mails en texte brut (`<pre>`) sont traduits intégralement
+
+## 📋 Prérequis
+
+- Mozilla Thunderbird **128.0** ou supérieur (testé sur 151.0.1)
+- Connexion Internet (pour l'API Google Translate)
+
+## 🚀 Installation
+
+### Mode développement
+1. Ouvrir Thunderbird
+2. Menu **Outils → Outils de développement → Déboguer les modules complémentaires**
+3. Cliquer sur **Charger un module complémentaire temporaire…**
+4. Sélectionner le fichier `manifest.json` de ce répertoire
+
+### Mode production (à venir)
+Packaging `.xpi` pour installation permanente.
+
+## 🎯 Utilisation
+
+1. Sélectionnez un e-mail dans Thunderbird
+2. La pilule `[T]` apparaît en haut du message
+3. Cliquez dessus pour déployer le bandeau de traduction
+4. Choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
+5. Cliquez sur **Traduire**
+6. Le bandeau se replie automatiquement après la traduction (indicateur ✓ visible sur la pilule)
+7. Pour restaurer le texte original, redéployez le bandeau et cliquez sur **Original**
+
+## ⚠️ Incompatibilités connues
+
+### Thunderbird Conversations
+
+> **⚠️ INCOMPATIBILITÉ CRITIQUE** — Magic Translator n'est actuellement **pas compatible** avec l'extension [Thunderbird Conversations](https://addons.thunderbird.net/thunderbird/addon/gmail-conversation-view/).
+>
+> Lorsque les deux extensions sont actives simultanément, le bandeau de traduction ne s'affiche pas et l'interface de Conversations peut être perturbée.
+>
+> **Solution temporaire :** Désactivez Thunderbird Conversations pour utiliser Magic Translator.
+>
+> **Prochaines étapes :** La compatibilité avec Thunderbird Conversations est prévue dans une version future. Le mécanisme d'injection (Experiment API + observateur `content-document-global-created`) est identifié mais nécessite un travail supplémentaire pour coexister correctement avec l'architecture iframe de Conversations.
+
+## 🏗️ Architecture
+
+```
+mail-translator/
+├── manifest.json              # Manifest V3 Thunderbird
+├── background.js              # Script d'arrière-plan (enregistrement + API traduction)
+├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
+├── icon.png                   # Icône de l'extension (128×128)
+├── README.md
+└── _locales/                  # Fichiers de localisation (manifest uniquement)
+    ├── fr/messages.json       # Français (par défaut)
+    ├── en/messages.json       # Anglais
+    ├── es/messages.json       # Espagnol
+    ├── de/messages.json       # Allemand
+    └── vi/messages.json       # Vietnamien
+```
+
+### Flux de données
+
+```
+[Message affiché]
+    ↓
+messageDisplay.registerScripts (background.js)
+    ↓
+translator-injected.js s'exécute dans le panneau de lecture
+    ↓
+[Pilule T ▸] → clic → [Bandeau déplié]
+    ↓
+Clic « Traduire »
+    ↓
+browser.runtime.sendMessage({ action: "translate", ... })
+    ↓
+background.js → fetch() → Google Translate API (gtx)
+    ↓
+Réponse { success, text, detectedLang }
+    ↓
+Texte traduit injecté dans le DOM du message
+```
+
+## 🌐 Langues de l'interface
+
+| Code | Langue |
+|------|--------|
+| `fr` | Français (par défaut) |
+| `en` | English |
+| `es` | Español |
+| `de` | Deutsch |
+| `vi` | Tiếng Việt |
+
+## 📄 Licence
+
+MIT
+
+## 🤝 Contribution
+
+Les contributions sont bienvenues, en particulier pour :
+- La compatibilité avec Thunderbird Conversations
+- Le support de moteurs de traduction alternatifs (DeepL, LibreTranslate)
+- De nouvelles langues d'interface
