@@ -23,9 +23,6 @@
  * @see background.js — reçoit les requêtes et appelle Google Translate
  */
 
-/* eslint-env browser */
-/* global browser */
-
 (function () {
   "use strict";
 
@@ -141,7 +138,7 @@
         var code = browser.i18n.getUILanguage().split("-")[0];
         if (I18N[code]) return code;
       }
-    } catch (_e) { /* non disponible dans ce contexte */ }
+    } catch { /* non disponible dans ce contexte */ }
 
     var codeLang = (navigator.language || "fr").split("-")[0];
     return I18N[codeLang] ? codeLang : "fr";
