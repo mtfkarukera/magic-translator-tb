@@ -1,5 +1,7 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
 
 ## ✨ Fonctionnalités
@@ -102,7 +104,14 @@ Texte traduit injecté dans le DOM du message
 
 ## 📄 Licence
 
-MIT
+Mozilla Public License 2.0 (MPL-2.0)
+
+## 🔒 Confidentialité des données
+
+Magic Translator ne collecte, ne stocke, ni ne transmet **aucune donnée personnelle ou télémétrique** à ses développeurs ou serveurs tiers.
+
+**Partage avec Google Translate :**  
+Pour fonctionner, l'extension envoie le contenu des e-mails que vous choisissez de traduire à l'API de Google Translate (client `gtx`). Ces données transitent *exclusivement et directement* entre votre client Thunderbird et les serveurs de Google (via une connexion sécurisée HTTPS). En aucun cas ces informations ne transitent par nous.
 
 ## 🤝 Contribution
 
