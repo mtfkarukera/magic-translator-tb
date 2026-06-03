@@ -56,12 +56,15 @@ Packaging `.xpi` pour installation permanente.
 ## 🏗️ Architecture
 
 ```
-mail-translator/
+magic-translator/
 ├── manifest.json              # Manifest V3 Thunderbird
 ├── background.js              # Script d'arrière-plan (enregistrement + API traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
 ├── icon.png                   # Icône de l'extension (128×128)
+├── LICENSE                    # Licence MPL-2.0
 ├── README.md
+├── eslint.config.js           # Configuration ESLint (flat config)
+├── package.json               # Métadonnées npm et devDependencies (ESLint)
 └── _locales/                  # Fichiers de localisation (manifest uniquement)
     ├── fr/messages.json       # Français (par défaut)
     ├── en/messages.json       # Anglais
