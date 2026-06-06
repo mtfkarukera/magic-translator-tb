@@ -66,7 +66,7 @@
 // sont traités.
 
 messenger.runtime.onMessage.addListener((message, _expediteur) => {
-  if (message.action !== "translate") return false;
+  if (message.action !== "translate") return;
 
   return traduireTexte(message.text, message.source, message.target)
     .catch((erreur) => ({ success: false, error: erreur.message }));
