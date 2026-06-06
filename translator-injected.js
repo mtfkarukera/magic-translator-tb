@@ -15,7 +15,7 @@
  *
  * Architecture :
  *   1. IIFE pour éviter toute pollution du scope global
- *   2. Garde anti-double injection (attribut data-magic-translator-loaded)
+ *   2. Nettoyage automatique à chaque réinjection + MutationObserver de sécurité
  *   3. Dictionnaires i18n embarqués (les fichiers _locales/ servent au manifest)
  *   4. CSS injecté dans le Shadow DOM (isolation complète)
  *   5. Traduction par envoi de message au background.js via browser.runtime
@@ -27,16 +27,21 @@
   "use strict";
 
   // ═══════════════════════════════════════════════════════════════════════
-  // GARDE ANTI-DOUBLE INJECTION
+  // NETTOYAGE D'INSTANCE PRÉCÉDENTE
   // ═══════════════════════════════════════════════════════════════════════
-  // Thunderbird peut injecter ce script plusieurs fois (rechargement,
-  // navigation entre messages). Cet attribut empêche toute exécution en
-  // double dans le même document.
+  // Thunderbird réutilise le même document HTML entre les messages.
+  // Lorsque le script est réinjecté (nouveau message), on supprime
+  // l'ancienne interface et on coupe les anciens écouteurs d'événements
+  // pour repartir de zéro proprement.
 
-  if (document.documentElement.hasAttribute("data-magic-translator-loaded")) {
-    return;
+  var ancienConteneur = document.getElementById("magic-translator-root");
+  if (ancienConteneur) ancienConteneur.remove();
+  if (document.documentElement._mtAbort) {
+    document.documentElement._mtAbort.abort();
   }
-  document.documentElement.setAttribute("data-magic-translator-loaded", "true");
+  if (document.documentElement._mtObserver) {
+    document.documentElement._mtObserver.disconnect();
+  }
 
   // ═══════════════════════════════════════════════════════════════════════
   // DICTIONNAIRES I18N
@@ -735,6 +740,22 @@
   // ═══════════════════════════════════════════════════════════════════════
 
   function initialiser() {
+    // ── Nettoyage si réinitialisation (via MutationObserver) ─────────────
+    var ancienUI = document.getElementById("magic-translator-root");
+    if (ancienUI) ancienUI.remove();
+    if (document.documentElement._mtAbort) {
+      document.documentElement._mtAbort.abort();
+    }
+    if (document.documentElement._mtObserver) {
+      document.documentElement._mtObserver.disconnect();
+    }
+    contenusOriginaux = null;
+    estDeplie = false;
+
+    // ── Contrôleur d'annulation (nettoyage des écouteurs document) ──────
+    var controleur = new AbortController();
+    document.documentElement._mtAbort = controleur;
+
     var ui = construireUI();
 
     // ── Insertion dans le DOM ────────────────────────────────────────────
@@ -813,8 +834,8 @@
         // des \n à l'intérieur. Si on découpe par \n après traduction, on
         // perd tout le contenu après la première ligne.
         // On utilise "|||MT|||" que Google Translate laisse intact.
-        var SEPARATEUR     = "\n|||MT|||\n";
-        var SEPARATEUR_RE  = /\n?\|\|\|MT\|\|\|\n?/;
+        var SEPARATEUR     = "\n@@MTBRK@@\n";
+        var SEPARATEUR_RE  = /\n?@@MTBRK@@\n?/;
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         // L'API Google Translate a une limite de taille par requête.
@@ -919,8 +940,27 @@
       ui.statut.classList.add("mt-hidden");
     });
 
-    // ── Raccourci clavier (CustomEvent dispatché par background.js) ──────
-    document.addEventListener("magic-translator-shortcut", lancerTraduction);
+    // ── Raccourci clavier (Ctrl+Shift+T directement dans le document) ────
+    document.addEventListener("keydown", function (e) {
+      if (e.ctrlKey && e.shiftKey && (e.key === "T" || e.key === "t")) {
+        e.preventDefault();
+        lancerTraduction();
+      }
+    }, { signal: controleur.signal });
+
+    // ── MutationObserver — filet de sécurité ─────────────────────────────
+    // Si Thunderbird remplace le contenu du body sans réinjecter le script,
+    // on détecte la disparition de notre conteneur et on réinitialise.
+    var observeur = new MutationObserver(function () {
+      if (document.body && !document.body.contains(ui.conteneur)) {
+        observeur.disconnect();
+        initialiser();
+      }
+    });
+    if (document.body) {
+      observeur.observe(document.body, { childList: true });
+    }
+    document.documentElement._mtObserver = observeur;
   }
 
   // ═══════════════════════════════════════════════════════════════════════

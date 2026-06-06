@@ -9,7 +9,6 @@
  *   1. Enregistrer le script de contenu dans le panneau de lecture (messageDisplay)
  *   2. Recevoir et traiter les requêtes de traduction envoyées par le script injecté
  *   3. Stocker la locale de l'interface pour que le script injecté puisse la lire
- *   4. Gérer le raccourci clavier Ctrl+Shift+T
  *
  * Flux de données :
  *   [translator-injected.js]
@@ -67,7 +66,7 @@
 // sont traités.
 
 messenger.runtime.onMessage.addListener((message, _expediteur) => {
-  if (message.action !== "translate") return;
+  if (message.action !== "translate") return false;
 
   return traduireTexte(message.text, message.source, message.target)
     .catch((erreur) => ({ success: false, error: erreur.message }));
@@ -121,27 +120,3 @@ async function traduireTexte(texte, source, cible) {
   throw new Error("Réponse invalide de Google Translate");
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 4. RACCOURCI CLAVIER
-// ═══════════════════════════════════════════════════════════════════════════
-// Écoute la commande "toggle-translate" définie dans manifest.json
-// (Ctrl+Shift+T / MacCtrl+Shift+T). Envoie un CustomEvent au document
-// actif pour déclencher la traduction dans le script de contenu.
-
-messenger.commands.onCommand.addListener(async (commande) => {
-  if (commande !== "toggle-translate") return;
-
-  try {
-    const onglets = await messenger.tabs.query({ active: true, currentWindow: true });
-    if (onglets.length === 0) return;
-
-    await messenger.scripting.executeScript({
-      target: { tabId: onglets[0].id },
-      func: () => {
-        document.dispatchEvent(new CustomEvent("magic-translator-shortcut"));
-      }
-    });
-  } catch (erreur) {
-    console.warn("[MagicTranslator] Échec du raccourci :", erreur);
-  }
-});
