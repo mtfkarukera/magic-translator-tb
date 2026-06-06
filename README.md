@@ -10,7 +10,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
 - **Restauration** du texte original en un clic
-- **Raccourci clavier** : `Ctrl+Shift+T` (Mac : `⌃⇧T`)
+- **Raccourci clavier** : `Ctrl+Shift+T` (Mac : `⌃⇧T`) — fonctionne quand le panneau de lecture a le focus
 - **Interface i18n** — L'UI s'adapte à la langue de Thunderbird (FR, EN, ES, DE, VI)
 - **Design sobre et élégant** — Dark glassmorphism, animations fluides, Shadow DOM isolé
 - **Support texte brut** — Les e-mails en texte brut (`<pre>`) sont traduits intégralement
@@ -28,8 +28,11 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 3. Cliquer sur **Charger un module complémentaire temporaire…**
 4. Sélectionner le fichier `manifest.json` de ce répertoire
 
-### Mode production (à venir)
-Packaging `.xpi` pour installation permanente.
+### Mode production
+1. Télécharger le fichier `.xpi` depuis la [dernière release GitHub](https://github.com/mtfkarukera/magic-translator/releases/latest)
+2. Dans Thunderbird : **Outils → Modules complémentaires et thèmes**
+3. Cliquer sur ⚙️ → **Installer un module depuis un fichier…**
+4. Sélectionner le fichier `.xpi` téléchargé
 
 ## 🎯 Utilisation
 
@@ -58,7 +61,7 @@ Packaging `.xpi` pour installation permanente.
 ```
 magic-translator/
 ├── manifest.json              # Manifest V3 Thunderbird
-├── background.js              # Script d'arrière-plan (enregistrement + API traduction)
+├── background.js              # Script d'arrière-plan (enregistrement + proxy traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
 ├── icon.png                   # Icône de l'extension (128×128)
 ├── LICENSE                    # Licence MPL-2.0
@@ -81,6 +84,7 @@ magic-translator/
 messageDisplay.registerScripts (background.js)
     ↓
 translator-injected.js s'exécute dans le panneau de lecture
+(nettoyage automatique de l'instance précédente)
     ↓
 [Pilule T ▸] → clic → [Bandeau déplié]
     ↓
