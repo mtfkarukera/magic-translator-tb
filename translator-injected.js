@@ -297,17 +297,24 @@
     "  flex-shrink: 0;",
     "}",
     ".mt-logo-icon {",
-    "  width: 18px;",
+    "  min-width: 26px;",
     "  height: 18px;",
+    "  padding: 0 4px;",
     "  border-radius: 4px;",
     "  background: linear-gradient(135deg, #a78bfa, #7c3aed);",
     "  display: flex;",
     "  align-items: center;",
     "  justify-content: center;",
-    "  font-size: 11px;",
+    "  font-size: 10px;",
+    "  letter-spacing: 0.5px;",
     "  color: white;",
     "  font-weight: 700;",
+    "  flex-shrink: 0;",
+    "  cursor: pointer;",
+    "  transition: opacity 0.2s ease;",
+    "  user-select: none;",
     "}",
+    ".mt-logo-icon:hover { opacity: 0.75; }",
     "",
 
     // ── Séparateur vertical ───────────────────────────────────────────
@@ -415,13 +422,14 @@
     "}",
     "",
 
-    // ── Bouton « Replier » (▴) ────────────────────────────────────────
+    // ── Bouton « Replier » (▴) ────────────────────────────────────────────────
     ".mt-btn-collapse {",
     "  background: transparent;",
     "  color: #6b7280;",
-    "  padding: 4px 6px;",
-    "  font-size: 14px;",
+    "  padding: 6px 14px;",
+    "  font-size: 18px;",
     "  margin-left: auto;",
+    "  line-height: 1;",
     "}",
     ".mt-btn-collapse:hover { color: #a78bfa; }",
     "",
@@ -622,7 +630,7 @@
     logo.className = "mt-logo";
     var logoIcone = document.createElement("span");
     logoIcone.className = "mt-logo-icon";
-    logoIcone.textContent = "T";
+    logoIcone.textContent = "MT";
     logo.appendChild(logoIcone);
     var logoTexte = document.createElement("span");
     logoTexte.textContent = t("bannerTitle");
@@ -716,6 +724,7 @@
       pilule:           pilule,
       indicateurStatut: indicateurStatut,
       bandeau:          bandeau,
+      logoIcone:        logoIcone,
       selectSource:     selectSource,
       selectCible:      selectCible,
       btnTraduire:      btnTraduire,
@@ -790,6 +799,13 @@
     }
 
     ui.pilule.addEventListener("click", deplier);
+
+    // Le logo [MT] dans le bandeau est cliquable : referme le bandeau en pilule.
+    // Même effet que le bouton ▴, mais plus grande zone de clic et plus intuitif.
+    ui.logoIcone.addEventListener("click", function () {
+      replier(!!contenusOriginaux);
+    });
+
     ui.btnReplier.addEventListener("click", function () {
       replier(!!contenusOriginaux);
     });
