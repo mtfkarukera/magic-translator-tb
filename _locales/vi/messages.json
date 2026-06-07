@@ -49,5 +49,8 @@
   },
   "tooltipExpand": {
     "message": "Dịch tin nhắn này"
+  },
+  "actionTitle": {
+    "message": "Dịch"
   }
 }

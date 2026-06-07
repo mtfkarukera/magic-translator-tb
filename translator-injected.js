@@ -422,16 +422,29 @@
     "}",
     "",
 
-    // ── Bouton « Replier » (▴) ────────────────────────────────────────────────
+    // ── Bouton « Replier » (▴) — cercle de même hauteur que les sélecteurs ────────
     ".mt-btn-collapse {",
-    "  background: transparent;",
-    "  color: #6b7280;",
-    "  padding: 6px 14px;",
-    "  font-size: 18px;",
+    "  background: rgba(255, 255, 255, 0.08);",
+    "  border: 1px solid rgba(255, 255, 255, 0.15) !important;",
+    "  color: #9ca3af;",
+    "  width: 30px;",
+    "  height: 30px;",
+    "  border-radius: 50%;",
+    "  padding: 0;",
+    "  font-size: 14px;",
     "  margin-left: auto;",
+    "  flex-shrink: 0;",
+    "  display: flex;",
+    "  align-items: center;",
+    "  justify-content: center;",
     "  line-height: 1;",
+    "  transition: all 0.2s ease;",
     "}",
-    ".mt-btn-collapse:hover { color: #a78bfa; }",
+    ".mt-btn-collapse:hover {",
+    "  color: #a78bfa;",
+    "  background: rgba(167, 139, 250, 0.12);",
+    "  border-color: rgba(167, 139, 250, 0.3) !important;",
+    "}",
     "",
 
     // ── État désactivé ────────────────────────────────────────────────
@@ -606,7 +619,7 @@
 
     var iconeT = document.createElement("span");
     iconeT.className = "mt-pill-icon";
-    iconeT.textContent = "T";
+    iconeT.textContent = "MT";
     pilule.appendChild(iconeT);
 
     var chevron = document.createElement("span");

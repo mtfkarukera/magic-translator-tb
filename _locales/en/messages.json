@@ -49,5 +49,8 @@
   },
   "tooltipExpand": {
     "message": "Translate this message"
+  },
+  "actionTitle": {
+    "message": "Translate"
   }
 }
