@@ -6,10 +6,11 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ## ✨ Fonctionnalités
 
-- **Bouton dédié dans la barre de message** — `[T]` apparaît aux côtés de Répondre, Transférer, Archiver…
-- **Menu clic-droit** sur le bouton `[T]` — Activer / Désactiver le traducteur
+- **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
+- **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur
 - **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
-- **Flux UX fluide** : `Rien → [T] → Bandeau → (traduction) → Pilule → [T] → Rien`
+- **Flux UX fluide** : `Rien → [Traduire] → Bandeau → (traduction) → Pilule → [Traduire] → Rien`
+- **Logo [MT] cliquable** dans le bandeau — referme le bandeau en pilule d'un seul clic
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
 - **Restauration** du texte original en un clic
@@ -40,12 +41,13 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## 🎯 Utilisation
 
 1. Sélectionnez un e-mail dans Thunderbird
-2. Cliquez sur le bouton **[T] Magic Translator** dans la barre de message
+2. Cliquez sur le bouton **Traduire** dans la barre de message
 3. Le bandeau de traduction s'ouvre — choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
 4. Cliquez sur **Traduire**
-5. Le bandeau se replie automatiquement après la traduction (la pilule `[T ▸ ✓]` reste visible)
-6. Pour restaurer le texte original, cliquez sur la pilule puis sur **Original**
-7. Pour fermer complètement le traducteur, cliquez à nouveau sur **[T]** (ou clic droit → Désactiver)
+5. Le bandeau se replie automatiquement après la traduction (la pilule `[MT ▸ ✓]` reste visible)
+6. Pour replier le bandeau à tout moment : cliquez sur le logo **[MT]** (à gauche du bandeau) ou sur le bouton **▴**
+7. Pour restaurer le texte original, rouvrez le bandeau et cliquez sur **Original**
+8. Pour fermer complètement le traducteur, cliquez à nouveau sur **Traduire** dans la barre (ou clic droit → Désactiver)
 
 > **Raccourci clavier :** `Ctrl+Shift+T` ouvre directement le bandeau sans passer par le bouton barre.
 
@@ -101,7 +103,8 @@ background.js → fetch() → Google Translate API (gtx)
 Réponse { success, text, detectedLang }
     ↓
 Texte traduit injecté dans le DOM du message
-Bandeau se referme → Pilule [T ▸ ✓] visible
+Bandeau se referme → Pilule [MT ▸ ✓] visible
+Clic logo [MT] ou bouton ▴ → replie en pilule
 ```
 
 ## 🌐 Langues de l'interface
