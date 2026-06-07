@@ -6,7 +6,10 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ## ✨ Fonctionnalités
 
-- **Traduction en un clic** — Pilule `[T]` compacte en haut du message, se déploie en bandeau complet
+- **Bouton dédié dans la barre de message** — `[T]` apparaît aux côtés de Répondre, Transférer, Archiver…
+- **Menu clic-droit** sur le bouton `[T]` — Activer / Désactiver le traducteur
+- **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
+- **Flux UX fluide** : `Rien → [T] → Bandeau → (traduction) → Pilule → [T] → Rien`
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
 - **Restauration** du texte original en un clic
@@ -37,12 +40,14 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## 🎯 Utilisation
 
 1. Sélectionnez un e-mail dans Thunderbird
-2. La pilule `[T]` apparaît en haut du message
-3. Cliquez dessus pour déployer le bandeau de traduction
-4. Choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
-5. Cliquez sur **Traduire**
-6. Le bandeau se replie automatiquement après la traduction (indicateur ✓ visible sur la pilule)
-7. Pour restaurer le texte original, redéployez le bandeau et cliquez sur **Original**
+2. Cliquez sur le bouton **[T] Magic Translator** dans la barre de message
+3. Le bandeau de traduction s'ouvre — choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
+4. Cliquez sur **Traduire**
+5. Le bandeau se replie automatiquement après la traduction (la pilule `[T ▸ ✓]` reste visible)
+6. Pour restaurer le texte original, cliquez sur la pilule puis sur **Original**
+7. Pour fermer complètement le traducteur, cliquez à nouveau sur **[T]** (ou clic droit → Désactiver)
+
+> **Raccourci clavier :** `Ctrl+Shift+T` ouvre directement le bandeau sans passer par le bouton barre.
 
 ## ⚠️ Incompatibilités connues
 
@@ -61,7 +66,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ```
 magic-translator/
 ├── manifest.json              # Manifest V3 Thunderbird
-├── background.js              # Script d'arrière-plan (enregistrement + proxy traduction)
+├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + proxy traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
 ├── icon.png                   # Icône de l'extension (128×128)
 ├── LICENSE                    # Licence MPL-2.0
@@ -79,14 +84,13 @@ magic-translator/
 ### Flux de données
 
 ```
-[Message affiché]
+[Utilisateur clique [T] dans la barre de message]
     ↓
-messageDisplay.registerScripts (background.js)
+background.js → messageDisplayAction.onClicked
+    → tabs.sendMessage({ action: "toggleBanner" })
     ↓
-translator-injected.js s'exécute dans le panneau de lecture
-(nettoyage automatique de l'instance précédente)
-    ↓
-[Pilule T ▸] → clic → [Bandeau déplié]
+translator-injected.js reçoit "toggleBanner"
+    → ouvre le bandeau (ou ferme tout si déjà ouvert)
     ↓
 Clic « Traduire »
     ↓
@@ -97,6 +101,7 @@ background.js → fetch() → Google Translate API (gtx)
 Réponse { success, text, detectedLang }
     ↓
 Texte traduit injecté dans le DOM du message
+Bandeau se referme → Pilule [T ▸ ✓] visible
 ```
 
 ## 🌐 Langues de l'interface
