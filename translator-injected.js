@@ -146,7 +146,7 @@
     } catch { /* non disponible dans ce contexte */ }
 
     var codeLang = (navigator.language || "fr").split("-")[0];
-    return I18N[codeLang] ? codeLang : "fr";
+    return I18N[codeLang] ? codeLang : "en";
   }
 
   var LOCALE = detecterLocale();
@@ -160,8 +160,8 @@
    * @returns {string} Chaîne traduite
    */
   function t(cle, remplacements) {
-    var dict = I18N[LOCALE] || I18N.fr;
-    var msg = dict[cle] || I18N.fr[cle] || cle;
+    var dict = I18N[LOCALE] || I18N.en;
+    var msg = dict[cle] || I18N.en[cle] || cle;
     if (remplacements) {
       Object.keys(remplacements).forEach(function (k) {
         msg = msg.replace("{" + k + "}", remplacements[k]);
