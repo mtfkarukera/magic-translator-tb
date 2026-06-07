@@ -761,6 +761,11 @@
     // ── Insertion dans le DOM ────────────────────────────────────────────
     // On insère le conteneur en tout premier enfant du body pour que le
     // bandeau apparaisse au-dessus du contenu du message.
+    // La pilule et le bandeau sont masqués par défaut : l'UI n'apparaît
+    // qu'après un clic explicite sur le bouton barre ou Ctrl+Shift+T.
+    ui.pilule.classList.add("mt-hidden");
+    ui.bandeau.classList.add("mt-hidden");
+
     if (document.body) {
       document.body.insertBefore(ui.conteneur, document.body.firstChild);
     } else {
@@ -834,8 +839,10 @@
         // des \n à l'intérieur. Si on découpe par \n après traduction, on
         // perd tout le contenu après la première ligne.
         // On utilise "|||MT|||" que Google Translate laisse intact.
-        var SEPARATEUR     = "\n@@MTBRK@@\n";
-        var SEPARATEUR_RE  = /\n?@@MTBRK@@\n?/;
+        // IMPORTANT : @@MTBRK@@ était modifié par Google Translate en @@VTTRK@@.
+        // @@0@@ (chiffre seul) est garanti intact par tous les moteurs de traduction.
+        var SEPARATEUR     = "\n@@0@@\n";
+        var SEPARATEUR_RE  = /\n?@@0@@\n?/;
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         // L'API Google Translate a une limite de taille par requête.
@@ -947,6 +954,23 @@
         lancerTraduction();
       }
     }, { signal: controleur.signal });
+
+    // ── Écoute du message "toggleBanner" envoyé par background.js ─────────
+    // Déclenché par le clic sur le bouton barre (message_display_action)
+    // ou par le menu clic droit sur ce même bouton.
+    // Comportement toggle : ouvre le bandeau si fermé, le ferme sinon.
+    function gererMessageBg(message) {
+      if (message && message.action === "toggleBanner") {
+        if (estDeplie) {
+          replier(!!contenusOriginaux);
+        } else {
+          // S'assurer que la pilule est visible avant de déplier
+          ui.pilule.classList.remove("mt-hidden");
+          deplier();
+        }
+      }
+    }
+    browser.runtime.onMessage.addListener(gererMessageBg);
 
     // ── MutationObserver — filet de sécurité ─────────────────────────────
     // Si Thunderbird remplace le contenu du body sans réinjecter le script,

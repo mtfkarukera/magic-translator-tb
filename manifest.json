@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "fr",
@@ -20,13 +20,20 @@
   "background": {
     "scripts": ["background.js"]
   },
+  "message_display_action": {
+    "default_icon": {
+      "128": "icon.png"
+    },
+    "default_title": "Magic Translator",
+    "default_popup": null
+  },
   "permissions": [
     "scripting",
     "messagesRead",
-    "storage"
+    "storage",
+    "menus"
   ],
   "host_permissions": [
     "https://translate.googleapis.com/*"
   ]
 }
-

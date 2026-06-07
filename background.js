@@ -9,8 +9,10 @@
  *   1. Enregistrer le script de contenu dans le panneau de lecture (messageDisplay)
  *   2. Recevoir et traiter les requêtes de traduction envoyées par le script injecté
  *   3. Stocker la locale de l'interface pour que le script injecté puisse la lire
+ *   4. Gérer le bouton barre de message (message_display_action) et son menu clic-droit
  *
  * Flux de données :
+ *   [bouton barre / menu] → onClicked → tabs.sendMessage({ action: "toggleBanner" })
  *   [translator-injected.js]
  *       → browser.runtime.sendMessage({ action: "translate", text, source, target })
  *       → [background.js] translateText()
@@ -59,7 +61,44 @@
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 3. GESTIONNAIRE DE MESSAGES (traduction)
+// 3. BOUTON BARRE DE MESSAGE (message_display_action)
+// ═══════════════════════════════════════════════════════════════════════════
+// Un clic sur le bouton [T] dans la barre de message (aux côtés de Répondre,
+// Transférer, etc.) envoie l'action "toggleBanner" au script injecté dans
+// l'onglet courant, qui affiche ou masque le bandeau de traduction.
+
+messenger.messageDisplayAction.onClicked.addListener(async (tab) => {
+  try {
+    await messenger.tabs.sendMessage(tab.id, { action: "toggleBanner" });
+  } catch (erreur) {
+    // Le script n'est pas encore prêt dans cet onglet (message en cours de chargement).
+    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner :", erreur.message || erreur);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 4. MENU CLIC DROIT SUR LE BOUTON BARRE
+// ═══════════════════════════════════════════════════════════════════════════
+// Un clic droit sur le bouton [T] affiche un menu contextuel permettant
+// d'activer ou de désactiver le bandeau de traduction.
+
+messenger.menus.create({
+  id: "toggle-translator",
+  title: "Activer / Désactiver le traducteur",
+  contexts: ["message_display_action"]
+});
+
+messenger.menus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId !== "toggle-translator") return;
+  try {
+    await messenger.tabs.sendMessage(tab.id, { action: "toggleBanner" });
+  } catch (erreur) {
+    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner via menu :", erreur.message || erreur);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 5. GESTIONNAIRE DE MESSAGES (traduction)
 // ═══════════════════════════════════════════════════════════════════════════
 // Écoute les messages envoyés par le script de contenu via
 // browser.runtime.sendMessage(). Seuls les messages avec action "translate"
@@ -119,4 +158,3 @@ async function traduireTexte(texte, source, cible) {
 
   throw new Error("Réponse invalide de Google Translate");
 }
-
