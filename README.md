@@ -11,6 +11,8 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 - **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
 - **Flux UX fluide** : `Rien → [Traduire] → Bandeau → (traduction) → Pilule → [Traduire] → Rien`
 - **Logo [MT] cliquable** dans le bandeau — referme le bandeau en pilule d'un seul clic
+- **Bouton ▴ circulaire** pour replier le bandeau — dimensionné comme les sélecteurs de langue, facile à cibler
+- **Titre du bouton barre traduit** selon la langue de Thunderbird (Traduire / Translate / Traducir / Übersetzen / Dịch)
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
 - **Restauration** du texte original en un clic
@@ -45,7 +47,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 3. Le bandeau de traduction s'ouvre — choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
 4. Cliquez sur **Traduire**
 5. Le bandeau se replie automatiquement après la traduction (la pilule `[MT ▸ ✓]` reste visible)
-6. Pour replier le bandeau à tout moment : cliquez sur le logo **[MT]** (à gauche du bandeau) ou sur le bouton **▴**
+6. Pour replier le bandeau à tout moment : cliquez sur le logo **[MT]** ou sur le bouton **▴** circulaire (en haut à droite du bandeau)
 7. Pour restaurer le texte original, rouvrez le bandeau et cliquez sur **Original**
 8. Pour fermer complètement le traducteur, cliquez à nouveau sur **Traduire** dans la barre (ou clic droit → Désactiver)
 
