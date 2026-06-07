@@ -958,13 +958,23 @@
     // ── Écoute du message "toggleBanner" envoyé par background.js ─────────
     // Déclenché par le clic sur le bouton barre (message_display_action)
     // ou par le menu clic droit sur ce même bouton.
-    // Comportement toggle : ouvre le bandeau si fermé, le ferme sinon.
+    //
+    // Comportement :
+    //   • Rien de visible          → ouvrir le bandeau
+    //   • Bandeau ou pilule visible → tout masquer (désactivation complète)
+    //
+    // Flux UX : Rien → [T] → Bandeau → (traduction) → Pilule → [T] → Rien
     function gererMessageBg(message) {
       if (message && message.action === "toggleBanner") {
-        if (estDeplie) {
-          replier(!!contenusOriginaux);
+        var piluleVisible = !ui.pilule.classList.contains("mt-hidden");
+
+        if (estDeplie || piluleVisible) {
+          // Désactivation : masquer bandeau ET pilule
+          ui.bandeau.classList.add("mt-hidden");
+          ui.pilule.classList.add("mt-hidden");
+          estDeplie = false;
         } else {
-          // S'assurer que la pilule est visible avant de déplier
+          // Activation : ouvrir directement le bandeau
           ui.pilule.classList.remove("mt-hidden");
           deplier();
         }
