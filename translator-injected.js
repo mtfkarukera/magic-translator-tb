@@ -131,6 +131,38 @@
       errorGeneric:       "Lỗi: {msg}",
       tooltipExpand:      "Dịch tin nhắn này",
       tooltipCollapse:    "Thu gọn"
+    },
+    ja: {
+      bannerTitle:        "Translator",
+      labelFrom:          "差出語",
+      labelTo:            "翻訳先",
+      btnTranslate:       "翻訳",
+      btnRetranslate:     "再翻訳",
+      btnOriginal:        "原文",
+      statusTranslating:  "翻訳中…",
+      statusTranslated:   "翻訳済み",
+      statusTranslatedFrom: "{lang}から翻訳",
+      errorSameLanguage:  "翻訳元と翻訳先の言語が同じです。",
+      errorNoText:        "翻訳するテキストがありません。",
+      errorGeneric:       "エラー: {msg}",
+      tooltipExpand:      "このメッセージを翻訳",
+      tooltipCollapse:    "折りたたむ"
+    },
+    pt: {
+      bannerTitle:        "Translator",
+      labelFrom:          "DE",
+      labelTo:            "PARA",
+      btnTranslate:       "Traduzir",
+      btnRetranslate:     "Traduzir novamente",
+      btnOriginal:        "Original",
+      statusTranslating:  "A traduzir…",
+      statusTranslated:   "Traduzido",
+      statusTranslatedFrom: "Traduzido de {lang}",
+      errorSameLanguage:  "Os idiomas de origem e destino são iguais.",
+      errorNoText:        "Nenhum texto para traduzir.",
+      errorGeneric:       "Erro: {msg}",
+      tooltipExpand:      "Traduzir esta mensagem",
+      tooltipCollapse:    "Recolher"
     }
   };
 

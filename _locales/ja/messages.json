@@ -1,0 +1,56 @@
+{
+  "extName": {
+    "message": "Magic Translator"
+  },
+  "extDescription": {
+    "message": "Google翻訳を使って、Thunderbirdでメールを直接翻訳します。"
+  },
+  "bannerTitle": {
+    "message": "Translator"
+  },
+  "labelFrom": {
+    "message": "差出語"
+  },
+  "labelTo": {
+    "message": "翻訳先"
+  },
+  "btnTranslate": {
+    "message": "翻訳"
+  },
+  "btnRetranslate": {
+    "message": "再翻訳"
+  },
+  "btnOriginal": {
+    "message": "原文"
+  },
+  "statusTranslating": {
+    "message": "翻訳中…"
+  },
+  "statusTranslated": {
+    "message": "翻訳済み"
+  },
+  "statusTranslatedFrom": {
+    "message": "$LANG$から翻訳",
+    "placeholders": {
+      "lang": { "content": "$1", "example": "英語" }
+    }
+  },
+  "errorSameLanguage": {
+    "message": "翻訳元と翻訳先の言語が同じです。"
+  },
+  "errorNoText": {
+    "message": "翻訳するテキストがありません。"
+  },
+  "errorGeneric": {
+    "message": "エラー: $MSG$",
+    "placeholders": {
+      "msg": { "content": "$1", "example": "Network error" }
+    }
+  },
+  "tooltipExpand": {
+    "message": "このメッセージを翻訳"
+  },
+  "actionTitle": {
+    "message": "翻訳"
+  }
+}
