@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -24,13 +24,11 @@
     "default_icon": {
       "128": "icon.png"
     },
-    "default_title": "__MSG_actionTitle__",
-    "default_popup": null
+    "default_title": "__MSG_actionTitle__"
   },
   "permissions": [
     "scripting",
     "messagesRead",
-    "storage",
     "menus"
   ],
   "host_permissions": [

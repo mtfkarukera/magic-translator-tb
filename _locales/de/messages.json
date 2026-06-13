@@ -52,5 +52,8 @@
   },
   "actionTitle": {
     "message": "Übersetzen"
+  },
+  "toggleTranslatorTitle": {
+    "message": "Übersetzer aktivieren / deaktivieren"
   }
 }

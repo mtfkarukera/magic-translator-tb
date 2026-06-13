@@ -1,8 +1,35 @@
-.DS_Store
-node_modules/
+# Build output
+dist/
 build/
 *.xpi
+*.zip
 
-# Fichiers Markdown à la racine (sauf README.md)
-/*.md
-!README.md
+# Logs — PEUVENT contenir le contenu d'e-mails en clair (remoteLog). NE JAMAIS committer.
+*.log
+
+# Claude Code — config locale par machine ; les skills .claude/skills/ SONT versionnées
+.claude/settings.local.json
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*~
+.idea/
+.vscode/
+
+# Temporary files
+*.bak
+*.tmp
+
+# Private files — locaux, NON publiés (ni dans Git, ni dans le XPI)
+AGENTS.md
+PLAN_ACTION.md
+RAPPORT_AUDIT.md
+CONCEPTION_POST-GLODA.md
+VEILLE_COMPATIBILITE.md

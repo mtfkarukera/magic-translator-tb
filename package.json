@@ -1,11 +1,16 @@
 {
   "name": "magic-translator",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "private": true,
   "type": "module",
   "description": "Extension Thunderbird de traduction d'e-mails via Google Translate.",
   "author": "MTF Karukera",
   "license": "MPL-2.0",
+  "scripts": {
+    "lint": "eslint background.js translator-injected.js",
+    "lint:webext": "npx --yes web-ext lint --source-dir . --ignore-files \"node_modules/**\" \"build/**\" \"dist/**\" \"*.md\" \"LICENSE\" \"eslint.config.js\" \"package.json\" \"package-lock.json\" \"debug.log\" \".claude/**\"",
+    "build": "bash build.sh"
+  },
   "devDependencies": {
     "eslint": "^9.39.4",
     "globals": "^16.5.0"

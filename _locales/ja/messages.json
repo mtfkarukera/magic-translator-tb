@@ -52,5 +52,8 @@
   },
   "actionTitle": {
     "message": "翻訳"
+  },
+  "toggleTranslatorTitle": {
+    "message": "翻訳機能の有効化 / 無効化"
   }
 }

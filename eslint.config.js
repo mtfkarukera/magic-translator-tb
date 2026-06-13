@@ -47,8 +47,8 @@ export default [
       "no-trailing-spaces": "warn",
       "no-multiple-empty-lines": ["warn", { max: 2 }],
       "semi": ["warn", "always"],
-      "no-var": "off",           // var utilisé volontairement (ES5 compat)
-      "prefer-const": "off",     // idem
+      "no-var": "error",
+      "prefer-const": "error",
     },
   },
   {

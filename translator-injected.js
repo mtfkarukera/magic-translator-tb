@@ -23,7 +23,7 @@
  * @see background.js — reçoit les requêtes et appelle Google Translate
  */
 
-(function () {
+(() => {
   "use strict";
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -34,14 +34,7 @@
   // l'ancienne interface et on coupe les anciens écouteurs d'événements
   // pour repartir de zéro proprement.
 
-  var ancienConteneur = document.getElementById("magic-translator-root");
-  if (ancienConteneur) ancienConteneur.remove();
-  if (document.documentElement._mtAbort) {
-    document.documentElement._mtAbort.abort();
-  }
-  if (document.documentElement._mtObserver) {
-    document.documentElement._mtObserver.disconnect();
-  }
+  nettoyerInstance();
 
   // ═══════════════════════════════════════════════════════════════════════
   // DICTIONNAIRES I18N
@@ -51,8 +44,9 @@
   // Les fichiers _locales/ servent uniquement pour les champs du manifest
   // (nom et description de l'extension).
 
-  var I18N = {
+  const I18N = {
     fr: {
+      autoDetect:         "Auto-détection",
       bannerTitle:        "Translator",
       labelFrom:          "DE",
       labelTo:            "VERS",
@@ -69,6 +63,7 @@
       tooltipCollapse:    "Replier"
     },
     en: {
+      autoDetect:         "Auto-detect",
       bannerTitle:        "Translator",
       labelFrom:          "FROM",
       labelTo:            "TO",
@@ -85,6 +80,7 @@
       tooltipCollapse:    "Collapse"
     },
     es: {
+      autoDetect:         "Auto-detectar",
       bannerTitle:        "Translator",
       labelFrom:          "DE",
       labelTo:            "A",
@@ -101,6 +97,7 @@
       tooltipCollapse:    "Replegar"
     },
     de: {
+      autoDetect:         "Automatische Erkennung",
       bannerTitle:        "Translator",
       labelFrom:          "VON",
       labelTo:            "NACH",
@@ -117,6 +114,7 @@
       tooltipCollapse:    "Einklappen"
     },
     vi: {
+      autoDetect:         "Tự động phát hiện",
       bannerTitle:        "Translator",
       labelFrom:          "TỪ",
       labelTo:            "SANG",
@@ -133,6 +131,7 @@
       tooltipCollapse:    "Thu gọn"
     },
     ja: {
+      autoDetect:         "自動検出",
       bannerTitle:        "Translator",
       labelFrom:          "差出語",
       labelTo:            "翻訳先",
@@ -149,6 +148,7 @@
       tooltipCollapse:    "折りたたむ"
     },
     pt: {
+      autoDetect:         "Auto-detecção",
       bannerTitle:        "Translator",
       labelFrom:          "DE",
       labelTo:            "PARA",
@@ -169,19 +169,21 @@
   // ── Détection de la locale de l'interface ─────────────────────────────
   // Priorité : browser.i18n → navigator.language → fallback "fr"
 
-  function detecterLocale() {
+  let LOCALE = "en";
+
+  const detecterLocale = () => {
     try {
       if (typeof browser !== "undefined" && browser.i18n && browser.i18n.getUILanguage) {
-        var code = browser.i18n.getUILanguage().split("-")[0];
+        const code = browser.i18n.getUILanguage().split("-")[0];
         if (I18N[code]) return code;
       }
     } catch { /* non disponible dans ce contexte */ }
 
-    var codeLang = (navigator.language || "fr").split("-")[0];
+    const codeLang = (navigator.language || "fr").split("-")[0];
     return I18N[codeLang] ? codeLang : "en";
-  }
+  };
 
-  var LOCALE = detecterLocale();
+  LOCALE = detecterLocale();
 
   /**
    * Fonction de traduction des clés i18n internes.
@@ -191,16 +193,16 @@
    * @param   {Object} [remplacements] — Paires clé/valeur pour les placeholders
    * @returns {string} Chaîne traduite
    */
-  function t(cle, remplacements) {
-    var dict = I18N[LOCALE] || I18N.en;
-    var msg = dict[cle] || I18N.en[cle] || cle;
+  const t = (cle, remplacements) => {
+    const dict = I18N[LOCALE] || I18N.en;
+    let msg = dict[cle] || I18N.en[cle] || cle;
     if (remplacements) {
-      Object.keys(remplacements).forEach(function (k) {
+      Object.keys(remplacements).forEach((k) => {
         msg = msg.replace("{" + k + "}", remplacements[k]);
       });
     }
     return msg;
-  }
+  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // NOMS AFFICHABLES DES LANGUES
@@ -208,7 +210,7 @@
   // Utilisé pour afficher le nom de la langue détectée dans le message
   // de statut ("Traduit depuis Français").
 
-  var NOMS_LANGUES = {
+  const NOMS_LANGUES = {
     af: "Afrikaans",    ar: "العربية",         bg: "Български",    bn: "বাংলা",
     ca: "Català",       cs: "Čeština",         da: "Dansk",        de: "Deutsch",
     el: "Ελληνικά",     en: "English",         es: "Español",      et: "Eesti",
@@ -216,7 +218,7 @@
     he: "עברית",         hi: "हिन्दी",            hr: "Hrvatski",     hu: "Magyar",
     id: "Bahasa Indonesia", it: "Italiano",    ja: "日本語",        kn: "ಕನ್ನಡ",
     ko: "한국어",         lt: "Lietuvių",        lv: "Latviešu",     mk: "Македонски",
-    ml: "മലയാളം",       mr: "मराठी",           ms: "Bahasa Melayu", nl: "Nederlands",
+    ml: "മലയാളം",       mr: "مраठी",           ms: "Bahasa Melayu", nl: "Nederlands",
     no: "Norsk",        pl: "Polski",          pt: "Português",    ro: "Română",
     ru: "Русский",      sk: "Slovenčina",      sl: "Slovenščina",  sq: "Shqip",
     sr: "Српски",       sv: "Svenska",         sw: "Kiswahili",    ta: "தமிழ்",
@@ -237,7 +239,7 @@
   // Palette de couleurs : dégradé sombre violet (#1a1a2e → #0f3460)
   // avec accents violets (#a78bfa, #7c3aed) et verts (#34d399).
 
-  var CSS_BANDEAU = [
+  const CSS_BANDEAU = [
 
     // ── Racine du Shadow DOM ──────────────────────────────────────────
     ":host {",
@@ -521,7 +523,7 @@
   // LISTE DES LANGUES (sélecteurs déroulants)
   // ═══════════════════════════════════════════════════════════════════════
 
-  var LANGUES = [
+  const LANGUES = [
     { code: "auto",  label: "Auto-détection" },
     { code: "fr",    label: "Français" },
     { code: "en",    label: "English" },
@@ -568,8 +570,8 @@
    * @returns {Promise<{text: string, detectedLang: string|null}>}
    * @throws  {Error} Si la traduction échoue
    */
-  async function demanderTraduction(texte, source, cible) {
-    var reponse = await browser.runtime.sendMessage({
+  const demanderTraduction = async (texte, source, cible) => {
+    const reponse = await browser.runtime.sendMessage({
       action: "translate",
       text: texte,
       source: source,
@@ -579,7 +581,7 @@
       return { text: reponse.text, detectedLang: reponse.detectedLang || null };
     }
     throw new Error((reponse && reponse.error) || "Échec de la traduction");
-  }
+  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // COLLECTE DES NŒUDS TEXTE
@@ -589,7 +591,7 @@
   // et les nœuds ne contenant que des espaces.
 
   /** Balises dont le contenu textuel ne doit jamais être traduit. */
-  var BALISES_IGNOREES = new Set([
+  const BALISES_IGNOREES = new Set([
     "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
     "EMBED", "SVG", "MATH", "CODE", "TEXTAREA"
   ]);
@@ -600,10 +602,10 @@
    * @param   {Element} racine — Élément racine du parcours (document.body)
    * @returns {Text[]}         — Tableau de nœuds Text
    */
-  function collecterNoeudsTexte(racine) {
-    var noeuds = [];
-    var walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (noeud) {
+  const collecterNoeudsTexte = (racine) => {
+    const noeuds = [];
+    const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
+      acceptNode: (noeud) => {
         // Ignorer les nœuds vides (espaces, retours à la ligne isolés)
         if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
 
@@ -619,7 +621,7 @@
       noeuds.push(walker.currentNode);
     }
     return noeuds;
-  }
+  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // CONSTRUCTION DE L'INTERFACE
@@ -631,35 +633,35 @@
   // Le tout est encapsulé dans un Shadow DOM pour ne pas interférer
   // avec les styles du message affiché.
 
-  function construireUI() {
+  const construireUI = () => {
     // ── Conteneur racine ────────────────────────────────────────────────
-    var conteneur = document.createElement("div");
+    const conteneur = document.createElement("div");
     conteneur.id = "magic-translator-root";
     conteneur.style.cssText = "position:relative;z-index:999999;";
 
     // ── Shadow DOM (isolation CSS) ──────────────────────────────────────
-    var shadow = conteneur.attachShadow({ mode: "open" });
+    const shadow = conteneur.attachShadow({ mode: "open" });
 
-    var baliseStyle = document.createElement("style");
+    const baliseStyle = document.createElement("style");
     baliseStyle.textContent = CSS_BANDEAU;
     shadow.appendChild(baliseStyle);
 
     // ── Pilule compacte ─────────────────────────────────────────────────
-    var pilule = document.createElement("div");
+    const pilule = document.createElement("div");
     pilule.className = "mt-pill";
     pilule.title = t("tooltipExpand");
 
-    var iconeT = document.createElement("span");
+    const iconeT = document.createElement("span");
     iconeT.className = "mt-pill-icon";
     iconeT.textContent = "MT";
     pilule.appendChild(iconeT);
 
-    var chevron = document.createElement("span");
+    const chevron = document.createElement("span");
     chevron.className = "mt-pill-chevron";
     chevron.textContent = "▸";
     pilule.appendChild(chevron);
 
-    var indicateurStatut = document.createElement("span");
+    const indicateurStatut = document.createElement("span");
     indicateurStatut.className = "mt-pill-status mt-hidden";
     indicateurStatut.textContent = "✓";
     pilule.appendChild(indicateurStatut);
@@ -667,82 +669,82 @@
     shadow.appendChild(pilule);
 
     // ── Bandeau déplié ──────────────────────────────────────────────────
-    var bandeau = document.createElement("div");
+    const bandeau = document.createElement("div");
     bandeau.className = "mt-banner mt-hidden";
 
     // Logo
-    var logo = document.createElement("div");
+    const logo = document.createElement("div");
     logo.className = "mt-logo";
-    var logoIcone = document.createElement("span");
+    const logoIcone = document.createElement("span");
     logoIcone.className = "mt-logo-icon";
     logoIcone.textContent = "MT";
     logo.appendChild(logoIcone);
-    var logoTexte = document.createElement("span");
+    const logoTexte = document.createElement("span");
     logoTexte.textContent = t("bannerTitle");
     logo.appendChild(logoTexte);
     bandeau.appendChild(logo);
 
     // Séparateur vertical
-    var sep = document.createElement("div");
+    const sep = document.createElement("div");
     sep.className = "mt-separator";
     bandeau.appendChild(sep);
 
     // Zone de contrôles
-    var controles = document.createElement("div");
+    const controles = document.createElement("div");
     controles.className = "mt-controls";
 
     // ── Sélecteur source ────────────────────────────────────────────
-    var labelSource = document.createElement("span");
+    const labelSource = document.createElement("span");
     labelSource.className = "mt-label";
     labelSource.textContent = t("labelFrom");
     controles.appendChild(labelSource);
 
-    var selectSource = document.createElement("select");
+    const selectSource = document.createElement("select");
     selectSource.className = "mt-select";
-    LANGUES.forEach(function (langue) {
-      var opt = document.createElement("option");
+    LANGUES.forEach((langue) => {
+      const opt = document.createElement("option");
       opt.value = langue.code;
-      opt.textContent = langue.label;
+      opt.textContent = (langue.code === "auto") ? t("autoDetect") : langue.label;
       selectSource.appendChild(opt);
     });
     selectSource.value = "auto";
     controles.appendChild(selectSource);
 
     // ── Flèche ──────────────────────────────────────────────────────
-    var fleche = document.createElement("span");
+    const fleche = document.createElement("span");
     fleche.className = "mt-arrow";
     fleche.textContent = "→";
     controles.appendChild(fleche);
 
     // ── Sélecteur cible ─────────────────────────────────────────────
-    var labelCible = document.createElement("span");
+    const labelCible = document.createElement("span");
     labelCible.className = "mt-label";
     labelCible.textContent = t("labelTo");
     controles.appendChild(labelCible);
 
-    var selectCible = document.createElement("select");
+    const selectCible = document.createElement("select");
     selectCible.className = "mt-select";
     // Le sélecteur cible n'inclut pas "auto" (pas de sens en cible)
-    LANGUES.filter(function (l) { return l.code !== "auto"; }).forEach(function (langue) {
-      var opt = document.createElement("option");
+    LANGUES.filter((l) => l.code !== "auto").forEach((langue) => {
+      const opt = document.createElement("option");
       opt.value = langue.code;
       opt.textContent = langue.label;
       selectCible.appendChild(opt);
     });
-    // Pré-sélectionner la langue de l'interface, sinon "fr"
-    var cibleParDefaut = LOCALE;
-    var cibleExiste = LANGUES.some(function (l) { return l.code === cibleParDefaut; });
-    selectCible.value = cibleExiste ? cibleParDefaut : "fr";
+    // Pré-sélectionner la langue de l'interface, sinon "en" (fallback universel)
+    const cibleParDefaut = LOCALE;
+    const cibleExiste = LANGUES.some((l) => l.code === cibleParDefaut);
+    selectCible.value = cibleExiste ? cibleParDefaut : "en";
     controles.appendChild(selectCible);
 
     // ── Bouton « Traduire » ─────────────────────────────────────────
-    var btnTraduire = document.createElement("button");
+    const btnTraduire = document.createElement("button");
     btnTraduire.className = "mt-btn mt-btn-translate";
     btnTraduire.textContent = t("btnTranslate");
     controles.appendChild(btnTraduire);
 
     // ── Bouton « Original » (masqué par défaut) ─────────────────────
-    var btnOriginal = document.createElement("button");
+    const btnOriginal = document.createElement("button");
     btnOriginal.className = "mt-btn mt-btn-original mt-hidden";
     btnOriginal.textContent = t("btnOriginal");
     controles.appendChild(btnOriginal);
@@ -750,12 +752,12 @@
     bandeau.appendChild(controles);
 
     // ── Zone de statut ──────────────────────────────────────────────
-    var statut = document.createElement("span");
+    const statut = document.createElement("span");
     statut.className = "mt-status mt-hidden";
     bandeau.appendChild(statut);
 
     // ── Bouton « Replier » ──────────────────────────────────────────
-    var btnReplier = document.createElement("button");
+    const btnReplier = document.createElement("button");
     btnReplier.className = "mt-btn mt-btn-collapse";
     btnReplier.textContent = "▴";
     btnReplier.title = t("tooltipCollapse");
@@ -765,52 +767,51 @@
 
     // ── Objet de retour (références directes aux éléments du DOM) ────
     return {
-      conteneur:        conteneur,
-      pilule:           pilule,
-      indicateurStatut: indicateurStatut,
-      bandeau:          bandeau,
-      logoIcone:        logoIcone,
-      selectSource:     selectSource,
-      selectCible:      selectCible,
-      btnTraduire:      btnTraduire,
-      btnOriginal:      btnOriginal,
-      statut:           statut,
-      btnReplier:       btnReplier
+      conteneur,
+      pilule,
+      indicateurStatut,
+      bandeau,
+      logoIcone,
+      selectSource,
+      selectCible,
+      btnTraduire,
+      btnOriginal,
+      statut,
+      btnReplier
     };
-  }
+  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // ÉTAT DE L'APPLICATION
   // ═══════════════════════════════════════════════════════════════════════
 
   /** Map<Text, string> — Sauvegarde des contenus originaux (null si non traduit) */
-  var contenusOriginaux = null;
+  let contenusOriginaux = null;
 
   /** Indique si le bandeau est actuellement déplié */
-  var estDeplie = false;
+  let estDeplie = false;
 
   // ═══════════════════════════════════════════════════════════════════════
   // INITIALISATION
   // ═══════════════════════════════════════════════════════════════════════
 
-  function initialiser() {
-    // ── Nettoyage si réinitialisation (via MutationObserver) ─────────────
-    var ancienUI = document.getElementById("magic-translator-root");
-    if (ancienUI) ancienUI.remove();
-    if (document.documentElement._mtAbort) {
-      document.documentElement._mtAbort.abort();
-    }
-    if (document.documentElement._mtObserver) {
-      document.documentElement._mtObserver.disconnect();
-    }
+  async function initialiser() {
+    // ── Nettoyage de l'instance précédente ───────────────────────────────
+    nettoyerInstance();
     contenusOriginaux = null;
     estDeplie = false;
 
     // ── Contrôleur d'annulation (nettoyage des écouteurs document) ──────
-    var controleur = new AbortController();
+    const controleur = new AbortController();
     document.documentElement._mtAbort = controleur;
 
-    var ui = construireUI();
+    // ── Détection de la locale ────────────────────────────────────────────────
+    // detecterLocale() appelle browser.i18n.getUILanguage() de façon synchrone,
+    // ce qui évite tout round-trip async (et donc tout risque de « Promise rejected
+    // after context unloaded » lors d'une navigation rapide entre messages).
+    LOCALE = detecterLocale();
+
+    const ui = construireUI();
 
     // ── Insertion dans le DOM ────────────────────────────────────────────
     // On insère le conteneur en tout premier enfant du body pour que le
@@ -828,30 +829,30 @@
 
     // ── Déplier / replier ───────────────────────────────────────────────
 
-    function deplier() {
+    const deplier = () => {
       estDeplie = true;
       ui.pilule.classList.add("mt-hidden");
       ui.bandeau.classList.remove("mt-hidden");
-    }
+    };
 
-    function replier(afficherCoche) {
+    const replier = (afficherCoche) => {
       estDeplie = false;
       ui.bandeau.classList.add("mt-hidden");
       ui.pilule.classList.remove("mt-hidden");
       if (afficherCoche) {
         ui.indicateurStatut.classList.remove("mt-hidden");
       }
-    }
+    };
 
     ui.pilule.addEventListener("click", deplier);
 
     // Le logo [MT] dans le bandeau est cliquable : referme le bandeau en pilule.
     // Même effet que le bouton ▴, mais plus grande zone de clic et plus intuitif.
-    ui.logoIcone.addEventListener("click", function () {
+    ui.logoIcone.addEventListener("click", () => {
       replier(!!contenusOriginaux);
     });
 
-    ui.btnReplier.addEventListener("click", function () {
+    ui.btnReplier.addEventListener("click", () => {
       replier(!!contenusOriginaux);
     });
 
@@ -859,19 +860,22 @@
     // LOGIQUE DE TRADUCTION
     // ═════════════════════════════════════════════════════════════════════
 
-    async function lancerTraduction() {
+    const lancerTraduction = async () => {
+      remoteLog({ type: "lancerTraduction_start", source: ui.selectSource.value, cible: ui.selectCible.value, contentsOrig: !!contenusOriginaux });
       if (!estDeplie) deplier();
 
-      var source = ui.selectSource.value;
-      var cible  = ui.selectCible.value;
+      const source = ui.selectSource.value;
+      const cible  = ui.selectCible.value;
 
       // ── Validation ────────────────────────────────────────────────────
       if (source === cible) {
+        remoteLog({ type: "lancerTraduction_error_same_language" });
         afficherStatut(ui.statut, t("errorSameLanguage"), "error");
         return;
       }
 
-      var noeudsTexte = collecterNoeudsTexte(document.body);
+      const noeudsTexte = collecterNoeudsTexte(document.body);
+      remoteLog({ type: "lancerTraduction_nodes_collected", count: noeudsTexte.length });
       if (noeudsTexte.length === 0) {
         afficherStatut(ui.statut, t("errorNoText"), "error");
         return;
@@ -880,9 +884,10 @@
       // ── Sauvegarde des originaux (première traduction uniquement) ──────
       if (!contenusOriginaux) {
         contenusOriginaux = new Map();
-        noeudsTexte.forEach(function (noeud) {
+        noeudsTexte.forEach((noeud) => {
           contenusOriginaux.set(noeud, noeud.textContent);
         });
+        remoteLog({ type: "lancerTraduction_saved_originals", count: contenusOriginaux.size });
       }
 
       // ── Verrouillage de l'interface pendant la traduction ─────────────
@@ -891,30 +896,28 @@
       ui.selectCible.disabled  = true;
       afficherStatut(ui.statut, t("statusTranslating"), "loading");
 
-      var derniereLangDetectee = null;
+      let derniereLangDetectee = null;
 
       try {
-        // ── Séparateur unique pour les lots multi-nœuds ─────────────────
-        // IMPORTANT : On ne peut PAS utiliser "\n" comme séparateur car les
-        // e-mails en texte brut (<pre>) contiennent un seul nœud texte avec
-        // des \n à l'intérieur. Si on découpe par \n après traduction, on
-        // perd tout le contenu après la première ligne.
-        // On utilise "|||MT|||" que Google Translate laisse intact.
-        // IMPORTANT : @@MTBRK@@ était modifié par Google Translate en @@VTTRK@@.
-        // @@0@@ (chiffre seul) est garanti intact par tous les moteurs de traduction.
-        var SEPARATEUR     = "\n@@0@@\n";
-        var SEPARATEUR_RE  = /\n?@@0@@\n?/;
+        // ── Séparateur unique anti-collision ─────────────────────────────
+        let separatorIndex = 0;
+        const textContentTotal = document.body.textContent || "";
+        while (textContentTotal.includes("@@" + separatorIndex + "@@")) {
+          separatorIndex++;
+        }
+        const SEPARATEUR = "\n@@" + separatorIndex + "@@\n";
+        const SEPARATEUR_RE = new RegExp("\\n?\\s*@@\\s*" + separatorIndex + "\\s*@@\\s*\\n?");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         // L'API Google Translate a une limite de taille par requête.
         // On regroupe les nœuds texte en lots de 4000 caractères max.
-        var TAILLE_MAX_LOT = 4000;
-        var lots = [];
-        var lotCourant = { noeuds: [], texte: "" };
+        const TAILLE_MAX_LOT = 4000;
+        const lots = [];
+        let lotCourant = { noeuds: [], texte: "" };
 
-        noeudsTexte.forEach(function (noeud) {
-          var txt = noeud.textContent;
-          var tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
+        noeudsTexte.forEach((noeud) => {
+          const txt = contenusOriginaux.get(noeud);
+          const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
 
           // Si le lot courant déborderait, on le pousse et on en crée un nouveau
           if (lotCourant.texte.length + tailSep + txt.length > TAILLE_MAX_LOT &&
@@ -923,7 +926,7 @@
             lotCourant = { noeuds: [], texte: "" };
           }
 
-          lotCourant.noeuds.push({ noeud: noeud });
+          lotCourant.noeuds.push({ noeud });
           lotCourant.texte += (lotCourant.texte ? SEPARATEUR : "") + txt;
         });
 
@@ -932,10 +935,13 @@
           lots.push(lotCourant);
         }
 
+        remoteLog({ type: "lancerTraduction_chunks", count: lots.length, SEPARATEUR });
         // ── Traduction lot par lot ──────────────────────────────────────
-        for (var i = 0; i < lots.length; i++) {
-          var lot = lots[i];
-          var resultat = await demanderTraduction(lot.texte, source, cible);
+        for (let i = 0; i < lots.length; i++) {
+          const lot = lots[i];
+          remoteLog({ type: "lancerTraduction_chunk_translate_start", index: i, nodeCount: lot.noeuds.length, textLen: lot.texte.length });
+          const resultat = await demanderTraduction(lot.texte, source, cible);
+          remoteLog({ type: "lancerTraduction_chunk_translate_response", index: i, resultLen: resultat.text.length, detectedLang: resultat.detectedLang });
 
           if (resultat.detectedLang) {
             derniereLangDetectee = resultat.detectedLang;
@@ -946,23 +952,44 @@
             // Assignation directe du texte traduit complet. Cela préserve
             // les retours à la ligne internes (e-mails en texte brut).
             // On nettoie d'éventuels marqueurs résiduels par sécurité.
-            lot.noeuds[0].noeud.textContent = resultat.text.replace(SEPARATEUR_RE, "\n");
+            const cleanText = resultat.text.replace(SEPARATEUR_RE, "\n");
+            remoteLog({ type: "lancerTraduction_single_node_update", original: lot.noeuds[0].noeud.textContent, translated: cleanText });
+            lot.noeuds[0].noeud.textContent = cleanText;
           } else {
             // ── Cas multi-nœuds ─────────────────────────────────────────
             // On découpe le résultat sur notre séparateur unique et on
             // réassigne chaque partie au nœud correspondant.
-            var parties = resultat.text.split(SEPARATEUR_RE);
-            lot.noeuds.forEach(function (entree, idx) {
-              if (parties[idx] !== undefined) {
-                entree.noeud.textContent = parties[idx];
+            const parties = resultat.text.split(SEPARATEUR_RE);
+            remoteLog({ type: "lancerTraduction_multi_node_split", index: i, partiesCount: parties.length, expectedCount: lot.noeuds.length });
+            if (parties.length !== lot.noeuds.length) {
+              remoteLog({ type: "lancerTraduction_separator_mismatch", partiesCount: parties.length, expectedCount: lot.noeuds.length, text: resultat.text });
+              console.warn("[MagicTranslator] Separator mismatch, falling back to node-by-node translation for this chunk", parties.length, lot.noeuds.length);
+              for (const entree of lot.noeuds) {
+                try {
+                  const origTxt = contenusOriginaux.get(entree.noeud);
+                  remoteLog({ type: "lancerTraduction_fallback_start", originalText: origTxt });
+                  const res = await demanderTraduction(origTxt, source, cible);
+                  remoteLog({ type: "lancerTraduction_fallback_success", originalText: origTxt, translatedText: res.text });
+                  entree.noeud.textContent = res.text;
+                } catch (e) {
+                  remoteLog({ type: "lancerTraduction_fallback_error", error: e.message });
+                  console.error("[MagicTranslator] Fallback translation failed for node", e);
+                }
               }
-            });
+            } else {
+              lot.noeuds.forEach((entree, idx) => {
+                if (parties[idx] !== undefined) {
+                  remoteLog({ type: "lancerTraduction_multi_node_update", original: entree.noeud.textContent, translated: parties[idx] });
+                  entree.noeud.textContent = parties[idx];
+                }
+              });
+            }
           }
         }
 
         // ── Affichage du statut de succès ────────────────────────────────
         if (derniereLangDetectee && source === "auto") {
-          var nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
+          const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
           afficherStatut(ui.statut, "✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
         } else {
           afficherStatut(ui.statut, "✓ " + t("statusTranslated"), "success");
@@ -972,7 +999,7 @@
         ui.btnTraduire.textContent = t("btnRetranslate");
 
         // ── Repli automatique après 1,5 s ───────────────────────────────
-        setTimeout(function () {
+        setTimeout(() => {
           if (estDeplie) replier(true);
         }, 1500);
 
@@ -985,17 +1012,17 @@
         ui.selectSource.disabled = false;
         ui.selectCible.disabled  = false;
       }
-    }
+    };
 
     // ── Bouton « Traduire » ─────────────────────────────────────────────
     ui.btnTraduire.addEventListener("click", lancerTraduction);
 
     // ── Bouton « Original » — restauration du texte d'origine ───────────
-    ui.btnOriginal.addEventListener("click", function () {
+    ui.btnOriginal.addEventListener("click", () => {
       if (!contenusOriginaux) return;
 
       // Restauration de chaque nœud texte à son contenu original
-      contenusOriginaux.forEach(function (texte, noeud) {
+      contenusOriginaux.forEach((texte, noeud) => {
         noeud.textContent = texte;
       });
 
@@ -1009,25 +1036,24 @@
     });
 
     // ── Raccourci clavier (Ctrl+Shift+T directement dans le document) ────
-    document.addEventListener("keydown", function (e) {
+    // Modifié pour basculer la visibilité du bandeau plutôt que de lancer la traduction immédiatement
+    document.addEventListener("keydown", (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === "T" || e.key === "t")) {
         e.preventDefault();
-        lancerTraduction();
+        if (estDeplie) {
+          replier(!!contenusOriginaux);
+        } else {
+          deplier();
+        }
       }
     }, { signal: controleur.signal });
 
     // ── Écoute du message "toggleBanner" envoyé par background.js ─────────
     // Déclenché par le clic sur le bouton barre (message_display_action)
     // ou par le menu clic droit sur ce même bouton.
-    //
-    // Comportement :
-    //   • Rien de visible          → ouvrir le bandeau
-    //   • Bandeau ou pilule visible → tout masquer (désactivation complète)
-    //
-    // Flux UX : Rien → [T] → Bandeau → (traduction) → Pilule → [T] → Rien
-    function gererMessageBg(message) {
+    const gererMessageBg = (message) => {
       if (message && message.action === "toggleBanner") {
-        var piluleVisible = !ui.pilule.classList.contains("mt-hidden");
+        const piluleVisible = !ui.pilule.classList.contains("mt-hidden");
 
         if (estDeplie || piluleVisible) {
           // Désactivation : masquer bandeau ET pilule
@@ -1040,22 +1066,41 @@
           deplier();
         }
       }
-    }
+    };
+
+    document.documentElement._mtMessageListener = gererMessageBg;
     browser.runtime.onMessage.addListener(gererMessageBg);
 
     // ── MutationObserver — filet de sécurité ─────────────────────────────
     // Si Thunderbird remplace le contenu du body sans réinjecter le script,
-    // on détecte la disparition de notre conteneur et on réinitialise.
-    var observeur = new MutationObserver(function () {
+    // on dtecte la disparition de notre conteneur et on réinitialise.
+    const observeur = new MutationObserver(() => {
       if (document.body && !document.body.contains(ui.conteneur)) {
         observeur.disconnect();
-        initialiser();
+        initialiser().catch(console.error);
       }
     });
     if (document.body) {
       observeur.observe(document.body, { childList: true });
     }
     document.documentElement._mtObserver = observeur;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // UTILITAIRES
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * Supprime l'ancienne instance de l'UI et débranche tous ses écouteurs.
+   * Appelée en début de chaque initialisation et lors du premier chargement.
+   */
+  function nettoyerInstance() {
+    document.getElementById("magic-translator-root")?.remove();
+    document.documentElement._mtAbort?.abort();
+    document.documentElement._mtObserver?.disconnect();
+    if (document.documentElement._mtMessageListener) {
+      browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -1080,7 +1125,7 @@
 
     if (type === "loading") {
       // Ajout d'un spinner animé avant le texte
-      var spinner = document.createElement("span");
+      const spinner = document.createElement("span");
       spinner.className = "mt-spinner";
       el.appendChild(spinner);
       el.appendChild(document.createTextNode(message));
@@ -1096,10 +1141,24 @@
   // ═══════════════════════════════════════════════════════════════════════
   // On attend que le DOM soit prêt avant d'initialiser l'UI.
 
+  // Passer DEBUG à true pour activer les logs de débogage local (serveur sur :9999).
+  // NE PAS passer à true en production : les données des e-mails seraient transmises.
+  const DEBUG = false;
+  function remoteLog(obj) {
+    if (!DEBUG) return;
+    fetch("http://localhost:9999/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "injected", data: obj, timestamp: new Date().toISOString() })
+    }).catch(() => {});
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialiser, { once: true });
+    document.addEventListener("DOMContentLoaded", () => {
+      initialiser().catch(console.error);
+    }, { once: true });
   } else {
-    initialiser();
+    initialiser().catch(console.error);
   }
 
 })();

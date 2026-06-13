@@ -24,19 +24,9 @@
 "use strict";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 1. STOCKAGE DE LA LOCALE UI
+// 1. GESTION DE LA LOCALE DE L'INTERFACE
 // ═══════════════════════════════════════════════════════════════════════════
-// Sauvegarde la langue de l'interface Thunderbird (ex: "fr", "en") dans le
-// storage local. Le script injecté pourra la lire pour adapter ses textes.
-
-(async function sauvegarderLocale() {
-  try {
-    const codeLang = messenger.i18n.getUILanguage().split("-")[0];
-    await messenger.storage.local.set({ uiLocale: codeLang });
-  } catch (erreur) {
-    console.warn("[MagicTranslator] Impossible de stocker la locale UI :", erreur);
-  }
-})();
+// La locale de l'interface Thunderbird est envoyée à la demande au script injecté.
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 2. ENREGISTREMENT DU SCRIPT DE CONTENU
@@ -82,9 +72,12 @@ messenger.messageDisplayAction.onClicked.addListener(async (tab) => {
 // Un clic droit sur le bouton [T] affiche un menu contextuel permettant
 // d'activer ou de désactiver le bandeau de traduction.
 
+// Les menus survivent aux rechargements du background : on supprime d'abord
+// pour éviter l'erreur « lastError: The menu id already exists ».
+messenger.menus.remove("toggle-translator").catch(() => {});
 messenger.menus.create({
   id: "toggle-translator",
-  title: "Activer / Désactiver le traducteur",
+  title: messenger.i18n.getMessage("toggleTranslatorTitle"),
   contexts: ["message_display_action"]
 });
 
@@ -105,10 +98,21 @@ messenger.menus.onClicked.addListener(async (info, tab) => {
 // sont traités.
 
 messenger.runtime.onMessage.addListener((message, _expediteur) => {
+  remoteLog({ type: "onMessage_received", message });
+
   if (message.action !== "translate") return;
 
+  remoteLog({ type: "onMessage_translate_start", source: message.source, target: message.target, textLen: message.text.length });
+
   return traduireTexte(message.text, message.source, message.target)
-    .catch((erreur) => ({ success: false, error: erreur.message }));
+    .then((res) => {
+      remoteLog({ type: "onMessage_translate_success", success: res.success, textLen: res.text ? res.text.length : 0 });
+      return res;
+    })
+    .catch((erreur) => {
+      remoteLog({ type: "onMessage_translate_error", error: erreur.message });
+      return { success: false, error: erreur.message };
+    });
 });
 
 /**
@@ -131,6 +135,7 @@ async function traduireTexte(texte, source, cible) {
   // ── Envoi de la requête ───────────────────────────────────────────────
   const reponse = await fetch(url, {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "q=" + encodeURIComponent(texte)
   });
@@ -149,6 +154,7 @@ async function traduireTexte(texte, source, cible) {
       .map((segment) => segment[0])
       .join("");
 
+    remoteLog({ type: "traduireTexte_success", detectedLang: donnees[2] });
     return {
       success: true,
       text: traduction,
@@ -156,5 +162,18 @@ async function traduireTexte(texte, source, cible) {
     };
   }
 
+  remoteLog({ type: "traduireTexte_invalid_format", donnees });
   throw new Error("Réponse invalide de Google Translate");
+}
+
+// Passer DEBUG à true pour activer les logs de débogage local (serveur sur :9999).
+// NE PAS passer à true en production : les données des e-mails seraient transmises.
+const DEBUG = false;
+function remoteLog(obj) {
+  if (!DEBUG) return;
+  fetch("http://localhost:9999/log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source: "background", data: obj, timestamp: new Date().toISOString() })
+  }).catch(() => {});
 }

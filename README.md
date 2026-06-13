@@ -73,15 +73,23 @@ magic-translator/
 ├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + proxy traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
 ├── icon.png                   # Icône de l'extension (128×128)
+├── build.sh                   # Packaging reproductible du XPI (→ dist/)
 ├── LICENSE                    # Licence MPL-2.0
 ├── README.md
+├── ARCHITECTURE.md            # Architecture détaillée
+├── CHANGELOG.md               # Journal des versions
+├── SECURITY.md                # Politique de sécurité et flux de données
+├── CONTRIBUTING.md            # Guide de contribution
 ├── eslint.config.js           # Configuration ESLint (flat config)
-├── package.json               # Métadonnées npm et devDependencies (ESLint)
+├── package.json               # Métadonnées npm, scripts (lint/build) et devDependencies
+├── .claude/skills/            # Skills Claude Code (fin-de-sprint, build-xpi, revue-securite…)
 └── _locales/                  # Fichiers de localisation (manifest uniquement)
-    ├── fr/messages.json       # Français (par défaut)
-    ├── en/messages.json       # Anglais
+    ├── fr/messages.json       # Français
+    ├── en/messages.json       # Anglais (fallback universel)
     ├── es/messages.json       # Espagnol
     ├── de/messages.json       # Allemand
+    ├── ja/messages.json       # Japonais
+    ├── pt/messages.json       # Portugais
     └── vi/messages.json       # Vietnamien
 ```
 
