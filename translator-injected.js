@@ -908,10 +908,11 @@
           SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
         } while (textContentTotal.includes(SENTINEL));
         const SEPARATEUR = "\n" + SENTINEL + "\n";
-        // Au découpage, on ne retire QUE le jeton + au plus UN saut de ligne (et d'éventuels
-        // espaces horizontaux) de chaque côté — ceux que NOUS avons insérés. Les retours à la
-        // ligne légitimes du texte adjacent sont préservés (corrige le « texte collé »).
-        const SEPARATEUR_RE = new RegExp("[ \\t]*\\n?[ \\t]*" + SENTINEL + "[ \\t]*\\n?[ \\t]*", "g");
+        // Au découpage on retire le jeton et l'espacement qui l'entoure. C'est sans danger :
+        // on n'envoie que le « cœur » de chaque nœud (sans espaces de tête/fin) et on réattache
+        // les espaces d'origine à la réinjection — la regex ne peut donc pas manger d'espace
+        // significatif du texte (corrige le « texte collé » avant/après les liens).
+        const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "g");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         // L'API Google Translate a une limite de taille par requête.
@@ -922,17 +923,23 @@
 
         noeudsTexte.forEach((noeud) => {
           const txt = contenusOriginaux.get(noeud);
+          // Espaces de tête/fin isolés : NON envoyés à Google (qui les altère), mais réattachés
+          // tels quels à la réinjection. C'est ce qui préserve l'espacement aux frontières
+          // (ex. l'espace entre un mot et le lien qui suit).
+          const lead  = txt.match(/^\s*/)[0];
+          const trail = txt.match(/\s*$/)[0];
+          const coeur = txt.slice(lead.length, txt.length - trail.length);
           const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
 
           // Si le lot courant déborderait, on le pousse et on en crée un nouveau
-          if (lotCourant.texte.length + tailSep + txt.length > TAILLE_MAX_LOT &&
+          if (lotCourant.texte.length + tailSep + coeur.length > TAILLE_MAX_LOT &&
               lotCourant.noeuds.length > 0) {
             lots.push(lotCourant);
             lotCourant = { noeuds: [], texte: "" };
           }
 
-          lotCourant.noeuds.push({ noeud });
-          lotCourant.texte += (lotCourant.texte ? SEPARATEUR : "") + txt;
+          lotCourant.noeuds.push({ noeud, lead, trail });
+          lotCourant.texte += (lotCourant.texte ? SEPARATEUR : "") + coeur;
         });
 
         // Dernier lot
@@ -951,11 +958,12 @@
 
           if (lot.noeuds.length === 1) {
             // ── Cas nœud unique ─────────────────────────────────────────
-            // Assignation directe du texte traduit complet. Cela préserve
-            // les retours à la ligne internes (e-mails en texte brut).
-            // On nettoie d'éventuels marqueurs résiduels par sécurité.
-            const cleanText = resultat.text.replace(SEPARATEUR_RE, "\n");
-            lot.noeuds[0].noeud.textContent = cleanText;
+            // On retire tout marqueur résiduel et l'espacement parasite ajouté par Google autour
+            // du cœur, puis on réattache les espaces d'origine du nœud. Les retours à la ligne
+            // INTERNES (e-mails en texte brut) sont conservés (trim n'enlève que l'extérieur).
+            const entree = lot.noeuds[0];
+            const coeurTraduit = resultat.text.replace(SEPARATEUR_RE, "").trim();
+            entree.noeud.textContent = entree.lead + coeurTraduit + entree.trail;
           } else {
             // ── Cas multi-nœuds ─────────────────────────────────────────
             // On découpe le résultat sur notre séparateur unique et on
@@ -966,8 +974,8 @@
               for (const entree of lot.noeuds) {
                 try {
                   const origTxt = contenusOriginaux.get(entree.noeud);
-                  const res = await demanderTraduction(origTxt, source, cible);
-                  entree.noeud.textContent = res.text;
+                  const res = await demanderTraduction(origTxt.trim(), source, cible);
+                  entree.noeud.textContent = entree.lead + res.text.trim() + entree.trail;
                 } catch (e) {
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
                 }
@@ -975,7 +983,7 @@
             } else {
               lot.noeuds.forEach((entree, idx) => {
                 if (parties[idx] !== undefined) {
-                  entree.noeud.textContent = parties[idx];
+                  entree.noeud.textContent = entree.lead + parties[idx].trim() + entree.trail;
                 }
               });
             }

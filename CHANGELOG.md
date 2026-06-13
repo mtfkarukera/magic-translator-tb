@@ -11,6 +11,19 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.11] — 2026-06-13
+
+### Corrigé
+- **« Texte collé » autour des liens** — correctif **complet** (celui de 2.0.10 était incomplet : la
+  regex de découpage mangeait l'espace de fin du texte précédant un lien). L'espacement aux
+  frontières de nœuds est désormais **entièrement préservé** : chaque nœud est découpé en
+  `[espace de tête][cœur][espace de fin]`, seul le **cœur** (sans espaces de bord) est envoyé à
+  Google, et les espaces d'origine sont **réattachés** à la réinjection. L'espacement ne dépend donc
+  plus de ce que Google fait des blancs ni de la regex (ex. « à l'adresse » garde son espace avant un
+  lien ; les sauts de paragraphe `\n\n` sont conservés). S'applique aussi au fallback nœud-par-nœud.
+
+---
+
 ## [2.0.10] — 2026-06-13
 
 ### Sécurité
@@ -145,6 +158,7 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+[2.0.11]: #2011--2026-06-13
 [2.0.10]: #2010--2026-06-13
 [2.0.9]: #209--2026-06-13
 [2.0.8]: #208--2026-06-13
