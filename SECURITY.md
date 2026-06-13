@@ -62,22 +62,21 @@ Pour traduire, l'extension **transmet le texte de l'e-mail concerné à un servi
 
 ---
 
-## ⚠️ Risque connu : harnais de débogage `remoteLog` / `DEBUG`
+## ✅ Résolu (v2.0.9) : retrait du harnais de débogage `remoteLog` / `DEBUG`
 
-Les deux scripts contiennent un mécanisme de log de débogage piloté par `const DEBUG` :
+Les versions antérieures embarquaient un mécanisme de log de débogage (`remoteLog` piloté par
+`const DEBUG`) qui, lorsqu'il était activé (`DEBUG = true`), envoyait le **contenu des e-mails**
+(texte original et traduit, objet message complet) en HTTP non chiffré vers `http://localhost:9999`.
 
-- Quand `DEBUG = true`, le **contenu des e-mails** (texte original et traduit, et l'objet message
-  complet côté background) est envoyé en **HTTP non chiffré** vers `http://localhost:9999/log`.
-- **État livré : `DEBUG = false` dans les deux fichiers → aucune requête émise, aucune fuite active.**
-- Risque : un seul booléen sépare l'état sûr de l'état fuyant ; l'activation accidentelle ferait
-  fuiter de la correspondance vers un endpoint local.
+Il a été **entièrement retiré** des deux scripts en **v2.0.9**. Le débogage passe désormais par
+`console.log` local uniquement. Aucun envoi réseau du contenu des messages n'existe plus en dehors de
+l'appel de traduction à Google.
 
-**Mesures et plan :**
+**Garde-fous anti-régression** (si ce type de code était réintroduit) :
 
-- `build.sh` **refuse de packager** si `DEBUG = true` est détecté (garde-fou).
+- `build.sh` **refuse de packager** si `const DEBUG = true` est détecté.
+- La skill `/revue-securite-pre-release` vérifie l'absence de `DEBUG = true` et de `localhost`.
 - `*.log` est ignoré par Git pour empêcher tout commit de log contenant des PII.
-- **Action planifiée** : retrait complet du harnais `remoteLog`/`DEBUG` du code livré (le débogage
-  doit passer par `console.log` local). Voir `PLAN_ACTION.md`, Lot 1.
 
 ---
 

@@ -11,6 +11,26 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.9] — 2026-06-13
+
+### Sécurité
+- **Retrait complet du harnais de débogage `remoteLog` / `DEBUG`** des deux scripts
+  (`background.js` et `translator-injected.js`) — résout le **Lot 1** de l'audit de confidentialité.
+  Ce mécanisme, lorsqu'il était activé (`DEBUG = true`), envoyait le contenu des e-mails (texte
+  original, traduit, objet message complet) en HTTP non chiffré vers `http://localhost:9999`. Il
+  n'existe plus ; le débogage passe par `console.log` local. Garde-fous conservés : `build.sh`
+  refuse de packager si `DEBUG = true`, et `/revue-securite-pre-release` vérifie l'absence de
+  `DEBUG`/`localhost`.
+- **Moindre privilège** : retrait de la permission `storage` du manifest (plus aucun usage depuis le
+  retrait du stockage de la locale UI) — Lot 2 de l'audit.
+
+### Supprimé
+- Une vingtaine d'appels `remoteLog({...})` et les deux définitions `const DEBUG` /
+  `function remoteLog` (background + injected).
+- Permission `storage` (`manifest.json`).
+
+---
+
 ## [2.0.8] — 2026-06-13
 
 ### Ajouté
@@ -102,6 +122,7 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+[2.0.9]: #209--2026-06-13
 [2.0.8]: #208--2026-06-13
 [2.0.7]: #207--2026-06-07
 [2.0.5]: #205--2026-06-07

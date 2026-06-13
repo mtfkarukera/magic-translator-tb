@@ -157,7 +157,7 @@ Voir **`SECURITY.md`** pour le détail. Points structurants :
 - **Frontière de privilège** : seul `background.js` accède au réseau ; le script injecté passe par
   message-passing.
 - **Donnée transmise à un tiers** : le corps des e-mails traduits est envoyé à Google. Aucune autre
-  exfiltration en production (le harnais `remoteLog`/`DEBUG` doit rester désactivé / être retiré).
+  exfiltration : le harnais de débogage `remoteLog`/`DEBUG` a été **retiré en v2.0.9**.
 - **Aucune persistance** : rien n'est stocké en `storage` ni mis en cache.
 
 ---

@@ -861,7 +861,6 @@
     // ═════════════════════════════════════════════════════════════════════
 
     const lancerTraduction = async () => {
-      remoteLog({ type: "lancerTraduction_start", source: ui.selectSource.value, cible: ui.selectCible.value, contentsOrig: !!contenusOriginaux });
       if (!estDeplie) deplier();
 
       const source = ui.selectSource.value;
@@ -869,13 +868,11 @@
 
       // ── Validation ────────────────────────────────────────────────────
       if (source === cible) {
-        remoteLog({ type: "lancerTraduction_error_same_language" });
         afficherStatut(ui.statut, t("errorSameLanguage"), "error");
         return;
       }
 
       const noeudsTexte = collecterNoeudsTexte(document.body);
-      remoteLog({ type: "lancerTraduction_nodes_collected", count: noeudsTexte.length });
       if (noeudsTexte.length === 0) {
         afficherStatut(ui.statut, t("errorNoText"), "error");
         return;
@@ -887,7 +884,6 @@
         noeudsTexte.forEach((noeud) => {
           contenusOriginaux.set(noeud, noeud.textContent);
         });
-        remoteLog({ type: "lancerTraduction_saved_originals", count: contenusOriginaux.size });
       }
 
       // ── Verrouillage de l'interface pendant la traduction ─────────────
@@ -935,13 +931,10 @@
           lots.push(lotCourant);
         }
 
-        remoteLog({ type: "lancerTraduction_chunks", count: lots.length, SEPARATEUR });
         // ── Traduction lot par lot ──────────────────────────────────────
         for (let i = 0; i < lots.length; i++) {
           const lot = lots[i];
-          remoteLog({ type: "lancerTraduction_chunk_translate_start", index: i, nodeCount: lot.noeuds.length, textLen: lot.texte.length });
           const resultat = await demanderTraduction(lot.texte, source, cible);
-          remoteLog({ type: "lancerTraduction_chunk_translate_response", index: i, resultLen: resultat.text.length, detectedLang: resultat.detectedLang });
 
           if (resultat.detectedLang) {
             derniereLangDetectee = resultat.detectedLang;
@@ -953,33 +946,26 @@
             // les retours à la ligne internes (e-mails en texte brut).
             // On nettoie d'éventuels marqueurs résiduels par sécurité.
             const cleanText = resultat.text.replace(SEPARATEUR_RE, "\n");
-            remoteLog({ type: "lancerTraduction_single_node_update", original: lot.noeuds[0].noeud.textContent, translated: cleanText });
             lot.noeuds[0].noeud.textContent = cleanText;
           } else {
             // ── Cas multi-nœuds ─────────────────────────────────────────
             // On découpe le résultat sur notre séparateur unique et on
             // réassigne chaque partie au nœud correspondant.
             const parties = resultat.text.split(SEPARATEUR_RE);
-            remoteLog({ type: "lancerTraduction_multi_node_split", index: i, partiesCount: parties.length, expectedCount: lot.noeuds.length });
             if (parties.length !== lot.noeuds.length) {
-              remoteLog({ type: "lancerTraduction_separator_mismatch", partiesCount: parties.length, expectedCount: lot.noeuds.length, text: resultat.text });
               console.warn("[MagicTranslator] Separator mismatch, falling back to node-by-node translation for this chunk", parties.length, lot.noeuds.length);
               for (const entree of lot.noeuds) {
                 try {
                   const origTxt = contenusOriginaux.get(entree.noeud);
-                  remoteLog({ type: "lancerTraduction_fallback_start", originalText: origTxt });
                   const res = await demanderTraduction(origTxt, source, cible);
-                  remoteLog({ type: "lancerTraduction_fallback_success", originalText: origTxt, translatedText: res.text });
                   entree.noeud.textContent = res.text;
                 } catch (e) {
-                  remoteLog({ type: "lancerTraduction_fallback_error", error: e.message });
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
                 }
               }
             } else {
               lot.noeuds.forEach((entree, idx) => {
                 if (parties[idx] !== undefined) {
-                  remoteLog({ type: "lancerTraduction_multi_node_update", original: entree.noeud.textContent, translated: parties[idx] });
                   entree.noeud.textContent = parties[idx];
                 }
               });
@@ -1140,18 +1126,6 @@
   // POINT D'ENTRÉE
   // ═══════════════════════════════════════════════════════════════════════
   // On attend que le DOM soit prêt avant d'initialiser l'UI.
-
-  // Passer DEBUG à true pour activer les logs de débogage local (serveur sur :9999).
-  // NE PAS passer à true en production : les données des e-mails seraient transmises.
-  const DEBUG = false;
-  function remoteLog(obj) {
-    if (!DEBUG) return;
-    fetch("http://localhost:9999/log", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: "injected", data: obj, timestamp: new Date().toISOString() })
-    }).catch(() => {});
-  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {

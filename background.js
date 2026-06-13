@@ -98,21 +98,10 @@ messenger.menus.onClicked.addListener(async (info, tab) => {
 // sont traités.
 
 messenger.runtime.onMessage.addListener((message, _expediteur) => {
-  remoteLog({ type: "onMessage_received", message });
-
   if (message.action !== "translate") return;
 
-  remoteLog({ type: "onMessage_translate_start", source: message.source, target: message.target, textLen: message.text.length });
-
   return traduireTexte(message.text, message.source, message.target)
-    .then((res) => {
-      remoteLog({ type: "onMessage_translate_success", success: res.success, textLen: res.text ? res.text.length : 0 });
-      return res;
-    })
-    .catch((erreur) => {
-      remoteLog({ type: "onMessage_translate_error", error: erreur.message });
-      return { success: false, error: erreur.message };
-    });
+    .catch((erreur) => ({ success: false, error: erreur.message }));
 });
 
 /**
@@ -154,7 +143,6 @@ async function traduireTexte(texte, source, cible) {
       .map((segment) => segment[0])
       .join("");
 
-    remoteLog({ type: "traduireTexte_success", detectedLang: donnees[2] });
     return {
       success: true,
       text: traduction,
@@ -162,18 +150,5 @@ async function traduireTexte(texte, source, cible) {
     };
   }
 
-  remoteLog({ type: "traduireTexte_invalid_format", donnees });
   throw new Error("Réponse invalide de Google Translate");
-}
-
-// Passer DEBUG à true pour activer les logs de débogage local (serveur sur :9999).
-// NE PAS passer à true en production : les données des e-mails seraient transmises.
-const DEBUG = false;
-function remoteLog(obj) {
-  if (!DEBUG) return;
-  fetch("http://localhost:9999/log", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ source: "background", data: obj, timestamp: new Date().toISOString() })
-  }).catch(() => {});
 }
