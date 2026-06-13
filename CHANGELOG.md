@@ -11,6 +11,29 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.10] — 2026-06-13
+
+### Sécurité
+- **Déclaration de collecte de données corrigée** (`manifest.json`) — Lot 2 de l'audit.
+  `data_collection_permissions.required` passe de `["none"]` à **`["personalCommunications"]`** :
+  le contenu des messages est transmis à un tiers (Google), `["none"]` était donc inexact.
+- **Séparateur de découpage fiabilisé** (`translator-injected.js`) — Lot 2. Remplacement des
+  marqueurs `@@N@@` par un jeton alphanumérique long et aléatoire (`MTSEP…`). La détection de
+  collision et le découpage utilisent désormais **le même jeton** : suppression du contournement
+  par espacement interne (`@@ 0 @@`) et du risque de ReDoS (plus de `\s*` non borné).
+
+### Corrigé
+- **« Texte collé »** sur les e-mails en texte brut : la regex de découpage n'avale plus les retours
+  à la ligne légitimes adjacents au séparateur (elle ne retire que le jeton + au plus un saut de
+  ligne de chaque côté). Les sauts de paragraphe autour des liens sont préservés.
+
+### Documentation
+- README + `SECURITY.md` : flux de données précisé — seul le **corps rendu** du message est transmis
+  à Google ; les en-têtes Thunderbird (de/à/sujet) ne sont pas collectés (Lot 2, volet « en-têtes »
+  résolu par documentation : le document de contenu ne contient pas le bloc d'en-têtes).
+
+---
+
 ## [2.0.9] — 2026-06-13
 
 ### Sécurité
@@ -122,6 +145,7 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+[2.0.10]: #2010--2026-06-13
 [2.0.9]: #209--2026-06-13
 [2.0.8]: #208--2026-06-13
 [2.0.7]: #207--2026-06-07

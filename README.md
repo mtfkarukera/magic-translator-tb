@@ -135,10 +135,10 @@ Mozilla Public License 2.0 (MPL-2.0)
 
 ## 🔒 Confidentialité des données
 
-Magic Translator ne collecte, ne stocke, ni ne transmet **aucune donnée personnelle ou télémétrique** à ses développeurs ou serveurs tiers.
+Magic Translator **ne fait aucune télémétrie** et **ne transmet rien à ses développeurs** ni à un quelconque serveur du projet (il n'existe aucun serveur Magic Translator).
 
 **Partage avec Google Translate :**  
-Pour fonctionner, l'extension envoie le contenu des e-mails que vous choisissez de traduire à l'API de Google Translate (client `gtx`). Ces données transitent *exclusivement et directement* entre votre client Thunderbird et les serveurs de Google (via une connexion sécurisée HTTPS). En aucun cas ces informations ne transitent par nous.
+Pour fonctionner, l'extension envoie le **contenu du corps des e-mails que vous choisissez de traduire** à l'API de Google Translate (client `gtx`). Ces données transitent *exclusivement et directement* entre votre client Thunderbird et les serveurs de Google (HTTPS). Seul le **corps rendu** du message est transmis : les en-têtes gérés par Thunderbird (expéditeur, destinataire, sujet) sont hors du document de contenu et ne sont pas collectés — sauf s'ils figurent dans le corps même du message. À ce titre, le manifest déclare la catégorie de collecte **`personalCommunications`** (contenu de messages transmis à un tiers), conformément au cadre de consentement de Mozilla.
 
 ## 🤝 Contribution
 

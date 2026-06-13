@@ -896,13 +896,22 @@
 
       try {
         // ── Séparateur unique anti-collision ─────────────────────────────
-        let separatorIndex = 0;
+        // Jeton unique, long et alphanumérique : Google Translate le préserve tel quel
+        // (il ressemble à un identifiant) et il ne contient aucun métacaractère de regex.
+        // La détection de collision ET le découpage s'appuient sur EXACTEMENT le même jeton —
+        // plus de divergence entre includes() et la RegExp (qui permettait un contournement
+        // par espacement interne « @@ 0 @@ ») ni de \s* non borné sujet au ReDoS.
         const textContentTotal = document.body.textContent || "";
-        while (textContentTotal.includes("@@" + separatorIndex + "@@")) {
-          separatorIndex++;
-        }
-        const SEPARATEUR = "\n@@" + separatorIndex + "@@\n";
-        const SEPARATEUR_RE = new RegExp("\\n?\\s*@@\\s*" + separatorIndex + "\\s*@@\\s*\\n?");
+        const hex4 = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, "0");
+        let SENTINEL;
+        do {
+          SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
+        } while (textContentTotal.includes(SENTINEL));
+        const SEPARATEUR = "\n" + SENTINEL + "\n";
+        // Au découpage, on ne retire QUE le jeton + au plus UN saut de ligne (et d'éventuels
+        // espaces horizontaux) de chaque côté — ceux que NOUS avons insérés. Les retours à la
+        // ligne légitimes du texte adjacent sont préservés (corrige le « texte collé »).
+        const SEPARATEUR_RE = new RegExp("[ \\t]*\\n?[ \\t]*" + SENTINEL + "[ \\t]*\\n?[ \\t]*", "g");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         // L'API Google Translate a une limite de taille par requête.

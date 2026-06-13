@@ -74,8 +74,8 @@ réinjection, restauration, gestion du cycle de vie.
        (uniquement à la 1re traduction, pour la restauration)
 
 4. [Découpage]   lots de ≤ 4000 caractères
-       nœuds joints par un SÉPARATEUR unique "\n@@N@@\n"
-       N = plus petit entier tel que "@@N@@" n'apparaît pas dans le corps
+       nœuds joints par un SÉPARATEUR unique "\n<SENTINEL>\n"
+       SENTINEL = jeton alphanumérique long et aléatoire (vérifié absent du corps)
 
 5. [Traduction]  pour chaque lot :
        runtime.sendMessage({action:"translate", text, source, target})

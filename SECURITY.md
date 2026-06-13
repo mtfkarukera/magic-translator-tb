@@ -47,18 +47,21 @@ Pour traduire, l'extension **transmet le texte de l'e-mail concerné à un servi
 
 | Donnée | Destinataire | Transport | Quand |
 |--------|--------------|-----------|-------|
-| Texte du message à traduire (peut inclure sujet/adresses si présents dans le corps collecté) | **Google Translate** (`translate.googleapis.com`, client `gtx`) | HTTPS | À chaque clic « Traduire » |
+| **Corps rendu** du message à traduire (peut inclure sujet/adresses uniquement s'ils figurent dans le corps lui-même) | **Google Translate** (`translate.googleapis.com`, client `gtx`) | HTTPS | À chaque clic « Traduire » |
 
 - Ces données transitent **directement** entre Thunderbird et Google ; elles ne passent par aucun
   serveur du projet.
+- **Seul le corps rendu est collecté** (`document.body` du document de contenu du message). Le bloc
+  d'en-têtes géré par Thunderbird (de / à / sujet) est *hors* de ce document et n'est donc **pas**
+  transmis — vérifiable : le sujet affiché dans l'en-tête n'est jamais traduit.
 - L'API `gtx` est **non officielle** : pas de contrat de service ni de garantie de confidentialité
   au-delà du transport HTTPS. La politique de confidentialité applicable est celle de Google.
 - Aucune donnée n'est envoyée ailleurs en production.
 
-> **Cohérence des déclarations** : le manifest déclare `data_collection_permissions: ["none"]`. Cette
-> déclaration vise l'absence de collecte *par le projet*, mais ne reflète pas la transmission du
-> contenu à Google. L'alignement de cette déclaration et de la documentation est un point de suivi
-> (voir `PLAN_ACTION.md`).
+> **Déclaration alignée (v2.0.10)** : le manifest déclare désormais
+> `data_collection_permissions: { required: ["personalCommunications"] }` — le contenu des messages
+> est transmis à un tiers (Google). Ceci remplace l'ancienne déclaration `["none"]`, qui ne reflétait
+> pas ce flux.
 
 ---
 
