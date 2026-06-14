@@ -149,10 +149,8 @@ viennent de la table `NOMS_LANGUES`.
 ## 6. Cycle de vie et robustesse
 
 - **Réinjection** : Thunderbird réutilise le même document HTML entre messages ; le script est
-  réinjecté et appelle `nettoyerInstance()` en premier (supprime l'UI, `abort()` les écouteurs DOM,
-  retire le listener runtime).
-- **`AbortController`** (`document.documentElement._mtAbort`) : coupe les écouteurs DOM (ex. keydown)
-  en une fois.
+  réinjecté et appelle `nettoyerInstance()` en premier (supprime l'UI, déconnecte le
+  `MutationObserver`, retire le listener `runtime.onMessage`).
 - **`MutationObserver`** (`_mtObserver`) : filet de sécurité — si le conteneur UI disparaît du
   `body`, l'observateur se déconnecte et relance `initialiser()`.
 - **Verrouillage UI** pendant la traduction (boutons/sélecteurs `disabled`).
