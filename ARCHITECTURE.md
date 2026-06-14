@@ -178,4 +178,6 @@ Voir **`SECURITY.md`** pour le détail. Points structurants :
 
 - **Incompatibilité Thunderbird Conversations** (architecture iframe) — voir `README.md`.
 - **API Google `gtx` non officielle** : pas de garantie de service, peut casser sans préavis.
-- **Pas de tests automatisés** : la logique de séparateur n'a pas de filet de régression.
+- **Tests** : les helpers de texte purs (`mt-text.js` — `decouperLong`, `extraireEspaces`) sont
+  couverts par `test/text.test.js` (`npm test`, `node:test`). La logique UI/DOM (Shadow DOM,
+  injection) reste testée manuellement dans Thunderbird.

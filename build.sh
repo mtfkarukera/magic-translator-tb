@@ -28,6 +28,7 @@ XPI="${OUT_DIR}/${NAME}-${VERSION}.xpi"
 FILES=(
   manifest.json
   background.js
+  mt-text.js
   translator-injected.js
   icon.png
   LICENSE
@@ -35,13 +36,13 @@ FILES=(
 )
 
 # ── Garde-fou : interdire DEBUG = true dans le code packagé ────────────────
-if grep -nE 'const[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true' background.js translator-injected.js; then
+if grep -nE 'const[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true' background.js translator-injected.js mt-text.js; then
   echo "❌ ABANDON : DEBUG = true détecté. Repasser à false avant de packager." >&2
   exit 1
 fi
 
 # ── Avertissement : harnais remoteLog encore présent (non bloquant) ────────
-if grep -qE 'localhost:9999' background.js translator-injected.js; then
+if grep -qE 'localhost:9999' background.js translator-injected.js mt-text.js; then
   echo "⚠️  AVERTISSEMENT : référence à localhost:9999 (harnais remoteLog) présente dans le code." >&2
   echo "    DEBUG est à false (pas de fuite active), mais le retrait du harnais est recommandé." >&2
 fi

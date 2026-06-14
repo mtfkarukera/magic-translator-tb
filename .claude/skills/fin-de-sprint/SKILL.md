@@ -11,12 +11,15 @@ correction post-sprint (un correctif « rapide » suit le même rituel). Référ
 Exécuter les étapes **dans l'ordre**. Ne pas en sauter. S'arrêter et signaler à l'utilisateur si une
 étape échoue.
 
-## 1. Lint (0 erreur, 0 warning)
+## 1. Lint & tests (0 erreur, 0 warning ; tests verts)
 
 ```bash
-npm run lint          # eslint background.js translator-injected.js
+npm run lint          # eslint background.js mt-text.js translator-injected.js
+npm test              # node --test : tests unitaires des helpers purs (mt-text.js)
 npm run lint:webext   # web-ext lint
 ```
+
+- `npm test` **doit** être vert (tests unitaires de `mt-text.js`).
 
 - ESLint **doit** être à **0 erreur, 0 warning**. Corriger toute violation (le code mort se supprime,
   ne se tolère pas).

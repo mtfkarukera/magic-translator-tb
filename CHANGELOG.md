@@ -11,6 +11,30 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.14] — 2026-06-14
+
+Qualité & dette technique — **Lot 5** de l'audit (dernier lot).
+
+### Ajouté
+- **Tests unitaires** (`test/text.test.js`, `node:test`, zéro dépendance) sur les helpers de texte
+  purs, extraits dans **`mt-text.js`** (`decouperLong`, `extraireEspaces`) — filet anti-régression
+  sur le découpage des gros nœuds et la préservation des espaces (les parties qui avaient eu des
+  bugs). Lancer avec `npm test` ; intégré au rituel de fin de sprint.
+
+### Corrigé
+- **Nom de langue marathi** corrompu (`mr`) : mélange arabe/cyrillique/devanagari → `"मराठी"`.
+  Validation Unicode passée sur toute la table `NOMS_LANGUES` (53 entrées, aucun autre mélange).
+- Commentaire de détection de locale et repli `navigator.language` : « fr » → « en » (cohérent avec
+  le fallback réel).
+
+### Modifié
+- **Déduplication** des données de langues : `LANGUES` (sélecteurs) est désormais **dérivée** de
+  `NOMS_LANGUES` (source unique code→nom) — fin de la double maintenance des libellés.
+- **Enregistrement du script de contenu** plus robuste : désenregistrement puis réenregistrement,
+  pour que la liste de fichiers à jour (dont `mt-text.js`) s'applique aussi lors d'une mise à jour.
+
+---
+
 ## [2.0.13] — 2026-06-14
 
 UX & accessibilité — **Lot 4** de l'audit.
@@ -215,6 +239,7 @@ Robustesse — **Lot 3** de l'audit.
 
 ---
 
+[2.0.14]: #2014--2026-06-14
 [2.0.13]: #2013--2026-06-14
 [2.0.12]: #2012--2026-06-14
 [2.0.11]: #2011--2026-06-13

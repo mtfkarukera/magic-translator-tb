@@ -55,6 +55,7 @@ export default [
     // ── Ignorer les fichiers non pertinents ────────────────────────────
     ignores: [
       "node_modules/",
+      "test/",
       "*.xpi",
       "eslint.config.js",
     ],

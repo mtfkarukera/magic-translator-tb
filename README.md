@@ -72,6 +72,7 @@ magic-translator/
 ├── manifest.json              # Manifest V3 Thunderbird
 ├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + proxy traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
+├── mt-text.js                 # Helpers de texte purs (testables ; injecté avant l'UI)
 ├── icon.png                   # Icône de l'extension (128×128)
 ├── build.sh                   # Packaging reproductible du XPI (→ dist/)
 ├── LICENSE                    # Licence MPL-2.0
@@ -81,7 +82,8 @@ magic-translator/
 ├── SECURITY.md                # Politique de sécurité et flux de données
 ├── CONTRIBUTING.md            # Guide de contribution
 ├── eslint.config.js           # Configuration ESLint (flat config)
-├── package.json               # Métadonnées npm, scripts (lint/build) et devDependencies
+├── package.json               # Métadonnées npm, scripts (lint/test/build) et devDependencies
+├── test/                      # Tests unitaires (node:test) des helpers purs
 ├── .claude/skills/            # Skills Claude Code (fin-de-sprint, build-xpi, revue-securite…)
 └── _locales/                  # Fichiers de localisation (manifest uniquement)
     ├── fr/messages.json       # Français

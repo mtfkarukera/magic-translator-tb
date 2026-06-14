@@ -32,14 +32,20 @@
 // est interceptée silencieusement.
 
 (async function enregistrerScript() {
+  const definition = {
+    id: "magic-translator-v2",
+    js: ["mt-text.js", "translator-injected.js"]
+  };
+  // On désenregistre d'abord : garantit que la définition À JOUR (ordre + liste de
+  // fichiers) remplace une éventuelle version persistée d'un chargement précédent —
+  // sinon, après une mise à jour, mt-text.js ne serait pas injecté.
   try {
-    await messenger.scripting.messageDisplay.registerScripts([{
-      id: "magic-translator-v2",
-      js: ["translator-injected.js"]
-    }]);
+    await messenger.scripting.messageDisplay.unregisterScripts({ ids: [definition.id] });
+  } catch { /* pas encore enregistré — normal au premier chargement */ }
+  try {
+    await messenger.scripting.messageDisplay.registerScripts([definition]);
     console.log("[MagicTranslator] Script messageDisplay enregistré.");
   } catch (erreur) {
-    // Déjà enregistré depuis un chargement précédent — ce n'est pas un problème.
     console.log("[MagicTranslator] Note registerScripts :", erreur.message || erreur);
   }
 })();

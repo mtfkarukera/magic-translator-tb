@@ -216,7 +216,7 @@
   };
 
   // ── Détection de la locale de l'interface ─────────────────────────────
-  // Priorité : browser.i18n → navigator.language → fallback "fr"
+  // Priorité : browser.i18n → navigator.language → fallback "en"
 
   let LOCALE = "en";
 
@@ -228,7 +228,7 @@
       }
     } catch { /* non disponible dans ce contexte */ }
 
-    const codeLang = (navigator.language || "fr").split("-")[0];
+    const codeLang = (navigator.language || "en").split("-")[0];
     return I18N[codeLang] ? codeLang : "en";
   };
 
@@ -267,7 +267,7 @@
     he: "עברית",         hi: "हिन्दी",            hr: "Hrvatski",     hu: "Magyar",
     id: "Bahasa Indonesia", it: "Italiano",    ja: "日本語",        kn: "ಕನ್ನಡ",
     ko: "한국어",         lt: "Lietuvių",        lv: "Latviešu",     mk: "Македонски",
-    ml: "മലയാളം",       mr: "مраठी",           ms: "Bahasa Melayu", nl: "Nederlands",
+    ml: "മലയാളം",       mr: "मराठी",           ms: "Bahasa Melayu", nl: "Nederlands",
     no: "Norsk",        pl: "Polski",          pt: "Português",    ro: "Română",
     ru: "Русский",      sk: "Slovenčina",      sl: "Slovenščina",  sq: "Shqip",
     sr: "Српски",       sv: "Svenska",         sw: "Kiswahili",    ta: "தமிழ்",
@@ -582,38 +582,17 @@
   // LISTE DES LANGUES (sélecteurs déroulants)
   // ═══════════════════════════════════════════════════════════════════════
 
+  // Codes proposés dans les sélecteurs, dans l'ordre d'affichage. Le libellé natif est
+  // tiré de NOMS_LANGUES (source UNIQUE code→nom) — plus de double maintenance des noms.
+  const CODES_LANGUES = [
+    "fr", "en", "es", "de", "it", "pt", "nl", "pl", "ru", "uk",
+    "ja", "ko", "zh-CN", "zh-TW", "ar", "hi", "tr", "vi", "th", "sv",
+    "da", "fi", "no", "cs", "ro", "hu", "el", "he", "id", "ms"
+  ];
   const LANGUES = [
-    { code: "auto",  label: "Auto-détection" },
-    { code: "fr",    label: "Français" },
-    { code: "en",    label: "English" },
-    { code: "es",    label: "Español" },
-    { code: "de",    label: "Deutsch" },
-    { code: "it",    label: "Italiano" },
-    { code: "pt",    label: "Português" },
-    { code: "nl",    label: "Nederlands" },
-    { code: "pl",    label: "Polski" },
-    { code: "ru",    label: "Русский" },
-    { code: "uk",    label: "Українська" },
-    { code: "ja",    label: "日本語" },
-    { code: "ko",    label: "한국어" },
-    { code: "zh-CN", label: "中文 (简体)" },
-    { code: "zh-TW", label: "中文 (繁體)" },
-    { code: "ar",    label: "العربية" },
-    { code: "hi",    label: "हिन्दी" },
-    { code: "tr",    label: "Türkçe" },
-    { code: "vi",    label: "Tiếng Việt" },
-    { code: "th",    label: "ไทย" },
-    { code: "sv",    label: "Svenska" },
-    { code: "da",    label: "Dansk" },
-    { code: "fi",    label: "Suomi" },
-    { code: "no",    label: "Norsk" },
-    { code: "cs",    label: "Čeština" },
-    { code: "ro",    label: "Română" },
-    { code: "hu",    label: "Magyar" },
-    { code: "el",    label: "Ελληνικά" },
-    { code: "he",    label: "עברית" },
-    { code: "id",    label: "Bahasa Indonesia" },
-    { code: "ms",    label: "Bahasa Melayu" }
+    // Le libellé "auto" est remplacé par t("autoDetect") au moment de l'affichage.
+    { code: "auto", label: "Auto-détection" },
+    ...CODES_LANGUES.map((code) => ({ code, label: NOMS_LANGUES[code] || code }))
   ];
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -651,28 +630,11 @@
     NETWORK:             "errorNetwork"
   };
 
-  /**
-   * Découpe un texte trop long (> maxLen) en segments traduisibles séparément,
-   * en coupant de préférence sur un saut de ligne ou une espace proche de la limite
-   * (coupe dure en dernier recours). Le recollage par join("") reconstitue le texte.
-   *
-   * @param   {string} texte  — Texte à découper
-   * @param   {number} maxLen — Taille maximale d'un segment
-   * @returns {string[]}      — Segments contigus
-   */
-  const decouperLong = (texte, maxLen) => {
-    const segments = [];
-    let reste = texte;
-    while (reste.length > maxLen) {
-      let coupe = reste.lastIndexOf("\n", maxLen);
-      if (coupe < maxLen * 0.5) coupe = reste.lastIndexOf(" ", maxLen);
-      if (coupe < maxLen * 0.5) coupe = maxLen; // aucun séparateur proche → coupe dure
-      segments.push(reste.slice(0, coupe));
-      reste = reste.slice(coupe);
-    }
-    if (reste) segments.push(reste);
-    return segments;
-  };
+  // ── Helpers de texte purs ──────────────────────────────────────────────
+  // decouperLong / extraireEspaces sont définis dans mt-text.js (injecté AVANT ce
+  // script, cf. background.js) et couverts par test/text.test.js. Si MTText est absent
+  // (erreur de packaging), la déstructuration échoue bruyamment — c'est volontaire.
+  const { decouperLong, extraireEspaces } = globalThis.MTText;
 
   // ═══════════════════════════════════════════════════════════════════════
   // COLLECTE DES NŒUDS TEXTE
@@ -1093,9 +1055,7 @@
           // Espaces de tête/fin isolés : NON envoyés à Google (qui les altère), mais réattachés
           // tels quels à la réinjection. C'est ce qui préserve l'espacement aux frontières
           // (ex. l'espace entre un mot et le lien qui suit).
-          const lead  = txt.match(/^\s*/)[0];
-          const trail = txt.match(/\s*$/)[0];
-          const coeur = txt.slice(lead.length, txt.length - trail.length);
+          const { lead, coeur, trail } = extraireEspaces(txt);
           const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
 
           // Si le lot courant déborderait, on le pousse et on en crée un nouveau

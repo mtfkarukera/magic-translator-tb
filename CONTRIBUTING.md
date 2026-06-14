@@ -11,6 +11,7 @@ technique, voir **`ARCHITECTURE.md`**.
 
 ```bash
 npm install        # installe ESLint et globals (devDependencies)
+npm test           # lance les tests unitaires (node:test, zéro dépendance)
 ```
 
 ## Démarrer
@@ -41,7 +42,7 @@ Deux scripts, deux contextes (voir `ARCHITECTURE.md`) :
 
 Tout changement suit le **rituel de fin de sprint**, dans l'ordre :
 
-1. **Lint** : `npm run lint` (0 erreur, 0 warning) + `npm run lint:webext`. `web-ext` est basé sur
+1. **Lint & tests** : `npm run lint` (0 erreur, 0 warning) + `npm test` (tests verts) + `npm run lint:webext`. `web-ext` est basé sur
    Firefox : 3 warnings sont des **faux positifs Thunderbird attendus** (`messagesRead` + 2×
    `data_collection_permissions`) ; tout dépassement de cette baseline est à corriger.
 2. **Docs** : mettre à jour `README.md` / `ARCHITECTURE.md` si un comportement change.
