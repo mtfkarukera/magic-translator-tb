@@ -64,7 +64,9 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 >
 > **Solution temporaire :** Désactivez Thunderbird Conversations pour utiliser Magic Translator.
 >
-> **Prochaines étapes :** La compatibilité avec Thunderbird Conversations est prévue dans une version future. Le mécanisme d'injection (Experiment API + observateur `content-document-global-created`) est identifié mais nécessite un travail supplémentaire pour coexister correctement avec l'architecture iframe de Conversations.
+> **Alternative / Solution dédiée :** L'extension [Magic Threads](https://addons.thunderbird.net/fr/thunderbird/addon/magic-threads/) ([dépôt GitHub](https://github.com/mtfkarukera/magic-threads/tree/main)) a été spécialement développée pour traiter cette incompatibilité avec Thunderbird Conversations. N'hésitez pas à l'installer et à la tester si vous souhaitez en profiter.
+>
+> **Prochaines étapes :** La compatibilité native de Magic Translator avec Thunderbird Conversations reste prévue dans une version future. Le mécanisme d'injection (Experiment API + observateur `content-document-global-created`) est identifié mais nécessite un travail supplémentaire pour coexister correctement avec l'architecture iframe de Conversations.
 
 ## 🏗️ Architecture
 
@@ -149,3 +151,7 @@ Les contributions sont bienvenues, en particulier pour :
 - La compatibilité avec Thunderbird Conversations
 - Le support de moteurs de traduction alternatifs (DeepL, LibreTranslate)
 - De nouvelles langues d'interface
+
+---
+
+💡 *Découvrez toutes les **Magic Apps** sur le site officiel : [magic-clipper.mtfk.fr](https://magic-clipper.mtfk.fr/).*
