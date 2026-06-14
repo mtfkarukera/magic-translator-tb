@@ -60,7 +60,13 @@
       errorNoText:        "Aucun texte à traduire.",
       errorGeneric:       "Erreur : {msg}",
       tooltipExpand:      "Traduire ce message",
-      tooltipCollapse:    "Replier"
+      tooltipCollapse:    "Replier",
+      statusTranslatingChunk:  "Traduction… ({i}/{n})",
+      statusTranslatedPartial: "Traduit partiellement",
+      errorRateLimited:        "Trop de requêtes. Réessayez dans un instant.",
+      errorServiceUnavailable: "Service de traduction indisponible. Réessayez plus tard.",
+      errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
+      errorNetwork:            "Erreur réseau. Vérifiez votre connexion."
     },
     en: {
       autoDetect:         "Auto-detect",
@@ -77,7 +83,13 @@
       errorNoText:        "No text to translate.",
       errorGeneric:       "Error: {msg}",
       tooltipExpand:      "Translate this message",
-      tooltipCollapse:    "Collapse"
+      tooltipCollapse:    "Collapse",
+      statusTranslatingChunk:  "Translating… ({i}/{n})",
+      statusTranslatedPartial: "Partially translated",
+      errorRateLimited:        "Too many requests. Try again shortly.",
+      errorServiceUnavailable: "Translation service unavailable. Try again later.",
+      errorTimeout:            "Request timed out. Check your connection.",
+      errorNetwork:            "Network error. Check your connection."
     },
     es: {
       autoDetect:         "Auto-detectar",
@@ -94,7 +106,13 @@
       errorNoText:        "No hay texto para traducir.",
       errorGeneric:       "Error: {msg}",
       tooltipExpand:      "Traducir este mensaje",
-      tooltipCollapse:    "Replegar"
+      tooltipCollapse:    "Replegar",
+      statusTranslatingChunk:  "Traduciendo… ({i}/{n})",
+      statusTranslatedPartial: "Traducido parcialmente",
+      errorRateLimited:        "Demasiadas solicitudes. Inténtalo de nuevo en un momento.",
+      errorServiceUnavailable: "Servicio de traducción no disponible. Inténtalo más tarde.",
+      errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
+      errorNetwork:            "Error de red. Comprueba tu conexión."
     },
     de: {
       autoDetect:         "Automatische Erkennung",
@@ -111,7 +129,13 @@
       errorNoText:        "Kein Text zum Übersetzen.",
       errorGeneric:       "Fehler: {msg}",
       tooltipExpand:      "Diese Nachricht übersetzen",
-      tooltipCollapse:    "Einklappen"
+      tooltipCollapse:    "Einklappen",
+      statusTranslatingChunk:  "Übersetze… ({i}/{n})",
+      statusTranslatedPartial: "Teilweise übersetzt",
+      errorRateLimited:        "Zu viele Anfragen. Versuchen Sie es gleich erneut.",
+      errorServiceUnavailable: "Übersetzungsdienst nicht verfügbar. Versuchen Sie es später.",
+      errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
+      errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung."
     },
     vi: {
       autoDetect:         "Tự động phát hiện",
@@ -128,7 +152,13 @@
       errorNoText:        "Không có văn bản để dịch.",
       errorGeneric:       "Lỗi: {msg}",
       tooltipExpand:      "Dịch tin nhắn này",
-      tooltipCollapse:    "Thu gọn"
+      tooltipCollapse:    "Thu gọn",
+      statusTranslatingChunk:  "Đang dịch… ({i}/{n})",
+      statusTranslatedPartial: "Đã dịch một phần",
+      errorRateLimited:        "Quá nhiều yêu cầu. Hãy thử lại sau giây lát.",
+      errorServiceUnavailable: "Dịch vụ dịch không khả dụng. Hãy thử lại sau.",
+      errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
+      errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn."
     },
     ja: {
       autoDetect:         "自動検出",
@@ -145,7 +175,13 @@
       errorNoText:        "翻訳するテキストがありません。",
       errorGeneric:       "エラー: {msg}",
       tooltipExpand:      "このメッセージを翻訳",
-      tooltipCollapse:    "折りたたむ"
+      tooltipCollapse:    "折りたたむ",
+      statusTranslatingChunk:  "翻訳中… ({i}/{n})",
+      statusTranslatedPartial: "部分的に翻訳しました",
+      errorRateLimited:        "リクエストが多すぎます。しばらくしてから再試行してください。",
+      errorServiceUnavailable: "翻訳サービスを利用できません。後でもう一度お試しください。",
+      errorTimeout:            "タイムアウトしました。接続を確認してください。",
+      errorNetwork:            "ネットワークエラー。接続を確認してください。"
     },
     pt: {
       autoDetect:         "Auto-detecção",
@@ -162,7 +198,13 @@
       errorNoText:        "Nenhum texto para traduzir.",
       errorGeneric:       "Erro: {msg}",
       tooltipExpand:      "Traduzir esta mensagem",
-      tooltipCollapse:    "Recolher"
+      tooltipCollapse:    "Recolher",
+      statusTranslatingChunk:  "A traduzir… ({i}/{n})",
+      statusTranslatedPartial: "Traduzido parcialmente",
+      errorRateLimited:        "Demasiados pedidos. Tente novamente daqui a pouco.",
+      errorServiceUnavailable: "Serviço de tradução indisponível. Tente mais tarde.",
+      errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
+      errorNetwork:            "Erro de rede. Verifique a sua ligação."
     }
   };
 
@@ -583,6 +625,38 @@
     throw new Error((reponse && reponse.error) || "Échec de la traduction");
   };
 
+  // ── Codes d'erreur (background) → clés i18n pour un message clair ───────
+  // Tout code inconnu retombe sur errorGeneric (affiche le message brut).
+  const ERREURS_CONNUES = {
+    RATE_LIMITED:        "errorRateLimited",
+    SERVICE_UNAVAILABLE: "errorServiceUnavailable",
+    TIMEOUT:             "errorTimeout",
+    NETWORK:             "errorNetwork"
+  };
+
+  /**
+   * Découpe un texte trop long (> maxLen) en segments traduisibles séparément,
+   * en coupant de préférence sur un saut de ligne ou une espace proche de la limite
+   * (coupe dure en dernier recours). Le recollage par join("") reconstitue le texte.
+   *
+   * @param   {string} texte  — Texte à découper
+   * @param   {number} maxLen — Taille maximale d'un segment
+   * @returns {string[]}      — Segments contigus
+   */
+  const decouperLong = (texte, maxLen) => {
+    const segments = [];
+    let reste = texte;
+    while (reste.length > maxLen) {
+      let coupe = reste.lastIndexOf("\n", maxLen);
+      if (coupe < maxLen * 0.5) coupe = reste.lastIndexOf(" ", maxLen);
+      if (coupe < maxLen * 0.5) coupe = maxLen; // aucun séparateur proche → coupe dure
+      segments.push(reste.slice(0, coupe));
+      reste = reste.slice(coupe);
+    }
+    if (reste) segments.push(reste);
+    return segments;
+  };
+
   // ═══════════════════════════════════════════════════════════════════════
   // COLLECTE DES NŒUDS TEXTE
   // ═══════════════════════════════════════════════════════════════════════
@@ -948,8 +1022,35 @@
         }
 
         // ── Traduction lot par lot ──────────────────────────────────────
+        // Écriture ATOMIQUE : on accumule toutes les traductions sans toucher au DOM,
+        // et on n'applique qu'à la toute fin. Si un lot échoue (réseau, service), rien
+        // n'est écrit → l'e-mail reste intégralement en version d'origine (jamais
+        // « à moitié traduit »). Un nœud qui échoue dans le fallback reste simplement en VO.
+        const traductions = new Map(); // noeud Text → texte traduit (appliqué en fin)
+        let echecsNoeuds = 0;
+
         for (let i = 0; i < lots.length; i++) {
           const lot = lots[i];
+
+          // Indicateur de progression (seulement s'il y a plusieurs lots).
+          if (lots.length > 1) {
+            afficherStatut(ui.statut, t("statusTranslatingChunk", { i: i + 1, n: lots.length }), "loading");
+          }
+
+          // ── Nœud unique très long (> limite) : sous-découpage ───────────
+          // Sans cela, l'API tronque silencieusement et l'original serait détruit.
+          if (lot.noeuds.length === 1 && lot.texte.length > TAILLE_MAX_LOT) {
+            const entree = lot.noeuds[0];
+            const morceaux = [];
+            for (const seg of decouperLong(lot.texte, TAILLE_MAX_LOT)) {
+              const r = await demanderTraduction(seg, source, cible);
+              if (r.detectedLang) derniereLangDetectee = r.detectedLang;
+              morceaux.push(r.text);
+            }
+            traductions.set(entree.noeud, entree.lead + morceaux.join("").trim() + entree.trail);
+            continue;
+          }
+
           const resultat = await demanderTraduction(lot.texte, source, cible);
 
           if (resultat.detectedLang) {
@@ -963,7 +1064,7 @@
             // INTERNES (e-mails en texte brut) sont conservés (trim n'enlève que l'extérieur).
             const entree = lot.noeuds[0];
             const coeurTraduit = resultat.text.replace(SEPARATEUR_RE, "").trim();
-            entree.noeud.textContent = entree.lead + coeurTraduit + entree.trail;
+            traductions.set(entree.noeud, entree.lead + coeurTraduit + entree.trail);
           } else {
             // ── Cas multi-nœuds ─────────────────────────────────────────
             // On découpe le résultat sur notre séparateur unique et on
@@ -975,23 +1076,31 @@
                 try {
                   const origTxt = contenusOriginaux.get(entree.noeud);
                   const res = await demanderTraduction(origTxt.trim(), source, cible);
-                  entree.noeud.textContent = entree.lead + res.text.trim() + entree.trail;
+                  traductions.set(entree.noeud, entree.lead + res.text.trim() + entree.trail);
                 } catch (e) {
+                  echecsNoeuds++;
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
                 }
               }
             } else {
               lot.noeuds.forEach((entree, idx) => {
                 if (parties[idx] !== undefined) {
-                  entree.noeud.textContent = entree.lead + parties[idx].trim() + entree.trail;
+                  traductions.set(entree.noeud, entree.lead + parties[idx].trim() + entree.trail);
                 }
               });
             }
           }
         }
 
-        // ── Affichage du statut de succès ────────────────────────────────
-        if (derniereLangDetectee && source === "auto") {
+        // ── Écriture atomique dans le DOM (tous les lots ont abouti) ──────
+        traductions.forEach((texte, noeud) => {
+          noeud.textContent = texte;
+        });
+
+        // ── Affichage du statut ──────────────────────────────────────────
+        if (echecsNoeuds > 0) {
+          afficherStatut(ui.statut, "⚠ " + t("statusTranslatedPartial"), "error");
+        } else if (derniereLangDetectee && source === "auto") {
           const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
           afficherStatut(ui.statut, "✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
         } else {
@@ -1001,14 +1110,18 @@
         ui.btnOriginal.classList.remove("mt-hidden");
         ui.btnTraduire.textContent = t("btnRetranslate");
 
-        // ── Repli automatique après 1,5 s ───────────────────────────────
-        setTimeout(() => {
-          if (estDeplie) replier(true);
-        }, 1500);
+        // ── Repli automatique après 1,5 s (sauf en cas d'échec partiel) ──
+        if (echecsNoeuds === 0) {
+          setTimeout(() => {
+            if (estDeplie) replier(true);
+          }, 1500);
+        }
 
       } catch (erreur) {
         console.error("[MagicTranslator] Erreur de traduction :", erreur);
-        afficherStatut(ui.statut, t("errorGeneric", { msg: erreur.message }), "error");
+        const cle = ERREURS_CONNUES[erreur.message];
+        const msg = cle ? t(cle) : t("errorGeneric", { msg: erreur.message });
+        afficherStatut(ui.statut, msg, "error");
       } finally {
         // ── Déverrouillage de l'interface ────────────────────────────────
         ui.btnTraduire.disabled  = false;

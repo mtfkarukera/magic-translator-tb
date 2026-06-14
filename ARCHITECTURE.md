@@ -77,17 +77,21 @@ réinjection, restauration, gestion du cycle de vie.
        nœuds joints par un SÉPARATEUR unique "\n<SENTINEL>\n"
        SENTINEL = jeton alphanumérique long et aléatoire (vérifié absent du corps)
 
-5. [Traduction]  pour chaque lot :
+5. [Traduction]  pour chaque lot (statut « Traduction… (i/N) » si plusieurs lots) :
        runtime.sendMessage({action:"translate", text, source, target})
        → background fetch Google → texte traduit
+       • nœud unique > 4000 car. : sous-découpé en segments, traduits puis recollés
 
-6. [Réinjection]
-       • lot mono-nœud  : assignation directe (préserve les retours à la ligne)
+6. [Réinjection ATOMIQUE]
+       Traductions accumulées sans toucher au DOM, puis écrites toutes en fin de
+       boucle. Si un lot échoue, RIEN n'est écrit → l'e-mail reste intact (jamais
+       « à moitié traduit »).
+       • lot mono-nœud  : cœur traduit + espaces d'origine réattachés
        • lot multi-nœuds: split sur SEPARATEUR_RE, réassignation 1:1
        • si #segments ≠ #nœuds : FALLBACK nœud-par-nœud (1 requête par nœud)
 
-7. [Statut]      "✓ Traduit depuis <langue>" si auto-détection
-       → repli automatique en pilule [MT ✓] après 1,5 s
+7. [Statut]      "✓ Traduit depuis <langue>" (ou "⚠ Traduit partiellement")
+       → repli automatique en pilule [MT ✓] après 1,5 s (sauf échec partiel)
 
 8. [Restauration] bouton « Original » : restaure chaque nœud depuis contenusOriginaux
 ```
@@ -101,7 +105,10 @@ réinjection, restauration, gestion du cycle de vie.
 
 L'appel Google : `POST https://translate.googleapis.com/translate_a/single?client=gtx&sl=<src>&tl=<tgt>&dt=t`
 avec corps `q=<texte>`. Réponse parsée : `donnees[0]` = segments `[trad, orig, …]`, `donnees[2]` =
-code de langue détectée. Timeout : `AbortSignal.timeout(15000)` **par lot**.
+code de langue détectée. Timeout : `AbortSignal.timeout(15000)` **par lot**. Les erreurs
+reviennent sous forme de **codes** (`RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`) que
+le script injecté traduit en messages localisés ; une réponse HTML/non-JSON (blocage/captcha) est
+traitée comme `SERVICE_UNAVAILABLE`. Le payload entrant est validé côté background.
 
 ---
 
@@ -166,6 +173,4 @@ Voir **`SECURITY.md`** pour le détail. Points structurants :
 
 - **Incompatibilité Thunderbird Conversations** (architecture iframe) — voir `README.md`.
 - **API Google `gtx` non officielle** : pas de garantie de service, peut casser sans préavis.
-- **Nœud unique > 4000 caractères** : non re-découpé (risque de troncature Google) — voir
-  `PLAN_ACTION.md`.
 - **Pas de tests automatisés** : la logique de séparateur n'a pas de filet de régression.

@@ -11,6 +11,33 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.12] — 2026-06-14
+
+Robustesse — **Lot 3** de l'audit.
+
+### Ajouté
+- **Écriture atomique de la traduction** : les traductions de tous les lots sont accumulées puis
+  appliquées au DOM en une seule fois. Si un lot échoue (réseau/service), **rien n'est écrit** —
+  l'e-mail ne reste jamais « à moitié traduit ».
+- **Découpage des nœuds > 4000 caractères** : un nœud trop long est sous-découpé en segments traduits
+  séparément puis recollés, au lieu d'être tronqué silencieusement par Google.
+- **Indicateur de progression** « Traduction… (i/N) » pour les e-mails en plusieurs lots.
+- **Messages d'erreur clairs et localisés** (7 langues) : trop de requêtes (429), service
+  indisponible (5xx / réponse HTML-captcha / JSON invalide), délai dépassé, erreur réseau.
+- Statut **« ⚠ Traduit partiellement »** si un nœud échoue dans le fallback (le bandeau reste ouvert).
+
+### Sécurité
+- **Validation du payload** entrant dans le gestionnaire `onMessage` du background (rejet si
+  `text`/`source`/`target` ne sont pas des chaînes).
+
+### Modifié
+- `background.js` : gestion des erreurs réseau/HTTP refondue (codes `RATE_LIMITED`,
+  `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`) + vérification du parsing JSON avant usage.
+- Docs : `ARCHITECTURE.md` (écriture atomique, gros nœuds, gestion d'erreurs) ; en-tête de
+  `background.js` corrigé (suppression de la mention obsolète au stockage de locale).
+
+---
+
 ## [2.0.11] — 2026-06-13
 
 ### Corrigé
@@ -158,6 +185,7 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+[2.0.12]: #2012--2026-06-14
 [2.0.11]: #2011--2026-06-13
 [2.0.10]: #2010--2026-06-13
 [2.0.9]: #209--2026-06-13
