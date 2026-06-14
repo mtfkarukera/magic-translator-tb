@@ -66,7 +66,8 @@
       errorRateLimited:        "Trop de requêtes. Réessayez dans un instant.",
       errorServiceUnavailable: "Service de traduction indisponible. Réessayez plus tard.",
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
-      errorNetwork:            "Erreur réseau. Vérifiez votre connexion."
+      errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
+      statusAlreadyIn:         "Déjà en {lang}"
     },
     en: {
       autoDetect:         "Auto-detect",
@@ -89,7 +90,8 @@
       errorRateLimited:        "Too many requests. Try again shortly.",
       errorServiceUnavailable: "Translation service unavailable. Try again later.",
       errorTimeout:            "Request timed out. Check your connection.",
-      errorNetwork:            "Network error. Check your connection."
+      errorNetwork:            "Network error. Check your connection.",
+      statusAlreadyIn:         "Already in {lang}"
     },
     es: {
       autoDetect:         "Auto-detectar",
@@ -112,7 +114,8 @@
       errorRateLimited:        "Demasiadas solicitudes. Inténtalo de nuevo en un momento.",
       errorServiceUnavailable: "Servicio de traducción no disponible. Inténtalo más tarde.",
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
-      errorNetwork:            "Error de red. Comprueba tu conexión."
+      errorNetwork:            "Error de red. Comprueba tu conexión.",
+      statusAlreadyIn:         "Ya en {lang}"
     },
     de: {
       autoDetect:         "Automatische Erkennung",
@@ -135,7 +138,8 @@
       errorRateLimited:        "Zu viele Anfragen. Versuchen Sie es gleich erneut.",
       errorServiceUnavailable: "Übersetzungsdienst nicht verfügbar. Versuchen Sie es später.",
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
-      errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung."
+      errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
+      statusAlreadyIn:         "Bereits auf {lang}"
     },
     vi: {
       autoDetect:         "Tự động phát hiện",
@@ -158,7 +162,8 @@
       errorRateLimited:        "Quá nhiều yêu cầu. Hãy thử lại sau giây lát.",
       errorServiceUnavailable: "Dịch vụ dịch không khả dụng. Hãy thử lại sau.",
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
-      errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn."
+      errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
+      statusAlreadyIn:         "Đã ở {lang}"
     },
     ja: {
       autoDetect:         "自動検出",
@@ -181,7 +186,8 @@
       errorRateLimited:        "リクエストが多すぎます。しばらくしてから再試行してください。",
       errorServiceUnavailable: "翻訳サービスを利用できません。後でもう一度お試しください。",
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
-      errorNetwork:            "ネットワークエラー。接続を確認してください。"
+      errorNetwork:            "ネットワークエラー。接続を確認してください。",
+      statusAlreadyIn:         "すでに{lang}です"
     },
     pt: {
       autoDetect:         "Auto-detecção",
@@ -204,7 +210,8 @@
       errorRateLimited:        "Demasiados pedidos. Tente novamente daqui a pouco.",
       errorServiceUnavailable: "Serviço de tradução indisponível. Tente mais tarde.",
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
-      errorNetwork:            "Erro de rede. Verifique a sua ligação."
+      errorNetwork:            "Erro de rede. Verifique a sua ligação.",
+      statusAlreadyIn:         "Já em {lang}"
     }
   };
 
@@ -531,6 +538,16 @@
     "}",
     "",
 
+    // ── Focus clavier visible (accessibilité) ─────────────────────────
+    ".mt-btn:focus-visible,",
+    ".mt-pill:focus-visible,",
+    ".mt-logo-icon:focus-visible,",
+    ".mt-select:focus-visible {",
+    "  outline: 2px solid #a78bfa;",
+    "  outline-offset: 2px;",
+    "}",
+    "",
+
     // ── Zone de statut ────────────────────────────────────────────────
     ".mt-status {",
     "  font-size: 11px;",
@@ -724,15 +741,21 @@
     const pilule = document.createElement("div");
     pilule.className = "mt-pill";
     pilule.title = t("tooltipExpand");
+    // Accessibilité : la pilule est cliquable → exposée comme bouton focusable au clavier.
+    pilule.setAttribute("role", "button");
+    pilule.setAttribute("tabindex", "0");
+    pilule.setAttribute("aria-label", t("tooltipExpand"));
 
     const iconeT = document.createElement("span");
     iconeT.className = "mt-pill-icon";
     iconeT.textContent = "MT";
+    iconeT.setAttribute("aria-hidden", "true");
     pilule.appendChild(iconeT);
 
     const chevron = document.createElement("span");
     chevron.className = "mt-pill-chevron";
     chevron.textContent = "▸";
+    chevron.setAttribute("aria-hidden", "true");
     pilule.appendChild(chevron);
 
     const indicateurStatut = document.createElement("span");
@@ -752,6 +775,11 @@
     const logoIcone = document.createElement("span");
     logoIcone.className = "mt-logo-icon";
     logoIcone.textContent = "MT";
+    // Accessibilité : le logo replie le bandeau → bouton focusable au clavier.
+    logoIcone.setAttribute("role", "button");
+    logoIcone.setAttribute("tabindex", "0");
+    logoIcone.setAttribute("aria-label", t("tooltipCollapse"));
+    logoIcone.title = t("tooltipCollapse");
     logo.appendChild(logoIcone);
     const logoTexte = document.createElement("span");
     logoTexte.textContent = t("bannerTitle");
@@ -775,6 +803,7 @@
 
     const selectSource = document.createElement("select");
     selectSource.className = "mt-select";
+    selectSource.setAttribute("aria-label", t("labelFrom"));
     LANGUES.forEach((langue) => {
       const opt = document.createElement("option");
       opt.value = langue.code;
@@ -788,6 +817,7 @@
     const fleche = document.createElement("span");
     fleche.className = "mt-arrow";
     fleche.textContent = "→";
+    fleche.setAttribute("aria-hidden", "true");
     controles.appendChild(fleche);
 
     // ── Sélecteur cible ─────────────────────────────────────────────
@@ -798,6 +828,7 @@
 
     const selectCible = document.createElement("select");
     selectCible.className = "mt-select";
+    selectCible.setAttribute("aria-label", t("labelTo"));
     // Le sélecteur cible n'inclut pas "auto" (pas de sens en cible)
     LANGUES.filter((l) => l.code !== "auto").forEach((langue) => {
       const opt = document.createElement("option");
@@ -805,10 +836,18 @@
       opt.textContent = langue.label;
       selectCible.appendChild(opt);
     });
-    // Pré-sélectionner la langue de l'interface, sinon "en" (fallback universel)
-    const cibleParDefaut = LOCALE;
-    const cibleExiste = LANGUES.some((l) => l.code === cibleParDefaut);
-    selectCible.value = cibleExiste ? cibleParDefaut : "en";
+    // Cible par défaut : on vise la langue RÉELLE de l'utilisateur, y compris régionale
+    // (ex. "zh-CN") si elle figure dans la liste, sinon le code primaire, sinon "en".
+    let cibleParDefaut = "en";
+    try {
+      const uiFull = (typeof browser !== "undefined" && browser.i18n && browser.i18n.getUILanguage)
+        ? browser.i18n.getUILanguage()
+        : (navigator.language || "");
+      const uiPrimary = uiFull.split("-")[0];
+      if (LANGUES.some((l) => l.code === uiFull)) cibleParDefaut = uiFull;
+      else if (LANGUES.some((l) => l.code === uiPrimary)) cibleParDefaut = uiPrimary;
+    } catch { /* on garde "en" */ }
+    selectCible.value = cibleParDefaut;
     controles.appendChild(selectCible);
 
     // ── Bouton « Traduire » ─────────────────────────────────────────
@@ -828,6 +867,10 @@
     // ── Zone de statut ──────────────────────────────────────────────
     const statut = document.createElement("span");
     statut.className = "mt-status mt-hidden";
+    // Accessibilité : région live → les changements de statut sont annoncés aux lecteurs d'écran.
+    statut.setAttribute("role", "status");
+    statut.setAttribute("aria-live", "polite");
+    statut.setAttribute("aria-atomic", "true");
     bandeau.appendChild(statut);
 
     // ── Bouton « Replier » ──────────────────────────────────────────
@@ -842,6 +885,7 @@
     // ── Objet de retour (références directes aux éléments du DOM) ────
     return {
       conteneur,
+      shadow,
       pilule,
       indicateurStatut,
       bandeau,
@@ -875,10 +919,6 @@
     contenusOriginaux = null;
     estDeplie = false;
 
-    // ── Contrôleur d'annulation (nettoyage des écouteurs document) ──────
-    const controleur = new AbortController();
-    document.documentElement._mtAbort = controleur;
-
     // ── Détection de la locale ────────────────────────────────────────────────
     // detecterLocale() appelle browser.i18n.getUILanguage() de façon synchrone,
     // ce qui évite tout round-trip async (et donc tout risque de « Promise rejected
@@ -891,7 +931,7 @@
     // On insère le conteneur en tout premier enfant du body pour que le
     // bandeau apparaisse au-dessus du contenu du message.
     // La pilule et le bandeau sont masqués par défaut : l'UI n'apparaît
-    // qu'après un clic explicite sur le bouton barre ou Ctrl+Shift+T.
+    // qu'après un clic sur le bouton barre, le menu, ou le raccourci clavier.
     ui.pilule.classList.add("mt-hidden");
     ui.bandeau.classList.add("mt-hidden");
 
@@ -901,15 +941,50 @@
       document.documentElement.insertBefore(ui.conteneur, document.documentElement.firstChild);
     }
 
+    // ── Repli automatique respectueux ──────────────────────────────────────
+    // Après une traduction réussie, le bandeau se replie en pilule au bout de 1,5 s,
+    // MAIS le timer est suspendu tant que l'utilisateur survole le bandeau ou y a le
+    // focus, puis reprogrammé à la sortie — ne fait pas disparaître le contexte sous
+    // la souris ni au clavier.
+    let timerRepliAuto = null;
+    let repliAutoArme = false;
+
+    const utilisateurSurLeBandeau = () =>
+      ui.bandeau.matches(":hover") ||
+      (ui.shadow.activeElement && ui.bandeau.contains(ui.shadow.activeElement));
+
+    const annulerRepliAuto = () => {
+      if (timerRepliAuto !== null) {
+        clearTimeout(timerRepliAuto);
+        timerRepliAuto = null;
+      }
+    };
+    const programmerRepliAuto = () => {
+      annulerRepliAuto();
+      repliAutoArme = true;
+      if (utilisateurSurLeBandeau()) return; // suspendu tant qu'il interagit
+      timerRepliAuto = setTimeout(() => {
+        timerRepliAuto = null;
+        repliAutoArme = false;
+        if (estDeplie) replier(true);
+      }, 1500);
+    };
+    const reprogrammerSiArme = () => {
+      if (repliAutoArme && estDeplie) programmerRepliAuto();
+    };
+
     // ── Déplier / replier ───────────────────────────────────────────────
 
     const deplier = () => {
+      annulerRepliAuto();
       estDeplie = true;
       ui.pilule.classList.add("mt-hidden");
       ui.bandeau.classList.remove("mt-hidden");
     };
 
     const replier = (afficherCoche) => {
+      annulerRepliAuto();
+      repliAutoArme = false;
       estDeplie = false;
       ui.bandeau.classList.add("mt-hidden");
       ui.pilule.classList.remove("mt-hidden");
@@ -929,6 +1004,24 @@
     ui.btnReplier.addEventListener("click", () => {
       replier(!!contenusOriginaux);
     });
+
+    // Activation clavier (Entrée/Espace) des éléments rôle=bouton (pilule, logo).
+    const activerAuClavier = (el, action) => {
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          action();
+        }
+      });
+    };
+    activerAuClavier(ui.pilule, deplier);
+    activerAuClavier(ui.logoIcone, () => replier(!!contenusOriginaux));
+
+    // Suspension/reprise du repli automatique selon l'interaction de l'utilisateur.
+    ui.bandeau.addEventListener("mouseenter", annulerRepliAuto);
+    ui.bandeau.addEventListener("focusin", annulerRepliAuto);
+    ui.bandeau.addEventListener("mouseleave", reprogrammerSiArme);
+    ui.bandeau.addEventListener("focusout", reprogrammerSiArme);
 
     // ═════════════════════════════════════════════════════════════════════
     // LOGIQUE DE TRADUCTION
@@ -1099,7 +1192,11 @@
 
         // ── Affichage du statut ──────────────────────────────────────────
         if (echecsNoeuds > 0) {
-          afficherStatut(ui.statut, "⚠ " + t("statusTranslatedPartial"), "error");
+          afficherStatut(ui.statut, t("statusTranslatedPartial"), "error");
+        } else if (source === "auto" && derniereLangDetectee && derniereLangDetectee === cible) {
+          // Auto-détection : la langue détectée est déjà la cible → rien d'utile à traduire.
+          const nomLang = NOMS_LANGUES[cible] || cible;
+          afficherStatut(ui.statut, "✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
         } else if (derniereLangDetectee && source === "auto") {
           const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
           afficherStatut(ui.statut, "✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
@@ -1110,11 +1207,9 @@
         ui.btnOriginal.classList.remove("mt-hidden");
         ui.btnTraduire.textContent = t("btnRetranslate");
 
-        // ── Repli automatique après 1,5 s (sauf en cas d'échec partiel) ──
+        // ── Repli automatique respectueux (sauf en cas d'échec partiel) ──
         if (echecsNoeuds === 0) {
-          setTimeout(() => {
-            if (estDeplie) replier(true);
-          }, 1500);
+          programmerRepliAuto();
         }
 
       } catch (erreur) {
@@ -1151,18 +1246,11 @@
       ui.statut.classList.add("mt-hidden");
     });
 
-    // ── Raccourci clavier (Ctrl+Shift+T directement dans le document) ────
-    // Modifié pour basculer la visibilité du bandeau plutôt que de lancer la traduction immédiatement
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === "T" || e.key === "t")) {
-        e.preventDefault();
-        if (estDeplie) {
-          replier(!!contenusOriginaux);
-        } else {
-          deplier();
-        }
-      }
-    }, { signal: controleur.signal });
+    // ── Raccourci clavier ─────────────────────────────────────────────────
+    // Le raccourci (Alt+Shift+T par défaut, remappable) est déclaré dans le manifest
+    // (clé `commands`) et géré par background.js, qui envoie « toggleBanner ». Cela
+    // évite le conflit avec « rouvrir l'onglet » (Ctrl+Shift+T) et le rend visible et
+    // reconfigurable dans les paramètres de Thunderbird.
 
     // ── Écoute du message "toggleBanner" envoyé par background.js ─────────
     // Déclenché par le clic sur le bouton barre (message_display_action)
@@ -1212,7 +1300,6 @@
    */
   function nettoyerInstance() {
     document.getElementById("magic-translator-root")?.remove();
-    document.documentElement._mtAbort?.abort();
     document.documentElement._mtObserver?.disconnect();
     if (document.documentElement._mtMessageListener) {
       browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
@@ -1245,9 +1332,12 @@
       spinner.className = "mt-spinner";
       el.appendChild(spinner);
       el.appendChild(document.createTextNode(message));
+    } else if (type === "error") {
+      // Erreur : icône ⚠ (information non véhiculée par la seule couleur) + classe.
+      el.textContent = "⚠ " + message;
+      el.classList.add("error");
     } else {
       el.textContent = message;
-      if (type === "error")   el.classList.add("error");
       if (type === "success") el.classList.add("success");
     }
   }

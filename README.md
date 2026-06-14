@@ -16,7 +16,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
 - **Restauration** du texte original en un clic
-- **Raccourci clavier** : `Ctrl+Shift+T` (Mac : `⌃⇧T`) — fonctionne quand le panneau de lecture a le focus
+- **Raccourci clavier** : `Alt+Shift+T` par défaut — **remappable** dans les paramètres de Thunderbird (Modules → ⚙️ → Gérer les raccourcis), et sans collision avec « rouvrir l'onglet »
 - **Interface i18n** — L'UI s'adapte à la langue de Thunderbird (FR, EN, ES, DE, VI, JA, PT) ; **fallback anglais** pour toute autre langue
 - **Design sobre et élégant** — Dark glassmorphism, animations fluides, Shadow DOM isolé
 - **Support texte brut** — Les e-mails en texte brut (`<pre>`) sont traduits intégralement
@@ -51,7 +51,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 7. Pour restaurer le texte original, rouvrez le bandeau et cliquez sur **Original**
 8. Pour fermer complètement le traducteur, cliquez à nouveau sur **Traduire** dans la barre (ou clic droit → Désactiver)
 
-> **Raccourci clavier :** `Ctrl+Shift+T` ouvre directement le bandeau sans passer par le bouton barre.
+> **Raccourci clavier :** `Alt+Shift+T` (par défaut, **remappable**) affiche / masque le traducteur, comme le bouton de la barre.
 
 ## ⚠️ Incompatibilités connues
 

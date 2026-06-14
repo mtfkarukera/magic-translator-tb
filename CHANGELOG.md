@@ -11,6 +11,36 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.13] — 2026-06-14
+
+UX & accessibilité — **Lot 4** de l'audit.
+
+### Ajouté
+- **Raccourci clavier remappable** : déclaré via la clé `commands` du manifest (défaut
+  **Alt+Shift+T**), visible et reconfigurable dans les paramètres de Thunderbird, **sans collision**
+  avec « rouvrir l'onglet » (`Ctrl+Shift+T`).
+- **Accessibilité clavier** : la pilule et le logo (cliquables) sont désormais des boutons focusables,
+  activables avec Entrée/Espace ; focus visible rétabli (`:focus-visible`).
+- **Lecteurs d'écran** : la zone de statut est une région `aria-live` (annoncée) ; les boutons-icônes
+  ont un `aria-label` ; les éléments décoratifs (chevron, flèche) sont `aria-hidden`.
+- **Icône d'avertissement** sur les erreurs (« ⚠ ») — l'information n'est plus véhiculée par la seule
+  couleur.
+- **« Déjà en {langue} »** : en auto-détection, si la langue détectée est déjà la cible, le statut le
+  signale au lieu de « Traduit depuis… » (qui laissait croire à une traduction).
+
+### Modifié
+- **Repli automatique respectueux** : le timer de 1,5 s est suspendu tant que la souris survole le
+  bandeau ou que le focus y est, puis reprogrammé à la sortie (ne fait plus disparaître le contexte).
+- **Cible par défaut** : prend en compte les locales régionales (ex. `zh-CN`) si présentes dans la
+  liste, avant de retomber sur le code primaire puis `en`.
+- Le raccourci affiche / masque le traducteur (comportement unifié avec le bouton de la barre).
+
+### Supprimé
+- Écouteur `keydown` `Ctrl+Shift+T` du script de contenu et l'`AbortController` associé (remplacés
+  par la clé `commands`).
+
+---
+
 ## [2.0.12] — 2026-06-14
 
 Robustesse — **Lot 3** de l'audit.
@@ -185,6 +215,7 @@ Robustesse — **Lot 3** de l'audit.
 
 ---
 
+[2.0.13]: #2013--2026-06-14
 [2.0.12]: #2012--2026-06-14
 [2.0.11]: #2011--2026-06-13
 [2.0.10]: #2010--2026-06-13

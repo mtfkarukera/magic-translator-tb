@@ -85,7 +85,25 @@ messenger.menus.onClicked.addListener(async (info, tab) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 4. GESTIONNAIRE DE MESSAGES (traduction)
+// 4. RACCOURCI CLAVIER (commands)
+// ═══════════════════════════════════════════════════════════════════════════
+// Le raccourci (Alt+Shift+T par défaut, remappable dans les paramètres de Thunderbird)
+// envoie la même action "toggleBanner" à l'onglet actif. Déclaré dans le manifest sous
+// la clé "commands" — visible et reconfigurable par l'utilisateur, et sans collision avec
+// « rouvrir l'onglet » (Ctrl+Shift+T).
+
+messenger.commands.onCommand.addListener(async (commande) => {
+  if (commande !== "toggle-translator") return;
+  try {
+    const [onglet] = await messenger.tabs.query({ active: true, currentWindow: true });
+    if (onglet) await messenger.tabs.sendMessage(onglet.id, { action: "toggleBanner" });
+  } catch (erreur) {
+    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner via raccourci :", erreur.message || erreur);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 5. GESTIONNAIRE DE MESSAGES (traduction)
 // ═══════════════════════════════════════════════════════════════════════════
 // Écoute les messages envoyés par le script de contenu via
 // browser.runtime.sendMessage(). Seuls les messages avec action "translate"

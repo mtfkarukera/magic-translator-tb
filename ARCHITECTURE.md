@@ -63,7 +63,7 @@ réinjection, restauration, gestion du cycle de vie.
 ## 3. Flux de traduction détaillé
 
 ```
-1. [Activation]  bouton barre / menu / Ctrl+Shift+T
+1. [Activation]  bouton barre / menu / raccourci (Alt+Shift+T, commands → background)
        → toggleBanner → le bandeau s'ouvre
 
 2. [Collecte]    collecterNoeudsTexte(document.body)
@@ -119,7 +119,12 @@ Deux états, dans un **Shadow DOM** (isolation CSS totale) :
 - **Pilule** (replié) : `[MT ▸]`, avec un indicateur `✓` après une traduction.
 - **Bandeau** (déplié) : `[MT Translator | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
 
-Transitions : `pilule.click → déplier` · `logo MT / bouton ▴ → replier` · `Ctrl+Shift+T → bascule`.
+Transitions : `pilule.click → déplier` · `logo MT / bouton ▴ → replier` · `raccourci (Alt+Shift+T) → toggleBanner`.
+
+Le raccourci est déclaré via la clé `commands` du manifest (remappable) ; `background.js` reçoit
+`commands.onCommand` et envoie `toggleBanner` à l'onglet actif. Les éléments cliquables non natifs
+(pilule, logo) sont `role="button"` + `tabindex="0"` (activables au clavier) ; le statut est une
+région `aria-live` annoncée aux lecteurs d'écran.
 
 Tout le CSS est dans une balise `<style>` du Shadow DOM ; classes préfixées `mt-`. Palette sombre
 (violets `#a78bfa`/`#7c3aed`, vert succès `#34d399`, rouge erreur `#f87171`).
