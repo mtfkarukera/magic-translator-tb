@@ -1,5 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
+[![Version](https://img.shields.io/github/v/release/mtfkarukera/magic-translator?label=version&color=7c3aed)](https://github.com/mtfkarukera/magic-translator/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
