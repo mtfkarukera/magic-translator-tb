@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.0.14-7c3aed)](https://github.com/mtfkarukera/magic-translator/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.0.14-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
@@ -36,7 +36,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 4. Sélectionner le fichier `manifest.json` de ce répertoire
 
 ### Mode production
-1. Télécharger le fichier `.xpi` depuis la [dernière release GitHub](https://github.com/mtfkarukera/magic-translator/releases/latest)
+1. Télécharger le fichier `.xpi` depuis la [dernière release GitHub](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 2. Dans Thunderbird : **Outils → Modules complémentaires et thèmes**
 3. Cliquer sur ⚙️ → **Installer un module depuis un fichier…**
 4. Sélectionner le fichier `.xpi` téléchargé
@@ -71,7 +71,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## 🏗️ Architecture
 
 ```
-magic-translator/
+magic-translator-tb/
 ├── manifest.json              # Manifest V3 Thunderbird
 ├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + proxy traduction)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
