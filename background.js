@@ -138,19 +138,42 @@ messenger.commands.onCommand.addListener(async (commande) => {
 // browser.runtime.sendMessage(). Seuls les messages avec action "translate"
 // sont traités.
 
-messenger.runtime.onMessage.addListener((message, _expediteur) => {
+// Format BCP-47 simplifié : "auto", "fr", "en", "zh-CN", "zh-TW", etc.
+// [M-S2] Validation des codes de langue pour éviter toute injection de paramètre URL.
+const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[A-Z]{2}|(-Hans|-Hant))?)$/;
+
+// Codes d'erreur attendus du background — tout autre message brut est normalisé.
+// [Mi-S1] On n'expose jamais d'erreur JavaScript interne à l'UI.
+const CODES_ERREURS_CONNUS = new Set(["TIMEOUT", "NETWORK", "RATE_LIMITED", "SERVICE_UNAVAILABLE", "INVALID_PAYLOAD", "UNAUTHORIZED"]);
+
+messenger.runtime.onMessage.addListener((message, expediteur) => {
   if (!message || message.action !== "translate") return;
 
-  // Validation du payload : le script injecté est la seule source légitime, mais on ne
-  // fait jamais confiance aveuglément à une entrée venant d'un autre contexte.
+  // [M-S1] Validation de l'expéditeur : seul notre propre script de contenu est autorisé.
+  // expediteur.id correspond à l'extension ID ; un message externe aura un ID différent.
+  if (!expediteur || expediteur.id !== messenger.runtime.id) {
+    return Promise.resolve({ success: false, error: "UNAUTHORIZED" });
+  }
+
+  // Validation du payload : type strict pour éviter toute injection.
   if (typeof message.text !== "string" ||
       typeof message.source !== "string" ||
       typeof message.target !== "string") {
     return Promise.resolve({ success: false, error: "INVALID_PAYLOAD" });
   }
 
+  // [M-S2] Validation du format BCP-47 des codes de langue.
+  if (!CODE_LANGUE_RE.test(message.source) || !CODE_LANGUE_RE.test(message.target)) {
+    return Promise.resolve({ success: false, error: "INVALID_PAYLOAD" });
+  }
+
   return traduireTexte(message.text, message.source, message.target)
-    .catch((erreur) => ({ success: false, error: erreur.message }));
+    .catch((erreur) => ({
+      success: false,
+      // [Mi-S1] Normalisation : on n'expose que les codes d'erreur connus, jamais le
+      // message JavaScript brut (stack trace, nom de fonction interne, etc.).
+      error: CODES_ERREURS_CONNUS.has(erreur.message) ? erreur.message : "SERVICE_UNAVAILABLE"
+    }));
 });
 
 /**
@@ -171,11 +194,14 @@ async function traduireTexte(texte, source, cible) {
     "&dt=t"; // dt=t → demande les segments de traduction
 
   // ── Envoi de la requête ───────────────────────────────────────────────
+  // [I-R1] Constante nommée pour faciliter l'ajustement du timeout.
+  const TIMEOUT_TRADUCTION_MS = 10000; // 10 s (réduit depuis 15 s)
+
   let reponse;
   try {
     reponse = await fetch(url, {
       method: "POST",
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "q=" + encodeURIComponent(texte)
     });
@@ -210,6 +236,11 @@ async function traduireTexte(texte, source, cible) {
       .filter((segment) => segment && segment[0])
       .map((segment) => segment[0])
       .join("");
+
+    // [Mi-R1] Vérification que la traduction n'est pas vide : Google peut retourner
+    // des segments valides mais avec un contenu null, résultant en une chaîne vide
+    // qui viderait silencieusement le contenu de l'e-mail.
+    if (!traduction.trim()) throw new Error("SERVICE_UNAVAILABLE");
 
     return {
       success: true,

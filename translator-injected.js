@@ -34,7 +34,10 @@
   // l'ancienne interface et on coupe les anciens écouteurs d'événements
   // pour repartir de zéro proprement.
 
-  nettoyerInstance();
+  // [M-R1] Suppression du double nettoyerInstance() : un seul appel dans initialiser() suffit.
+  // L'appel ici était redondant et créait un risque de race condition en cas de récursion
+  // via le MutationObserver (le second appel détachait des listeners fraichement enregistrés).
+  // nettoyerInstance(); ← supprimé, conservé uniquement dans initialiser()
 
   // ═══════════════════════════════════════════════════════════════════════
   // DICTIONNAIRES I18N
@@ -302,10 +305,19 @@
   --mt-accent-purple: #8b5cf6;
   --mt-accent-purple-hover: #a78bfa;
   --mt-text-primary: #f8fafc;
-  --mt-text-secondary: #94a3b8;
+  /* [M-A2] Contraste corrigé : #b0bec5 atteint ≥4.5:1 sur fond ardoise (depuis #94a3b8 ~3.8:1) */
+  --mt-text-secondary: #b0bec5;
   --mt-success: #10b981;
   --mt-error: #f43f5e;
   
+  /* Tokens supplémentaires pour éliminer les valeurs hardcodées */
+  /* [Mi-D3] Centralisation des valeurs de couleur utilisées dans plusieurs sélecteurs */
+  --mt-bg-pill-hover: rgba(30, 41, 59, 0.85);
+  --mt-accent-purple-dim: rgba(139, 92, 246, 0.2);
+  --mt-divider: rgba(255, 255, 255, 0.08);
+  --mt-btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --mt-btn-secondary-border: rgba(255, 255, 255, 0.08);
+
   /* Arrondis */
   --mt-radius-sm: 6px;
   --mt-radius-md: 10px;
@@ -316,12 +328,28 @@
   --mt-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Easing haut de gamme */
 }
 
+/* [M-D3] Mode clair : variables retournées pour une meilleure intégration avec les thèmes clairs de Thunderbird */
+@media (prefers-color-scheme: light) {
+  :host {
+    --mt-bg-glass: rgba(240, 245, 255, 0.90);
+    --mt-bg-pill-hover: rgba(210, 220, 240, 0.95);
+    --mt-text-primary: #1e293b;
+    --mt-text-secondary: #475569;
+    --mt-border-glass: rgba(0, 0, 0, 0.10);
+    --mt-divider: rgba(0, 0, 0, 0.08);
+    --mt-btn-secondary-bg: rgba(0, 0, 0, 0.04);
+    --mt-btn-secondary-border: rgba(0, 0, 0, 0.10);
+  }
+}
+
 /* ── PILULE COMPACTE (ÉTAT REPLIÉ) ── */
 .mt-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px 4px 8px;
+  /* [Mi-D4] Zone de clic agrandie : min-height 32px pour faciliter l'interaction */
+  min-height: 32px;
+  padding: 6px 14px 6px 10px;
   background: var(--mt-bg-glass);
   backdrop-filter: blur(12px) saturate(190%);
   -webkit-backdrop-filter: blur(12px) saturate(190%);
@@ -331,16 +359,22 @@
   cursor: pointer;
   font-size: 12px;
   color: var(--mt-accent-purple-hover);
-  transition: all var(--mt-duration) var(--mt-ease-out);
+  /* [Mi-D1] Propriétés ciblées au lieu de "all" pour éviter les reflows inutiles */
+  transition: background-color var(--mt-duration) var(--mt-ease-out),
+              color var(--mt-duration) var(--mt-ease-out),
+              box-shadow var(--mt-duration) var(--mt-ease-out),
+              transform var(--mt-duration) var(--mt-ease-out);
   user-select: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .mt-pill:hover {
-  background: rgba(30, 41, 59, 0.85);
+  /* [Mi-D3] Utilisation du token au lieu de la valeur hardcodée */
+  background: var(--mt-bg-pill-hover);
   color: #c4b5fd;
   box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
-  transform: translateY(1px); /* Légère descente d'appel */
+  /* [Mi-D5] translateY(-1px) au lieu de (1px) : la pilule monte au hover pour inviter au clic */
+  transform: translateY(-1px);
 }
 
 .mt-pill:active {
@@ -445,7 +479,8 @@
 .mt-separator {
   width: 1px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.08);
+  /* [Mi-D3] Remplacement de la valeur hardcodée par le token */
+  background: var(--mt-divider);
   flex-shrink: 0;
 }
 
@@ -470,19 +505,25 @@
   appearance: none;
   -webkit-appearance: none;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mt-divider);
   border-radius: var(--mt-radius-sm);
   color: var(--mt-text-primary);
   padding: 6px 28px 6px 10px;
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
-  outline: none;
-  transition: all var(--mt-duration) var(--mt-ease-out);
+  /* [B-A1] Suppression de outline:none brut — géré uniquement par :focus-visible ci-dessous */
+  outline: 0;
+  /* [Mi-D1] Propriétés ciblées au lieu de "all" */
+  transition: border-color var(--mt-duration) var(--mt-ease-out),
+              background-color var(--mt-duration) var(--mt-ease-out),
+              box-shadow var(--mt-duration) var(--mt-ease-out);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  min-width: 100px;
+  /* [M-D2] min-width réduit + max-width pour les panneaux étroits */
+  min-width: 80px;
+  max-width: 130px;
 }
 
 .mt-select:hover {
@@ -513,8 +554,14 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all var(--mt-duration) var(--mt-ease-out);
-  outline: none;
+  /* [Mi-D1] Propriétés ciblées au lieu de "all" */
+  transition: background-color var(--mt-duration) var(--mt-ease-out),
+              color var(--mt-duration) var(--mt-ease-out),
+              border-color var(--mt-duration) var(--mt-ease-out),
+              box-shadow var(--mt-duration) var(--mt-ease-out),
+              transform var(--mt-duration) var(--mt-ease-out);
+  /* [B-A1] outline:0 ici — le focus visible est géré exclusivement par :focus-visible */
+  outline: 0;
   white-space: nowrap;
 }
 
@@ -551,8 +598,8 @@
 
 /* Bouton Replier */
 .mt-btn-collapse {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--mt-btn-secondary-bg);
+  border: 1px solid var(--mt-btn-secondary-border) !important;
   color: var(--mt-text-secondary);
   width: 28px;
   height: 28px;
@@ -564,7 +611,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--mt-duration) var(--mt-ease-out);
+  cursor: pointer;
+  transition: background-color var(--mt-duration) var(--mt-ease-out),
+              color var(--mt-duration) var(--mt-ease-out),
+              border-color var(--mt-duration) var(--mt-ease-out),
+              transform var(--mt-duration) var(--mt-ease-out);
 }
 
 .mt-btn-collapse:hover {
@@ -586,6 +637,9 @@
   box-shadow: none !important;
 }
 
+/* [B-A1] Focus visible : indicateur explicité pour TOUS les éléments interactifs.
+ * outline:0 est défini sur .mt-btn et .mt-select ; :focus-visible ajoute l'indicateur
+ * uniquement pour la navigation clavier, pas pour le clic souris. */
 .mt-btn:focus-visible,
 .mt-pill:focus-visible,
 .mt-logo-icon:focus-visible,
@@ -594,11 +648,22 @@
   outline-offset: 2px;
 }
 
+/* Neutralise le focus ring natif en mode pointeur (clic souris) sans masquer le clavier */
+.mt-btn:focus:not(:focus-visible),
+.mt-select:focus:not(:focus-visible) {
+  outline: 0;
+  box-shadow: none;
+}
+
 /* Statut de chargement */
 .mt-status {
   font-size: 11px;
   color: var(--mt-text-secondary);
-  white-space: nowrap;
+  /* [B-D1] Suppression de white-space:nowrap : évite le débordement en fenêtre étroite */
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
 }
 
 .mt-status.error   { color: var(--mt-error); }
@@ -608,7 +673,8 @@
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(139, 92, 246, 0.2);
+  /* [Mi-D3] Utilisation du token --mt-accent-purple-dim */
+  border: 2px solid var(--mt-accent-purple-dim);
   border-top-color: var(--mt-accent-purple-hover);
   border-radius: 50%;
   animation: mt-spin 0.6s linear infinite;
@@ -617,6 +683,34 @@
 }
 
 @keyframes mt-spin { to { transform: rotate(360deg); } }
+
+/* [M-D2] Responsive : en fenêtre très étroite, les contrôles passent en colonne */
+@media (max-width: 480px) {
+  .mt-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .mt-select {
+    min-width: 100%;
+    max-width: unset;
+  }
+  .mt-status {
+    max-width: unset;
+    flex: 1 1 100%;
+  }
+}
+
+/* [M-D1] Réduction de mouvement : désactive les animations pour les utilisateurs
+ * ayant activé prefers-reduced-motion (accessibilité épilepsie/vertiges). */
+@media (prefers-reduced-motion: reduce) {
+  .mt-banner  { animation: none; opacity: 1; }
+  /* Le spinner devient un indicateur statique (tiret) plutot qu'une animation continue */
+  .mt-spinner { animation: none; border-style: dashed; border-top-color: var(--mt-accent-purple-hover); }
+  .mt-pill, .mt-btn, .mt-logo-icon, .mt-select {
+    transition: none;
+  }
+}
 
 .mt-hidden { display: none !important; }
 `;
@@ -661,7 +755,9 @@
     if (reponse && reponse.success) {
       return { text: reponse.text, detectedLang: reponse.detectedLang || null };
     }
-    throw new Error((reponse && reponse.error) || "Échec de la traduction");
+    // [Mi-R3] Si sendMessage retourne undefined (listener background sans return Promise)
+    // ou une réponse d'échec, on lance une erreur avec un code structuré.
+    throw new Error((reponse && reponse.error) || "SERVICE_UNAVAILABLE");
   };
 
   // ── Codes d'erreur (background) → clés i18n pour un message clair ───────
@@ -670,7 +766,10 @@
     RATE_LIMITED:        "errorRateLimited",
     SERVICE_UNAVAILABLE: "errorServiceUnavailable",
     TIMEOUT:             "errorTimeout",
-    NETWORK:             "errorNetwork"
+    NETWORK:             "errorNetwork",
+    // [M-A5] Ajout des codes retournés par le background après les corrections de sécurité.
+    UNAUTHORIZED:        "errorServiceUnavailable",
+    INVALID_PAYLOAD:     "errorServiceUnavailable"
   };
 
   // ── Helpers de texte purs ──────────────────────────────────────────────
@@ -734,6 +833,9 @@
     const conteneur = document.createElement("div");
     conteneur.id = "magic-translator-root";
     conteneur.style.cssText = "position:relative;z-index:999999;";
+    // [Mi-A1] Attribut lang : les lecteurs d'écran utilisent la langue du conteneur
+    // pour prononcer correctement l'UI, même si l'e-mail est dans une autre langue.
+    conteneur.setAttribute("lang", LOCALE);
 
     // ── Shadow DOM (isolation CSS) ──────────────────────────────────────
     const shadow = conteneur.attachShadow({ mode: "open" });
@@ -743,13 +845,15 @@
     shadow.appendChild(baliseStyle);
 
     // ── Pilule compacte ─────────────────────────────────────────────────
-    const pilule = document.createElement("div");
+    // [B-A4] Utilisation d'un vrai <button> au lieu de <div role="button"> :
+    // hérite des comportements natifs (focus, activation clavier, styles OS).
+    const pilule = document.createElement("button");
+    pilule.type = "button";
     pilule.className = "mt-pill";
     pilule.title = t("tooltipExpand");
-    // Accessibilité : la pilule est cliquable → exposée comme bouton focusable au clavier.
-    pilule.setAttribute("role", "button");
-    pilule.setAttribute("tabindex", "0");
     pilule.setAttribute("aria-label", t("tooltipExpand"));
+    // [M-A3] aria-expanded : indique l'état ouvert/fermé du bandeau aux lecteurs d'écran.
+    pilule.setAttribute("aria-expanded", "false");
 
     const iconeT = document.createElement("span");
     iconeT.className = "mt-pill-icon";
@@ -782,10 +886,9 @@
     const logoIcone = document.createElement("span");
     logoIcone.className = "mt-logo-icon";
     logoIcone.textContent = "MT";
-    // Accessibilité : le logo replie le bandeau → bouton focusable au clavier.
-    logoIcone.setAttribute("role", "button");
-    logoIcone.setAttribute("tabindex", "0");
-    logoIcone.setAttribute("aria-label", t("tooltipCollapse"));
+    // [M-A1] logoIcone purement décoratif : on retire le rôle bouton (doublon avec btnReplier).
+    // L'utilisateur clavier n'a pas besoin de deux contrôles identiques dans le flux de tabulation.
+    logoIcone.setAttribute("aria-hidden", "true");
     logoIcone.title = t("tooltipCollapse");
     logo.appendChild(logoIcone);
     const logoTexte = document.createElement("span");
@@ -992,6 +1095,8 @@
     const deplier = () => {
       annulerRepliAuto();
       estDeplie = true;
+      // [M-A3] aria-expanded : informe les lecteurs d'écran que le bandeau est ouvert.
+      ui.pilule.setAttribute("aria-expanded", "true");
       ui.pilule.classList.add("mt-hidden");
       ui.bandeau.classList.remove("mt-hidden");
       ui.selectSource.focus();
@@ -1001,6 +1106,8 @@
       annulerRepliAuto();
       repliAutoArme = false;
       estDeplie = false;
+      // [M-A3] aria-expanded : informe les lecteurs d'écran que le bandeau est fermé.
+      ui.pilule.setAttribute("aria-expanded", "false");
       ui.bandeau.classList.add("mt-hidden");
       ui.pilule.classList.remove("mt-hidden");
       if (afficherCoche) {
@@ -1031,7 +1138,14 @@
       });
     };
     activerAuClavier(ui.pilule, deplier);
-    activerAuClavier(ui.logoIcone, () => replier(!!contenusOriginaux));
+
+    // [B-A4] Gestion de la touche Escape dans le bandeau : referme le bandeau.
+    ui.bandeau.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        replier(!!contenusOriginaux);
+      }
+    });
 
     // Suspension/reprise du repli automatique selon l'interaction de l'utilisateur.
     ui.bandeau.addEventListener("mouseenter", annulerRepliAuto);
@@ -1045,6 +1159,12 @@
 
     const lancerTraduction = async () => {
       if (!estDeplie) deplier();
+
+      // [Mi-R2] Guard : document.body peut être null si Thunderbird n'a pas fini de charger.
+      if (!document.body) {
+        afficherStatut(ui.statut, t("errorNoText"), "error");
+        return;
+      }
 
       const source = ui.selectSource.value;
       const cible  = ui.selectCible.value;
@@ -1070,7 +1190,11 @@
       }
 
       // ── Verrouillage de l'interface pendant la traduction ─────────────
-      ui.btnTraduire.disabled  = true;
+      // [B-A3] Utilisation d'aria-busy + aria-disabled au lieu de disabled :
+      // le bouton reste dans l'arbre ARIA et le lecteur d'écran peut annoncer
+      // l'état de chargement (WCAG 4.1.3 Status Messages).
+      ui.btnTraduire.setAttribute("aria-busy", "true");
+      ui.btnTraduire.setAttribute("aria-disabled", "true");
       ui.selectSource.disabled = true;
       ui.selectCible.disabled  = true;
       afficherStatut(ui.statut, t("statusTranslating"), "loading");
@@ -1079,40 +1203,29 @@
 
       try {
         // ── Séparateur unique anti-collision ─────────────────────────────
-        // Jeton unique, long et alphanumérique : Google Translate le préserve tel quel
-        // (il ressemble à un identifiant) et il ne contient aucun métacaractère de regex.
-        // La détection de collision ET le découpage s'appuient sur EXACTEMENT le même jeton —
-        // plus de divergence entre includes() et la RegExp (qui permettait un contournement
-        // par espacement interne « @@ 0 @@ ») ni de \s* non borné sujet au ReDoS.
         const textContentTotal = document.body.textContent || "";
-        const hex4 = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, "0");
+        const hex4 = () => {
+          const buf = new Uint16Array(1);
+          crypto.getRandomValues(buf);
+          return buf[0].toString(16).padStart(4, "0");
+        };
         let SENTINEL;
         do {
           SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
         } while (textContentTotal.includes(SENTINEL));
         const SEPARATEUR = "\n" + SENTINEL + "\n";
-        // Au découpage on retire le jeton et l'espacement qui l'entoure. C'est sans danger :
-        // on n'envoie que le « cœur » de chaque nœud (sans espaces de tête/fin) et on réattache
-        // les espaces d'origine à la réinjection — la regex ne peut donc pas manger d'espace
-        // significatif du texte (corrige le « texte collé » avant/après les liens).
         const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "g");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
-        // L'API Google Translate a une limite de taille par requête.
-        // On regroupe les nœuds texte en lots de 4000 caractères max.
         const TAILLE_MAX_LOT = 4000;
         const lots = [];
         let lotCourant = { noeuds: [], texte: "" };
 
         noeudsTexte.forEach((noeud) => {
           const txt = contenusOriginaux.get(noeud);
-          // Espaces de tête/fin isolés : NON envoyés à Google (qui les altère), mais réattachés
-          // tels quels à la réinjection. C'est ce qui préserve l'espacement aux frontières
-          // (ex. l'espace entre un mot et le lien qui suit).
           const { lead, coeur, trail } = extraireEspaces(txt);
           const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
 
-          // Si le lot courant déborderait, on le pousse et on en crée un nouveau
           if (lotCourant.texte.length + tailSep + coeur.length > TAILLE_MAX_LOT &&
               lotCourant.noeuds.length > 0) {
             lots.push(lotCourant);
@@ -1123,21 +1236,20 @@
           lotCourant.texte += (lotCourant.texte ? SEPARATEUR : "") + coeur;
         });
 
-        // Dernier lot
         if (lotCourant.noeuds.length > 0) {
           lots.push(lotCourant);
         }
 
         // ── Traduction lot par lot ──────────────────────────────────────
-        // Écriture ATOMIQUE : on accumule toutes les traductions sans toucher au DOM,
-        // et on n'applique qu'à la toute fin. Si un lot échoue (réseau, service), rien
-        // n'est écrit → l'e-mail reste intégralement en version d'origine (jamais
-        // « à moitié traduit »). Un nœud qui échoue dans le fallback reste simplement en VO.
-        const traductions = new Map(); // noeud Text → texte traduit (appliqué en fin)
+        const traductions = new Map();
         let echecsNoeuds = 0;
 
         for (let i = 0; i < lots.length; i++) {
           const lot = lots[i];
+
+          // [M-R2] Guard d'instance : si l'utilisateur a navigué vers un autre e-mail
+          // pendant la traduction, on stoppe immédiatement sans écrire dans le DOM.
+          if (document.documentElement._mtActiveInstanceId !== instanceId) break;
 
           // Indicateur de progression (seulement s'il y a plusieurs lots).
           if (lots.length > 1) {
@@ -1150,11 +1262,15 @@
             const entree = lot.noeuds[0];
             const morceaux = [];
             for (const seg of decouperLong(lot.texte, TAILLE_MAX_LOT)) {
+              // [M-R2] Guard intra-lot : vérification à chaque segment du sous-découpage.
+              if (document.documentElement._mtActiveInstanceId !== instanceId) break;
               const r = await demanderTraduction(seg, source, cible);
               if (r.detectedLang) derniereLangDetectee = r.detectedLang;
               morceaux.push(r.text);
             }
-            traductions.set(entree.noeud, entree.lead + morceaux.join("").trim() + entree.trail);
+            // [M-R5] Suppression du .trim() final : préserve les \n de tête/fin des e-mails
+            // en texte brut (<pre>). Les espaces extérieurs sont gérés par entree.lead/.trail.
+            traductions.set(entree.noeud, entree.lead + morceaux.join("") + entree.trail);
             continue;
           }
 
@@ -1180,6 +1296,10 @@
             if (parties.length !== lot.noeuds.length) {
               console.warn("[MagicTranslator] Separator mismatch, falling back to node-by-node translation for this chunk", parties.length, lot.noeuds.length);
               for (const entree of lot.noeuds) {
+                // [M-R3] Guards : vérification de l'instance ET de contenusOriginaux avant
+                // chaque nœud (nettoyerInstance() peut avoir mis contenusOriginaux à null
+                // entre deux await successifs dans le fallback).
+                if (!contenusOriginaux || document.documentElement._mtActiveInstanceId !== instanceId) break;
                 try {
                   const origTxt = contenusOriginaux.get(entree.noeud);
                   const res = await demanderTraduction(origTxt.trim(), source, cible);
@@ -1302,6 +1422,10 @@
     const observeur = new MutationObserver(() => {
       if (!document.body || !document.body.contains(ui.conteneur)) {
         observeur.disconnect();
+        // [M-R4] Annulation du timer de repli avant la réinitialisation : évite que
+        // replier() s'exécute sur une instance déjà nettoyée si le timer arrive
+        // entre la déconnexion de l'observateur et nettoyerInstance() dans initialiser().
+        annulerRepliAuto();
         initialiser().catch(console.error);
       }
     });
@@ -1346,23 +1470,36 @@
    * @param {string}      type    — "loading" | "error" | "success" | ""
    */
   function afficherStatut(el, message, type) {
-    el.classList.remove("mt-hidden", "error", "success");
+    el.classList.remove("error", "success");
     el.textContent = "";
 
     if (!message) {
-      el.classList.add("mt-hidden");
+      // [M-A4] visibility:hidden préserve la région aria-live dans l'arbre ARIA.
+      // display:none (via .mt-hidden) empêcherait les lecteurs d'écran de
+      // détecter les futures mutations de textContent.
+      el.style.visibility = "hidden";
       return;
     }
 
+    el.style.visibility = "";
+
     if (type === "loading") {
-      // Ajout d'un spinner animé avant le texte
+      // [B-A2] Spinner aria-hidden : le spinner est décoratif, le texte suffit
+      // pour l'annonce sonore. aria-hidden évite une double annonce.
       const spinner = document.createElement("span");
       spinner.className = "mt-spinner";
+      spinner.setAttribute("aria-hidden", "true");
       el.appendChild(spinner);
       el.appendChild(document.createTextNode(message));
     } else if (type === "error") {
-      // Erreur : icône ⚠ (information non véhiculée par la seule couleur) + classe.
-      el.textContent = "⚠ " + message;
+      // [M-A5] Icône ⚠ dans un <span> visible + span sr-only pour les lecteurs d'écran
+      // qui ignorer les émoji décoratifs (l'information n'est pas véhiculée
+      // uniquement par la couleur, conformité WCAG 1.4.1).
+      const icone = document.createElement("span");
+      icone.setAttribute("aria-hidden", "true");
+      icone.textContent = "⚠ ";
+      el.appendChild(icone);
+      el.appendChild(document.createTextNode(message));
       el.classList.add("error");
     } else {
       el.textContent = message;

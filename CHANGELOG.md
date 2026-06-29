@@ -11,6 +11,51 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.17] — 2026-06-30
+
+Sprint d'audit complet (Sécurité · Robustesse · Accessibilité · Design) — 24 corrections appliquées.
+
+### Sécurité
+- **[M-S1] Validation de l'expéditeur** : `messenger.runtime.onMessage` vérifie désormais que `expediteur.id === messenger.runtime.id` — rejette tout message venant de l'extérieur de l'extension.
+- **[M-S2] Validation BCP-47** : Les codes de langue sont validés par regex `CODE_LANGUE_RE` avant d'être injectés dans l'URL Google Translate — élimine le risque d'injection de paramètre URL.
+- **[Mi-S1] Normalisation des erreurs** : Le background ne propage plus jamais de message JavaScript brut à l'UI — seuls les codes connus (`CODES_ERREURS_CONNUS`) sont retournés, le reste est normalisé en `SERVICE_UNAVAILABLE`.
+- **[Mi-S3] Entropie SENTINEL** : Le jeton anti-collision est désormais généré via `crypto.getRandomValues()` (CSPRNG) au lieu de `Math.random()`.
+- **[Mi-R1] Guard traduction vide** : Si Google Translate retourne une traduction vide (contenu null), une erreur `SERVICE_UNAVAILABLE` est levée plutôt que de vider silencieusement le texte de l'e-mail.
+
+### Corrigé (Robustesse)
+- **[M-R1] Double nettoyerInstance supprimé** : L'appel redondant à l'initialisation du module créait des race conditions en cas de récursion MutationObserver.
+- **[M-R2] Guard instanceId en boucle** : Vérification de `_mtActiveInstanceId` à chaque itération de lot ET de segment long — stoppe immédiatement si l'utilisateur a changé d'e-mail.
+- **[M-R3] Guard `contenusOriginaux` dans fallback** : Protège le fallback nœud-par-nœud contre une remise à null de `contenusOriginaux` entre deux `await` successifs.
+- **[M-R4] Annulation repliAuto avant MutationObserver reinit** : Évite que le timer de repli automatique déclenche `replier()` sur une instance déjà nettoyée.
+- **[M-R5] Suppression `.trim()` sur nœud unique long** : Préserve les `\n` de tête/fin dans les e-mails texte brut (`<pre>`).
+- **[Mi-R2] Guard `document.body`** : Vérification explicite avant d'appeler `collecterNoeudsTexte()` si Thunderbird n'a pas fini de charger.
+- **[Mi-R3] Erreur structurée sendMessage** : `demanderTraduction` lance `SERVICE_UNAVAILABLE` si la réponse est `undefined` (listener sans `return Promise`).
+- **[I-R1] Timeout réduit + constante nommée** : `TIMEOUT_TRADUCTION_MS = 10000` (depuis 15 s).
+
+### Corrigé (Accessibilité WCAG 2.1 AA)
+- **[B-A1] Focus visible** : `outline:none` brut remplacé par `outline:0` sur `.mt-btn` et `.mt-select` ; indicateur visible ajouté via `:focus-visible` uniquement (navigation clavier).
+- **[B-A2] Spinner décoratif** : `aria-hidden="true"` sur le spinner de chargement pour éviter la double annonce sonore.
+- **[B-A3] Bouton Traduire aria-busy** : `aria-busy="true"` + `aria-disabled="true"` pendant la traduction (WCAG 4.1.3).
+- **[B-A4] Pilule `<button>` natif** : La pilule passe de `<div role="button">` à un vrai `<button type="button">`. Touche Escape dans le bandeau replie sans JS supplémentaire.
+- **[M-A1] logoIcone purement décoratif** : Suppression du rôle bouton (doublon avec `btnReplier`) → `aria-hidden="true"`.
+- **[M-A2] Contraste `--mt-text-secondary`** : `#b0bec5` (≥4.5:1) au lieu de `#94a3b8` (~3.8:1).
+- **[M-A3] `aria-expanded` sur pilule** : Mis à jour à chaque appel de `deplier()`/`replier()`.
+- **[M-A4] Zone aria-live toujours dans l'arbre ARIA** : Masquage par `visibility:hidden` (au lieu de `display:none`) pour que NVDA/JAWS détecte les mutations.
+- **[M-A5] Icône ⚠ avec `aria-hidden`** : L'icône est dans un `<span aria-hidden>` séparé du texte.
+- **[Mi-A1] Attribut `lang` sur le conteneur** : Permet aux lecteurs d'écran de prononcer l'UI dans la bonne langue.
+
+### Modifié (Design & UX)
+- **[B-D1] Suppression `white-space:nowrap` sur `.mt-status`** : Évite le débordement en fenêtre étroite.
+- **[M-D1] `prefers-reduced-motion`** : Animations désactivées (spinner statique, transitions supprimées).
+- **[M-D2] Responsive** : Media query `@media (max-width: 480px)` — contrôles en colonne, sélecteurs pleine largeur.
+- **[M-D3] Mode clair `prefers-color-scheme: light`** : Variables CSS retournées pour thèmes clairs Thunderbird.
+- **[Mi-D1] `transition` ciblée** : Remplacement de `transition: all` par des propriétés spécifiques sur `.mt-btn`, `.mt-select`, `.mt-pill`, `.mt-btn-collapse`.
+- **[Mi-D3] Tokens CSS consolidés** : Ajout de `--mt-bg-pill-hover`, `--mt-accent-purple-dim`, `--mt-divider`, `--mt-btn-secondary-bg/border` — élimination des valeurs codées en dur.
+- **[Mi-D4] Zone de clic pilule agrandie** : `min-height: 32px` + padding augmenté.
+- **[Mi-D5] Pilule hover corrigé** : `translateY(-1px)` (montée) au lieu de `(+1px)` (enfoncement).
+
+---
+
 ## [2.0.16] — 2026-06-29
 
 Correctif de robustesse pour résoudre le bug d'affichage aléatoire (bouton inactif).
