@@ -1296,10 +1296,11 @@
     browser.runtime.onMessage.addListener(gererMessageBg);
 
     // ── MutationObserver — filet de sécurité ─────────────────────────────
-    // Si Thunderbird remplace le contenu du body sans réinjecter le script,
-    // on dtecte la disparition de notre conteneur et on réinitialise.
+    // Si Thunderbird remplace le contenu du body (ou l'élément body lui-même)
+    // sans réinjecter le script, on détecte la disparition de notre conteneur
+    // et on réinitialise proprement.
     const observeur = new MutationObserver(() => {
-      if (document.body && !document.body.contains(ui.conteneur)) {
+      if (!document.body || !document.body.contains(ui.conteneur)) {
         observeur.disconnect();
         initialiser().catch(console.error);
       }
@@ -1307,6 +1308,9 @@
     if (document.body) {
       observeur.observe(document.body, { childList: true });
     }
+    // Observe également document.documentElement pour intercepter le remplacement
+    // complet de l'élément <body> par Thunderbird.
+    observeur.observe(document.documentElement, { childList: true });
     document.documentElement._mtObserver = observeur;
   }
 

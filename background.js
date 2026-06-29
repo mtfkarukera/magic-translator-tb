@@ -51,23 +51,48 @@
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. BOUTON BARRE DE MESSAGE (message_display_action)
+// 2. ENVOI DU MESSAGE "toggleBanner" AVEC SECOURS INJECTION DYNAMIQUE
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Envoie l'action "toggleBanner" au script injecté dans l'onglet spécifié.
+ * Si le script de contenu n'est pas présent ou ne répond pas (contexte invalidé,
+ * déchargement d'onglet...), il est injecté manuellement de secours avant l'envoi.
+ *
+ * @param {number} tabId — Identifiant de l'onglet Thunderbird
+ */
+async function envoyerToggleBanner(tabId) {
+  try {
+    await messenger.tabs.sendMessage(tabId, { action: "toggleBanner" });
+  } catch {
+    console.log("[MagicTranslator] Le script de contenu ne répond pas. Injection manuelle de secours...");
+    try {
+      await messenger.scripting.executeScript({
+        target: { tabId: tabId },
+        files: ["mt-text.js", "translator-injected.js"]
+      });
+      // Petit délai pour laisser le temps au script de s'initialiser et de s'enregistrer
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      await messenger.tabs.sendMessage(tabId, { action: "toggleBanner" });
+    } catch (errSecours) {
+      console.error("[MagicTranslator] Échec de l'injection ou de l'envoi de secours :", errSecours.message || errSecours);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. BOUTON BARRE DE MESSAGE (message_display_action)
 // ═══════════════════════════════════════════════════════════════════════════
 // Un clic sur le bouton [T] dans la barre de message (aux côtés de Répondre,
 // Transférer, etc.) envoie l'action "toggleBanner" au script injecté dans
 // l'onglet courant, qui affiche ou masque le bandeau de traduction.
 
-messenger.messageDisplayAction.onClicked.addListener(async (tab) => {
-  try {
-    await messenger.tabs.sendMessage(tab.id, { action: "toggleBanner" });
-  } catch (erreur) {
-    // Le script n'est pas encore prêt dans cet onglet (message en cours de chargement).
-    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner :", erreur.message || erreur);
-  }
+messenger.messageDisplayAction.onClicked.addListener((tab) => {
+  envoyerToggleBanner(tab.id).catch(console.error);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 3. MENU CLIC DROIT SUR LE BOUTON BARRE
+// 4. MENU CLIC DROIT SUR LE BOUTON BARRE
 // ═══════════════════════════════════════════════════════════════════════════
 // Un clic droit sur le bouton [T] affiche un menu contextuel permettant
 // d'activer ou de désactiver le bandeau de traduction.
@@ -81,17 +106,13 @@ messenger.menus.create({
   contexts: ["message_display_action"]
 });
 
-messenger.menus.onClicked.addListener(async (info, tab) => {
+messenger.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== "toggle-translator") return;
-  try {
-    await messenger.tabs.sendMessage(tab.id, { action: "toggleBanner" });
-  } catch (erreur) {
-    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner via menu :", erreur.message || erreur);
-  }
+  envoyerToggleBanner(tab.id).catch(console.error);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 4. RACCOURCI CLAVIER (commands)
+// 5. RACCOURCI CLAVIER (commands)
 // ═══════════════════════════════════════════════════════════════════════════
 // Le raccourci (Alt+Shift+T par défaut, remappable dans les paramètres de Thunderbird)
 // envoie la même action "toggleBanner" à l'onglet actif. Déclaré dans le manifest sous
@@ -102,9 +123,11 @@ messenger.commands.onCommand.addListener(async (commande) => {
   if (commande !== "toggle-translator") return;
   try {
     const [onglet] = await messenger.tabs.query({ active: true, currentWindow: true });
-    if (onglet) await messenger.tabs.sendMessage(onglet.id, { action: "toggleBanner" });
+    if (onglet) {
+      await envoyerToggleBanner(onglet.id);
+    }
   } catch (erreur) {
-    console.warn("[MagicTranslator] Impossible d'envoyer toggleBanner via raccourci :", erreur.message || erreur);
+    console.error("[MagicTranslator] Raccourci clavier en erreur :", erreur);
   }
 });
 

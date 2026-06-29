@@ -155,7 +155,8 @@ viennent de la table `NOMS_LANGUES`.
   réinjecté et appelle `nettoyerInstance()` en premier (supprime l'UI, déconnecte le
   `MutationObserver`, retire le listener `runtime.onMessage`).
 - **`MutationObserver`** (`_mtObserver`) : filet de sécurité — si le conteneur UI disparaît du
-  `body`, l'observateur se déconnecte et relance `initialiser()`.
+  `body` ou si `body` est remplacé, l'observateur double (sur `document.body` pour les mutations internes et `document.documentElement` pour le remplacement complet du body, sans `subtree: true`) détecte la disparition, se déconnecte et relance `initialiser()`.
+- **Injection dynamique de secours** : Lors du clic sur le bouton barre, le menu ou l'utilisation du raccourci, si le script de contenu ne répond pas (iframe recréée ou contexte invalidé), `background.js` utilise `scripting.executeScript` pour le réinjecter à la volée avant de transmettre l'action.
 - **Verrouillage UI** pendant la traduction (boutons/sélecteurs `disabled`).
 - **Protection Anti-Race Condition** : Lors de chaque initialisation, un identifiant unique d'instance
   `instanceId` (Date.now()) est stocké dans `document.documentElement._mtActiveInstanceId`. Avant d'effectuer

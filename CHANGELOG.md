@@ -11,6 +11,16 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.16] — 2026-06-29
+
+Correctif de robustesse pour résoudre le bug d'affichage aléatoire (bouton inactif).
+
+### Corrigé
+- **Bouton inactif (perte de liaison)** : Implémentation d'une injection manuelle de secours dans `background.js` (si le script de contenu ne répond pas, il est réinjecté à la volée avant de transmettre l'action).
+- **Remplacement du body par Thunderbird** : Doublement du `MutationObserver` dans `translator-injected.js` pour observer à la fois `document.body` (mutations internes) et `document.documentElement` (remplacement complet du body), sans impact sur les performances (pas de `subtree: true`).
+
+---
+
 ## [2.0.15] — 2026-06-29
 
 Améliorations de robustesse, accessibilité (WCAG 2.1 AA) et refonte esthétique premium.
