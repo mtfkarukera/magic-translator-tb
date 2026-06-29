@@ -117,17 +117,20 @@ traitée comme `SERVICE_UNAVAILABLE`. Le payload entrant est validé côté back
 Deux états, dans un **Shadow DOM** (isolation CSS totale) :
 
 - **Pilule** (replié) : `[MT ▸]`, avec un indicateur `✓` après une traduction.
-- **Bandeau** (déplié) : `[MT Translator | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
+- **Bandeau** (déplié, sémantiquement taggué par `role="region" aria-label="Translator"`) : `[MT Translator | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
 
-Transitions : `pilule.click → déplier` · `logo MT / bouton ▴ → replier` · `raccourci (Alt+Shift+T) → toggleBanner`.
+Transitions et navigation au clavier :
+*   `pilule.click → déplier` : Le bandeau s'affiche et le focus clavier est immédiatement transféré sur le premier contrôle interactif (sélecteur source).
+*   `logo MT / bouton ▴ (aria-label="Replier") → replier` : Le bandeau se masque et le focus clavier est renvoyé à la pilule.
+*   `raccourci (Alt+Shift+T) → toggleBanner`.
 
 Le raccourci est déclaré via la clé `commands` du manifest (remappable) ; `background.js` reçoit
 `commands.onCommand` et envoie `toggleBanner` à l'onglet actif. Les éléments cliquables non natifs
 (pilule, logo) sont `role="button"` + `tabindex="0"` (activables au clavier) ; le statut est une
-région `aria-live` annoncée aux lecteurs d'écran.
+région `aria-live` annoncée aux lecteurs d'écran. Les sélecteurs de langue disposent de balises `<label>`
+liées sémantiquement par leur attribut `for`.
 
-Tout le CSS est dans une balise `<style>` du Shadow DOM ; classes préfixées `mt-`. Palette sombre
-(violets `#a78bfa`/`#7c3aed`, vert succès `#34d399`, rouge erreur `#f87171`).
+Tout le CSS est dans une balise `<style>` du Shadow DOM (template string) avec des classes préfixées `mt-`. Design moderne en **glassmorphism** (fond translucide `backdrop-filter: blur(16px)` ardoise profond, bordure cristalline et courbe d'animation cubic-bezier) avec des contrastes d'éléments interactifs conformes aux exigences WCAG 2.1 AA (indigo/violet adoucis).
 
 ---
 
@@ -154,6 +157,17 @@ viennent de la table `NOMS_LANGUES`.
 - **`MutationObserver`** (`_mtObserver`) : filet de sécurité — si le conteneur UI disparaît du
   `body`, l'observateur se déconnecte et relance `initialiser()`.
 - **Verrouillage UI** pendant la traduction (boutons/sélecteurs `disabled`).
+- **Protection Anti-Race Condition** : Lors de chaque initialisation, un identifiant unique d'instance
+  `instanceId` (Date.now()) est stocké dans `document.documentElement._mtActiveInstanceId`. Avant d'effectuer
+  l'écriture de la traduction dans le DOM, le script injecté vérifie la correspondance de cet identifiant,
+  bloquant les écritures asynchrones tardives issues d'e-mails précédents consultés rapidement.
+- **Fuites de mémoire** : Le timer asynchrone de repli automatique `_mtTimerRepli` est systématiquement nettoyé
+  (`clearTimeout`) lors de l'appel à `nettoyerInstance()`, libérant les closures et références associées.
+- **Résilience aux limitations de débit** : Durant le traitement en mode fallback (nœud par nœud),
+  la boucle de requêtes est immédiatement interrompue en cas d'erreur de débit `RATE_LIMITED` ou réseau `NETWORK`
+  pour éviter les vagues de requêtes bloquées et préserver l'adresse IP de l'utilisateur.
+- **Garde-fous algorithmiques** : La fonction `decouperLong(texte, maxLen)` dispose d'un garde-fou rejetant
+  les valeurs de longueur invalides (`maxLen <= 0`) pour prémunir le thread principal Thunderbird de toute boucle infinie.
 
 ---
 

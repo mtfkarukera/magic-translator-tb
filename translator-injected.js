@@ -288,295 +288,338 @@
   // Palette de couleurs : dégradé sombre violet (#1a1a2e → #0f3460)
   // avec accents violets (#a78bfa, #7c3aed) et verts (#34d399).
 
-  const CSS_BANDEAU = [
+  const CSS_BANDEAU = `
+:host {
+  all: initial;
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  
+  /* ── TOKENS DE DESIGN PREMIUM ── */
+  --mt-bg-glass: rgba(15, 23, 42, 0.75); /* Ardoise profond translucide */
+  --mt-border-glass: rgba(255, 255, 255, 0.08);
+  --mt-accent-indigo: #6366f1;
+  --mt-accent-indigo-hover: #818cf8;
+  --mt-accent-purple: #8b5cf6;
+  --mt-accent-purple-hover: #a78bfa;
+  --mt-text-primary: #f8fafc;
+  --mt-text-secondary: #94a3b8;
+  --mt-success: #10b981;
+  --mt-error: #f43f5e;
+  
+  /* Arrondis */
+  --mt-radius-sm: 6px;
+  --mt-radius-md: 10px;
+  --mt-radius-full: 9999px;
+  
+  /* Transitions */
+  --mt-duration: 250ms;
+  --mt-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Easing haut de gamme */
+}
 
-    // ── Racine du Shadow DOM ──────────────────────────────────────────
-    ":host {",
-    "  all: initial;",
-    "  display: block;",
-    "  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;",
-    "}",
-    "",
+/* ── PILULE COMPACTE (ÉTAT REPLIÉ) ── */
+.mt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 8px;
+  background: var(--mt-bg-glass);
+  backdrop-filter: blur(12px) saturate(190%);
+  -webkit-backdrop-filter: blur(12px) saturate(190%);
+  border-radius: 0 0 var(--mt-radius-md) var(--mt-radius-md);
+  border: 1px solid var(--mt-border-glass);
+  border-top: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--mt-accent-purple-hover);
+  transition: all var(--mt-duration) var(--mt-ease-out);
+  user-select: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-    // ── Pilule compacte (état replié) ─────────────────────────────────
-    ".mt-pill {",
-    "  display: inline-flex;",
-    "  align-items: center;",
-    "  gap: 5px;",
-    "  padding: 3px 10px 3px 6px;",
-    "  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);",
-    "  border-radius: 0 0 8px 8px;",
-    "  cursor: pointer;",
-    "  font-size: 12px;",
-    "  color: #a78bfa;",
-    "  transition: all 0.25s ease;",
-    "  user-select: none;",
-    "  border: 1px solid rgba(167, 139, 250, 0.15);",
-    "  border-top: none;",
-    "}",
-    ".mt-pill:hover {",
-    "  background: linear-gradient(135deg, #1e1e3a 0%, #163868 100%);",
-    "  color: #c4b5fd;",
-    "  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);",
-    "}",
+.mt-pill:hover {
+  background: rgba(30, 41, 59, 0.85);
+  color: #c4b5fd;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
+  transform: translateY(1px); /* Légère descente d'appel */
+}
 
-    // ── Icône carrée « T » dans la pilule ─────────────────────────────
-    ".mt-pill-icon {",
-    "  width: 16px;",
-    "  height: 16px;",
-    "  border-radius: 3px;",
-    "  background: linear-gradient(135deg, #a78bfa, #7c3aed);",
-    "  display: flex;",
-    "  align-items: center;",
-    "  justify-content: center;",
-    "  font-size: 10px;",
-    "  color: white;",
-    "  font-weight: 700;",
-    "  flex-shrink: 0;",
-    "}",
+.mt-pill:active {
+  transform: translateY(0) scale(0.97); /* Enfoncement physique */
+}
 
-    // ── Chevron et indicateur de statut dans la pilule ─────────────────
-    ".mt-pill-chevron {",
-    "  font-size: 9px;",
-    "  transition: transform 0.25s ease;",
-    "}",
-    ".mt-pill-status {",
-    "  font-size: 11px;",
-    "  color: #34d399;",
-    "}",
-    "",
+.mt-pill-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--mt-radius-sm);
+  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+}
 
-    // ── Bandeau déplié ────────────────────────────────────────────────
-    ".mt-banner {",
-    "  display: flex;",
-    "  align-items: center;",
-    "  gap: 10px;",
-    "  padding: 7px 14px;",
-    "  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);",
-    "  border-bottom: 1px solid rgba(255, 255, 255, 0.08);",
-    "  color: #e0e0e0;",
-    "  font-size: 13px;",
-    "  line-height: 1.4;",
-    "  flex-wrap: wrap;",
-    "  box-sizing: border-box;",
-    "  animation: mt-slideDown 0.2s ease-out;",
-    "}",
-    "@keyframes mt-slideDown {",
-    "  from { opacity: 0; transform: translateY(-8px); }",
-    "  to   { opacity: 1; transform: translateY(0); }",
-    "}",
-    "",
+.mt-pill-chevron {
+  font-size: 9px;
+  color: var(--mt-text-secondary);
+  transition: transform var(--mt-duration) var(--mt-ease-out);
+}
 
-    // ── Logo / titre ──────────────────────────────────────────────────
-    ".mt-logo {",
-    "  display: flex;",
-    "  align-items: center;",
-    "  gap: 6px;",
-    "  font-weight: 600;",
-    "  font-size: 13px;",
-    "  color: #a78bfa;",
-    "  letter-spacing: 0.3px;",
-    "  white-space: nowrap;",
-    "  flex-shrink: 0;",
-    "}",
-    ".mt-logo-icon {",
-    "  min-width: 26px;",
-    "  height: 18px;",
-    "  padding: 0 4px;",
-    "  border-radius: 4px;",
-    "  background: linear-gradient(135deg, #a78bfa, #7c3aed);",
-    "  display: flex;",
-    "  align-items: center;",
-    "  justify-content: center;",
-    "  font-size: 10px;",
-    "  letter-spacing: 0.5px;",
-    "  color: white;",
-    "  font-weight: 700;",
-    "  flex-shrink: 0;",
-    "  cursor: pointer;",
-    "  transition: opacity 0.2s ease;",
-    "  user-select: none;",
-    "}",
-    ".mt-logo-icon:hover { opacity: 0.75; }",
-    "",
+.mt-pill:hover .mt-pill-chevron {
+  transform: translateX(2px); /* Indication visuelle de déploiement */
+}
 
-    // ── Séparateur vertical ───────────────────────────────────────────
-    ".mt-separator {",
-    "  width: 1px;",
-    "  height: 20px;",
-    "  background: rgba(255, 255, 255, 0.12);",
-    "  flex-shrink: 0;",
-    "}",
-    "",
+.mt-pill-status {
+  font-size: 11px;
+  color: var(--mt-success);
+}
 
-    // ── Zone de contrôles (sélecteurs + boutons) ──────────────────────
-    ".mt-controls {",
-    "  display: flex;",
-    "  align-items: center;",
-    "  gap: 8px;",
-    "  flex-wrap: wrap;",
-    "}",
-    "",
+/* ── BANDEAU DÉPLIÉ ── */
+.mt-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--mt-bg-glass);
+  backdrop-filter: blur(16px) saturate(190%);
+  -webkit-backdrop-filter: blur(16px) saturate(190%);
+  border-bottom: 1px solid var(--mt-border-glass);
+  color: var(--mt-text-primary);
+  font-size: 13px;
+  line-height: 1.4;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  animation: mt-slideDown var(--mt-duration) var(--mt-ease-out);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
 
-    // ── Labels « DE » / « VERS » ──────────────────────────────────────
-    ".mt-label {",
-    "  font-size: 11px;",
-    "  color: #9ca3af;",
-    "  text-transform: uppercase;",
-    "  letter-spacing: 0.5px;",
-    "  font-weight: 500;",
-    "}",
-    "",
+@keyframes mt-slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    // ── Sélecteurs de langue (apparence personnalisée) ────────────────
-    ".mt-select {",
-    "  appearance: none;",
-    "  -webkit-appearance: none;",
-    "  background: rgba(255, 255, 255, 0.06);",
-    "  border: 1px solid rgba(255, 255, 255, 0.12);",
-    "  border-radius: 6px;",
-    "  color: #e0e0e0;",
-    "  padding: 4px 24px 4px 8px;",
-    "  font-size: 12px;",
-    "  font-family: inherit;",
-    "  cursor: pointer;",
-    "  outline: none;",
-    "  transition: all 0.2s ease;",
-    "  background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E\");",
-    "  background-repeat: no-repeat;",
-    "  background-position: right 8px center;",
-    "  min-width: 90px;",
-    "}",
-    ".mt-select:hover {",
-    "  border-color: rgba(167, 139, 250, 0.4);",
-    "  background-color: rgba(255, 255, 255, 0.1);",
-    "}",
-    ".mt-select:focus {",
-    "  border-color: #a78bfa;",
-    "  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);",
-    "}",
-    "",
+/* Logo */
+.mt-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--mt-accent-purple-hover);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-    // ── Flèche source → cible ─────────────────────────────────────────
-    ".mt-arrow {",
-    "  color: #6b7280;",
-    "  font-size: 14px;",
-    "  flex-shrink: 0;",
-    "}",
-    "",
+.mt-logo-icon {
+  min-width: 28px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: var(--mt-radius-sm);
+  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--mt-duration) var(--mt-ease-out);
+  user-select: none;
+}
 
-    // ── Boutons (base commune) ────────────────────────────────────────
-    ".mt-btn {",
-    "  border: none;",
-    "  border-radius: 6px;",
-    "  padding: 5px 14px;",
-    "  font-size: 12px;",
-    "  font-weight: 600;",
-    "  font-family: inherit;",
-    "  cursor: pointer;",
-    "  transition: all 0.2s ease;",
-    "  outline: none;",
-    "  white-space: nowrap;",
-    "}",
+.mt-logo-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+}
 
-    // ── Bouton « Traduire » (principal, violet) ───────────────────────
-    ".mt-btn-translate {",
-    "  background: linear-gradient(135deg, #7c3aed, #6d28d9);",
-    "  color: white;",
-    "  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.3);",
-    "}",
-    ".mt-btn-translate:hover {",
-    "  background: linear-gradient(135deg, #8b5cf6, #7c3aed);",
-    "  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);",
-    "  transform: translateY(-1px);",
-    "}",
-    ".mt-btn-translate:active { transform: translateY(0); }",
-    "",
+.mt-logo-icon:active {
+  transform: scale(0.95);
+}
 
-    // ── Bouton « Original » (secondaire) ──────────────────────────────
-    ".mt-btn-original {",
-    "  background: rgba(255, 255, 255, 0.08);",
-    "  color: #d1d5db;",
-    "  border: 1px solid rgba(255, 255, 255, 0.12);",
-    "}",
-    ".mt-btn-original:hover {",
-    "  background: rgba(255, 255, 255, 0.14);",
-    "  color: #f3f4f6;",
-    "}",
-    "",
+/* Séparateur */
+.mt-separator {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
 
-    // ── Bouton « Replier » (▴) — cercle de même hauteur que les sélecteurs ────────
-    ".mt-btn-collapse {",
-    "  background: rgba(255, 255, 255, 0.08);",
-    "  border: 1px solid rgba(255, 255, 255, 0.15) !important;",
-    "  color: #9ca3af;",
-    "  width: 30px;",
-    "  height: 30px;",
-    "  border-radius: 50%;",
-    "  padding: 0;",
-    "  font-size: 14px;",
-    "  margin-left: auto;",
-    "  flex-shrink: 0;",
-    "  display: flex;",
-    "  align-items: center;",
-    "  justify-content: center;",
-    "  line-height: 1;",
-    "  transition: all 0.2s ease;",
-    "}",
-    ".mt-btn-collapse:hover {",
-    "  color: #a78bfa;",
-    "  background: rgba(167, 139, 250, 0.12);",
-    "  border-color: rgba(167, 139, 250, 0.3) !important;",
-    "}",
-    "",
+/* Zone de contrôles */
+.mt-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-    // ── État désactivé ────────────────────────────────────────────────
-    ".mt-btn:disabled {",
-    "  opacity: 0.5;",
-    "  cursor: not-allowed;",
-    "  transform: none !important;",
-    "}",
-    "",
+.mt-label {
+  font-size: 10px;
+  color: var(--mt-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
 
-    // ── Focus clavier visible (accessibilité) ─────────────────────────
-    ".mt-btn:focus-visible,",
-    ".mt-pill:focus-visible,",
-    ".mt-logo-icon:focus-visible,",
-    ".mt-select:focus-visible {",
-    "  outline: 2px solid #a78bfa;",
-    "  outline-offset: 2px;",
-    "}",
-    "",
+/* Sélecteurs de langue */
+.mt-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--mt-radius-sm);
+  color: var(--mt-text-primary);
+  padding: 6px 28px 6px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--mt-duration) var(--mt-ease-out);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  min-width: 100px;
+}
 
-    // ── Zone de statut ────────────────────────────────────────────────
-    ".mt-status {",
-    "  font-size: 11px;",
-    "  color: #9ca3af;",
-    "  white-space: nowrap;",
-    "}",
-    ".mt-status.error   { color: #f87171; }",
-    ".mt-status.success { color: #34d399; }",
-    "",
+.mt-select:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  background-color: rgba(255, 255, 255, 0.08);
+}
 
-    // ── Spinner de chargement ─────────────────────────────────────────
-    ".mt-spinner {",
-    "  display: inline-block;",
-    "  width: 12px;",
-    "  height: 12px;",
-    "  border: 2px solid rgba(167, 139, 250, 0.3);",
-    "  border-top-color: #a78bfa;",
-    "  border-radius: 50%;",
-    "  animation: mt-spin 0.6s linear infinite;",
-    "  vertical-align: middle;",
-    "  margin-right: 4px;",
-    "}",
-    "@keyframes mt-spin { to { transform: rotate(360deg); } }",
-    "",
+.mt-select:focus {
+  border-color: var(--mt-accent-purple-hover);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+  background-color: rgba(15, 23, 42, 0.9);
+}
 
-    // ── Classe utilitaire pour masquer un élément ─────────────────────
-    ".mt-hidden { display: none !important; }"
+.mt-arrow {
+  color: var(--mt-text-secondary);
+  font-size: 14px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
 
-  ].join("\n");
+/* Boutons */
+.mt-btn {
+  border: none;
+  border-radius: var(--mt-radius-sm);
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--mt-duration) var(--mt-ease-out);
+  outline: none;
+  white-space: nowrap;
+}
+
+.mt-btn-translate {
+  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.mt-btn-translate:hover {
+  background: linear-gradient(135deg, var(--mt-accent-purple-hover), var(--mt-accent-indigo-hover));
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+  transform: translateY(-1px);
+}
+
+.mt-btn-translate:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.mt-btn-original {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--mt-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mt-btn-original:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.mt-btn-original:active {
+  transform: scale(0.97);
+}
+
+/* Bouton Replier */
+.mt-btn-collapse {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--mt-text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--mt-radius-full);
+  padding: 0;
+  font-size: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--mt-duration) var(--mt-ease-out);
+}
+
+.mt-btn-collapse:hover {
+  color: var(--mt-accent-purple-hover);
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.05);
+}
+
+.mt-btn-collapse:active {
+  transform: scale(0.95);
+}
+
+/* États désactivés et accessibilité */
+.mt-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.mt-btn:focus-visible,
+.mt-pill:focus-visible,
+.mt-logo-icon:focus-visible,
+.mt-select:focus-visible {
+  outline: 2px solid var(--mt-accent-purple-hover);
+  outline-offset: 2px;
+}
+
+/* Statut de chargement */
+.mt-status {
+  font-size: 11px;
+  color: var(--mt-text-secondary);
+  white-space: nowrap;
+}
+
+.mt-status.error   { color: var(--mt-error); }
+.mt-status.success { color: var(--mt-success); }
+
+.mt-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-top-color: var(--mt-accent-purple-hover);
+  border-radius: 50%;
+  animation: mt-spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes mt-spin { to { transform: rotate(360deg); } }
+
+.mt-hidden { display: none !important; }
+`;
 
   // ═══════════════════════════════════════════════════════════════════════
   // LISTE DES LANGUES (sélecteurs déroulants)
@@ -730,6 +773,8 @@
     // ── Bandeau déplié ──────────────────────────────────────────────────
     const bandeau = document.createElement("div");
     bandeau.className = "mt-banner mt-hidden";
+    bandeau.setAttribute("role", "region");
+    bandeau.setAttribute("aria-label", t("bannerTitle"));
 
     // Logo
     const logo = document.createElement("div");
@@ -758,13 +803,15 @@
     controles.className = "mt-controls";
 
     // ── Sélecteur source ────────────────────────────────────────────
-    const labelSource = document.createElement("span");
+    const labelSource = document.createElement("label");
     labelSource.className = "mt-label";
     labelSource.textContent = t("labelFrom");
+    labelSource.setAttribute("for", "mt-select-source");
     controles.appendChild(labelSource);
 
     const selectSource = document.createElement("select");
     selectSource.className = "mt-select";
+    selectSource.id = "mt-select-source";
     selectSource.setAttribute("aria-label", t("labelFrom"));
     LANGUES.forEach((langue) => {
       const opt = document.createElement("option");
@@ -783,13 +830,15 @@
     controles.appendChild(fleche);
 
     // ── Sélecteur cible ─────────────────────────────────────────────
-    const labelCible = document.createElement("span");
+    const labelCible = document.createElement("label");
     labelCible.className = "mt-label";
     labelCible.textContent = t("labelTo");
+    labelCible.setAttribute("for", "mt-select-cible");
     controles.appendChild(labelCible);
 
     const selectCible = document.createElement("select");
     selectCible.className = "mt-select";
+    selectCible.id = "mt-select-cible";
     selectCible.setAttribute("aria-label", t("labelTo"));
     // Le sélecteur cible n'inclut pas "auto" (pas de sens en cible)
     LANGUES.filter((l) => l.code !== "auto").forEach((langue) => {
@@ -840,6 +889,7 @@
     btnReplier.className = "mt-btn mt-btn-collapse";
     btnReplier.textContent = "▴";
     btnReplier.title = t("tooltipCollapse");
+    btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
     bandeau.appendChild(btnReplier);
 
     shadow.appendChild(bandeau);
@@ -876,6 +926,9 @@
   // ═══════════════════════════════════════════════════════════════════════
 
   async function initialiser() {
+    const instanceId = Date.now();
+    document.documentElement._mtActiveInstanceId = instanceId;
+
     // ── Nettoyage de l'instance précédente ───────────────────────────────
     nettoyerInstance();
     contenusOriginaux = null;
@@ -908,7 +961,6 @@
     // MAIS le timer est suspendu tant que l'utilisateur survole le bandeau ou y a le
     // focus, puis reprogrammé à la sortie — ne fait pas disparaître le contexte sous
     // la souris ni au clavier.
-    let timerRepliAuto = null;
     let repliAutoArme = false;
 
     const utilisateurSurLeBandeau = () =>
@@ -916,17 +968,17 @@
       (ui.shadow.activeElement && ui.bandeau.contains(ui.shadow.activeElement));
 
     const annulerRepliAuto = () => {
-      if (timerRepliAuto !== null) {
-        clearTimeout(timerRepliAuto);
-        timerRepliAuto = null;
+      if (document.documentElement._mtTimerRepli) {
+        clearTimeout(document.documentElement._mtTimerRepli);
+        document.documentElement._mtTimerRepli = null;
       }
     };
     const programmerRepliAuto = () => {
       annulerRepliAuto();
       repliAutoArme = true;
       if (utilisateurSurLeBandeau()) return; // suspendu tant qu'il interagit
-      timerRepliAuto = setTimeout(() => {
-        timerRepliAuto = null;
+      document.documentElement._mtTimerRepli = setTimeout(() => {
+        document.documentElement._mtTimerRepli = null;
         repliAutoArme = false;
         if (estDeplie) replier(true);
       }, 1500);
@@ -942,6 +994,7 @@
       estDeplie = true;
       ui.pilule.classList.add("mt-hidden");
       ui.bandeau.classList.remove("mt-hidden");
+      ui.selectSource.focus();
     };
 
     const replier = (afficherCoche) => {
@@ -953,6 +1006,7 @@
       if (afficherCoche) {
         ui.indicateurStatut.classList.remove("mt-hidden");
       }
+      ui.pilule.focus();
     };
 
     ui.pilule.addEventListener("click", deplier);
@@ -1133,6 +1187,9 @@
                 } catch (e) {
                   echecsNoeuds++;
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
+                  if (e.message === "RATE_LIMITED" || e.message === "NETWORK") {
+                    throw e;
+                  }
                 }
               }
             } else {
@@ -1146,6 +1203,9 @@
         }
 
         // ── Écriture atomique dans le DOM (tous les lots ont abouti) ──────
+        if (document.documentElement._mtActiveInstanceId !== instanceId) {
+          return;
+        }
         traductions.forEach((texte, noeud) => {
           noeud.textContent = texte;
         });
@@ -1263,6 +1323,10 @@
     document.documentElement._mtObserver?.disconnect();
     if (document.documentElement._mtMessageListener) {
       browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
+    }
+    if (document.documentElement._mtTimerRepli) {
+      clearTimeout(document.documentElement._mtTimerRepli);
+      document.documentElement._mtTimerRepli = null;
     }
   }
 

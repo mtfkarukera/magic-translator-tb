@@ -153,5 +153,4 @@ Les contributions sont bienvenues, en particulier pour :
 - De nouvelles langues d'interface
 
 ---
-
-💡 *Découvrez toutes les **Magic Apps** sur le site officiel : [magic-clipper.mtfk.fr](https://magic-clipper.mtfk.fr/).*
+*Développé par **MTF Karukera**. Découvre toutes les solutions logicielles et outils de productivité de la suite **magic-softs** sur [magic-clipper.mtfk.fr](https://magic-clipper.mtfk.fr/).*

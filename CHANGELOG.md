@@ -11,6 +11,28 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 
 ---
 
+## [2.0.15] — 2026-06-29
+
+Améliorations de robustesse, accessibilité (WCAG 2.1 AA) et refonte esthétique premium.
+
+### Ajouté
+- **Landmark sémantique** : Le bandeau principal utilise désormais `role="region" aria-label="Translator"`.
+- **Labels accessibles** : Utilisation de balises `<label>` pour les sélecteurs de langues liés par identifiant unique (`mt-select-source`, `mt-select-cible`).
+- **Aria-label** : Bouton de repli explicitement labellisé `aria-label="Replier"`.
+
+### Corrigé
+- **Ruptures de focus clavier (WCAG 2.4.3)** : Transfert automatique du focus vers le sélecteur de langue à l'ouverture, et retour fluide du focus sur la pilule à la fermeture.
+- **Race Condition inter-messages** : Ajout d'un identifiant d'instance unique pour bloquer les écritures asynchrones de traduction d'anciens e-mails lors de changements rapides.
+- **Fuites de mémoire** : Nettoyage du timer de repli automatique dans la fonction `nettoyerInstance()`.
+- **Boucle infinie** : Garde-fou dans `decouperLong` si `maxLen <= 0`.
+- **Limitation d'appels** : Interruption immédiate du fallback de traduction nœud-par-nœud si une erreur `RATE_LIMITED` ou `NETWORK` est rencontrée.
+
+### Modifié
+- **Design Premium** : Refonte esthétique avec Glassmorphism (`backdrop-filter`), utilisation de tokens de design CSS et courbes d'animation cubic-bezier. Contrastes améliorés pour le logo et le bouton repli.
+- **Maintenance** : Suppression du warning obsolète lié à `localhost:9999` dans `build.sh`.
+
+---
+
 ## [2.0.14] — 2026-06-14
 
 Qualité & dette technique — **Lot 5** de l'audit (dernier lot).

@@ -45,6 +45,7 @@
    * @returns {string[]} Segments contigus
    */
   const decouperLong = (texte, maxLen) => {
+    if (!maxLen || maxLen <= 0) return [texte];
     const segments = [];
     let reste = texte;
     while (reste.length > maxLen) {
