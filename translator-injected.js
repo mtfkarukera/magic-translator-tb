@@ -344,6 +344,10 @@
 
 /* ── PILULE COMPACTE (ÉTAT REPLIÉ) ── */
 .mt-pill {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  z-index: 999999;
   display: inline-flex;
   align-items: center;
   gap: 6px;

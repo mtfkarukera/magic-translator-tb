@@ -34,6 +34,11 @@ Sprint 1 — Socle Multi-Fournisseurs (Google Translate, DeepL API, LibreTransla
 - **`manifest.json`** : Ajout de la permission `storage`, déclaration de `options_ui`, et ajout des `host_permissions` nécessaires.
 - **`build.sh`** : Inclusion de `mt-providers.js` et du dossier `options/` dans l'archive `.xpi` de distribution.
 
+### Corrigé
+- **Positionnement de la pilule (`translator-injected.js`)** : Passage en `position: absolute` pour éliminer l'espace blanc de 34 px qui décalait l'e-mail vers le bas en mode replié.
+- **Thème adaptatif des options (`options.css`)** : Support automatique du thème clair et du thème sombre de Thunderbird avec fond transparent pour une intégration native parfaite.
+- **Gestion dynamique des permissions (`options.js`)** : Demande d'autorisation d'hôte à la volée (`browser.permissions.request`) lors du test ou de l'enregistrement pour éviter les blocages de sécurité en mode développement.
+
 ---
 
 ## [2.0.17] — 2026-06-30
