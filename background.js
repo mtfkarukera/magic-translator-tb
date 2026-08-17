@@ -152,7 +152,7 @@ const CONFIG_DEFAUT = {
   libretranslateUrl: "https://libretranslate.com",
   libretranslateApiKey: "",
   geminiApiKey: "",
-  geminiModel: "gemini-2.0-flash",
+  geminiModel: "gemini-3.5-flash-lite",
   llmPreset: "openai",
   llmBaseUrl: "https://api.openai.com",
   llmApiKey: "",
@@ -209,6 +209,16 @@ messenger.runtime.onMessage.addListener(async (message, expediteur) => {
   // ── Action 2 : Test direct de connexion fournisseur (depuis options) ──────
   if (message.action === "testProvider") {
     return await globalThis.MTProviders.testerConnexion(message.config);
+  }
+
+  // ── Action 2b : Liste dynamique des modèles Google Gemini ────────────────
+  if (message.action === "listGeminiModels") {
+    try {
+      const models = await globalThis.MTProviders.listerModelesGemini(message.apiKey);
+      return { success: true, models };
+    } catch (err) {
+      return { success: false, message: err.message || "Impossible de récupérer les modèles." };
+    }
   }
 
   // ── Action 3 : Requête de traduction ─────────────────────────────────────

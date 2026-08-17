@@ -151,15 +151,47 @@ test("FournisseurGemini : rejet si clé absente et succès sur mock API", async 
 
   try {
     const res = await traduire(
-      { provider: "gemini", apiKey: "AIzaSyTestKey123", model: "gemini-2.0-flash" },
+      { provider: "gemini", apiKey: "AIzaSyTestKey123", model: "gemini-3.5-flash-lite" },
       "Hello",
       "en",
       "fr"
     );
     assert.match(urlAppelee, /generativelanguage\.googleapis\.com/);
-    assert.match(urlAppelee, /gemini-2\.0-flash/);
+    assert.match(urlAppelee, /gemini-3\.5-flash-lite/);
     assert.equal(res.success, true);
     assert.equal(res.text, "Bonjour");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("listerModelesGemini : récupération et filtrage generateContent", async () => {
+  const { listerModelesGemini } = globalThis.MTProviders;
+
+  const fetchOriginal = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      models: [
+        {
+          name: "models/gemini-3.5-flash-lite",
+          displayName: "Gemini 3.5 Flash-Lite",
+          supportedGenerationMethods: ["generateContent", "countTokens"]
+        },
+        {
+          name: "models/embedding-001",
+          displayName: "Embedding Model",
+          supportedGenerationMethods: ["embedContent"]
+        }
+      ]
+    })
+  });
+
+  try {
+    const modeles = await listerModelesGemini("AIzaSyTestKey123");
+    assert.equal(modeles.length, 1);
+    assert.equal(modeles[0].id, "gemini-3.5-flash-lite");
+    assert.equal(modeles[0].name, "Gemini 3.5 Flash-Lite");
   } finally {
     globalThis.fetch = fetchOriginal;
   }

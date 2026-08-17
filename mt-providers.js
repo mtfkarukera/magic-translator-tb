@@ -347,7 +347,7 @@
         throw new Error("UNAUTHORIZED");
       }
 
-      const modele = (config.model || config.geminiModel || "gemini-2.0-flash").trim();
+      const modele = (config.model || config.geminiModel || "gemini-3.5-flash-lite").replace(/^models\//, "").trim();
       const cibleNom = obtenirNomLangue(cible);
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
@@ -384,10 +384,26 @@
       }
 
       if (!reponse.ok) {
-        if (reponse.status === 400 || reponse.status === 401 || reponse.status === 403) throw new Error("UNAUTHORIZED");
-        if (reponse.status === 429) throw new Error("RATE_LIMITED");
-        if (reponse.status >= 500) throw new Error("SERVICE_UNAVAILABLE");
-        throw new Error("SERVICE_UNAVAILABLE");
+        let errMessage = "";
+        try {
+          const errData = await reponse.json();
+          if (errData && errData.error && errData.error.message) {
+            errMessage = errData.error.message;
+          }
+        } catch {
+          /* ignore si le corps n'est pas du JSON */
+        }
+
+        if (reponse.status === 400 || reponse.status === 401 || reponse.status === 403) {
+          throw new Error(errMessage || "UNAUTHORIZED");
+        }
+        if (reponse.status === 404) {
+          throw new Error(errMessage || `Modèle Gemini "${modele}" introuvable (404).`);
+        }
+        if (reponse.status === 429) {
+          throw new Error(errMessage || "RATE_LIMITED");
+        }
+        throw new Error(errMessage || "SERVICE_UNAVAILABLE");
       }
 
       let donnees;
@@ -592,6 +608,57 @@
       } catch (err) {
         return { success: false, message: err.message || "Erreur de connexion." };
       }
+    },
+
+    /**
+     * Interroge l'API officielle Google pour récupérer en temps réel la liste des modèles disponibles.
+     * @param {string} apiKey - Clé d'API Google AI Studio
+     * @returns {Promise<Array<{id: string, name: string, description: string}>>}
+     */
+    async listerModelesGemini(apiKey) {
+      if (!apiKey || !apiKey.trim()) return [];
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey.trim())}`;
+      let reponse;
+      try {
+        reponse = await fetch(url, {
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS)
+        });
+      } catch (erreur) {
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("NETWORK");
+      }
+
+      if (!reponse.ok) {
+        let errMessage = "";
+        try {
+          const errData = await reponse.json();
+          if (errData && errData.error && errData.error.message) {
+            errMessage = errData.error.message;
+          }
+        } catch {
+          /* ignore si le corps n'est pas du JSON */
+        }
+        throw new Error(errMessage || `Erreur HTTP ${reponse.status}`);
+      }
+
+      let donnees;
+      try {
+        donnees = await reponse.json();
+      } catch {
+        throw new Error("Réponse JSON invalide de Google.");
+      }
+
+      if (!donnees || !Array.isArray(donnees.models)) return [];
+
+      return donnees.models
+        .filter((m) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes("generateContent"))
+        .map((m) => ({
+          id: m.name.replace(/^models\//, ""),
+          name: m.displayName || m.name.replace(/^models\//, ""),
+          description: m.description || ""
+        }));
     }
   };
 

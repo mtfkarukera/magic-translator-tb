@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputGeminiKey = document.getElementById("gemini-api-key");
   const selectGeminiModel = document.getElementById("gemini-model");
   const btnToggleGeminiKey = document.getElementById("btn-toggle-gemini-key");
+  const btnRefreshGeminiModels = document.getElementById("btn-refresh-gemini-models");
+  const helpGeminiModels = document.getElementById("help-gemini-models");
 
   const sectionLlm = document.getElementById("section-llm");
   const selectLlmPreset = document.getElementById("llm-preset");
@@ -52,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     libretranslateUrl: "https://libretranslate.com",
     libretranslateApiKey: "",
     geminiApiKey: "",
-    geminiModel: "gemini-2.0-flash",
+    geminiModel: "gemini-3.5-flash-lite",
     llmPreset: "openai",
     llmBaseUrl: "https://api.openai.com",
     llmApiKey: "",
@@ -156,6 +158,81 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * Actualise dynamiquement la liste des modèles Gemini depuis l'API officielle Google.
+   * @param {string} apiKey - Clé d'API
+   * @param {boolean} [silencieux=false] - Si vrai, pas de message de statut envahissant
+   */
+  async function actualiserModelesGemini(apiKey, silencieux = false) {
+    if (!apiKey || !apiKey.trim()) {
+      if (!silencieux) afficherStatut("Veuillez d'abord saisir une clé d'API Google AI Studio.", "error");
+      return;
+    }
+
+    if (btnRefreshGeminiModels) {
+      btnRefreshGeminiModels.disabled = true;
+      btnRefreshGeminiModels.textContent = "⏳ Chargement…";
+    }
+
+    // Demande de permission si nécessaire
+    await assurerPermissionsHote({ provider: "gemini", geminiApiKey: apiKey });
+
+    try {
+      const reponse = await browser.runtime.sendMessage({
+        action: "listGeminiModels",
+        apiKey: apiKey.trim()
+      });
+
+      if (reponse && reponse.success && Array.isArray(reponse.models) && reponse.models.length > 0) {
+        const valeurActuelle = selectGeminiModel.value;
+        selectGeminiModel.innerHTML = "";
+
+        let optionTrouvee = false;
+        let optionFlashLite = null;
+
+        reponse.models.forEach((m) => {
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = `${m.name} (${m.id})`;
+          selectGeminiModel.appendChild(opt);
+
+          if (m.id === valeurActuelle) optionTrouvee = true;
+          if (!optionFlashLite && m.id.includes("flash-lite")) {
+            optionFlashLite = m.id;
+          }
+        });
+
+        if (optionTrouvee) {
+          selectGeminiModel.value = valeurActuelle;
+        } else if (optionFlashLite) {
+          selectGeminiModel.value = optionFlashLite;
+        } else if (selectGeminiModel.options.length > 0) {
+          selectGeminiModel.selectedIndex = 0;
+        }
+
+        if (helpGeminiModels) {
+          helpGeminiModels.textContent = `✓ ${reponse.models.length} modèles disponibles synchronisés avec Google AI Studio.`;
+        }
+
+        if (!silencieux) {
+          afficherStatut(`✓ ${reponse.models.length} modèles Gemini synchronisés avec succès !`, "success");
+        }
+      } else {
+        const err = (reponse && reponse.message) || "Aucun modèle retourné.";
+        if (helpGeminiModels) helpGeminiModels.textContent = `⚠️ Erreur de synchronisation : ${err}`;
+        if (!silencieux) afficherStatut(`Impossible d'actualiser les modèles : ${err}`, "error");
+      }
+    } catch (err) {
+      if (helpGeminiModels) helpGeminiModels.textContent = `⚠️ Erreur : ${err.message}`;
+      if (!silencieux) afficherStatut(`Erreur : ${err.message}`, "error");
+    } finally {
+      if (btnRefreshGeminiModels) {
+        btnRefreshGeminiModels.disabled = false;
+        btnRefreshGeminiModels.textContent = "🔄 Actualiser les modèles";
+      }
+    }
+  }
+
   // ── Chargement initial des réglages ────────────────────────────────────────
   try {
     const stocke = await browser.storage.local.get(Object.keys(DEFAUTS));
@@ -166,7 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectDeeplPlan.value = config.deeplPlan;
 
     inputGeminiKey.value = config.geminiApiKey;
-    selectGeminiModel.value = config.geminiModel || "gemini-2.0-flash";
+    selectGeminiModel.value = config.geminiModel || "gemini-3.5-flash-lite";
 
     selectLlmPreset.value = config.llmPreset || "openai";
     inputLlmBaseUrl.value = config.llmBaseUrl || "https://api.openai.com";
@@ -177,6 +254,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     inputLibreTranslateKey.value = config.libretranslateApiKey;
 
     actualiserAffichageFournisseur();
+
+    // Actualisation silencieuse des modèles si clé déjà configurée
+    if (config.geminiApiKey) {
+      actualiserModelesGemini(config.geminiApiKey, true);
+    }
   } catch (err) {
     console.error("[MagicTranslator Options] Erreur de chargement :", err);
     afficherStatut("Impossible de charger les préférences.", "error");
@@ -186,6 +268,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectProvider.addEventListener("change", () => {
     actualiserAffichageFournisseur();
     statusContainer.classList.add("mt-hidden");
+  });
+
+  // ── Événements Gemini ───────────────────────────────────────────────────────
+  if (btnRefreshGeminiModels) {
+    btnRefreshGeminiModels.addEventListener("click", () => {
+      actualiserModelesGemini(inputGeminiKey.value.trim());
+    });
+  }
+
+  inputGeminiKey.addEventListener("blur", () => {
+    if (inputGeminiKey.value.trim()) {
+      actualiserModelesGemini(inputGeminiKey.value.trim(), true);
+    }
   });
 
   // ── Changement de preset LLM ────────────────────────────────────────────────
