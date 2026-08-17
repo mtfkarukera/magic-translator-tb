@@ -186,8 +186,14 @@ const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[A-Z]{2}|(-Hans|-Hant))?)$/;
 // [Mi-S1] On n'expose jamais d'erreur JavaScript interne à l'UI.
 const CODES_ERREURS_CONNUS = new Set(["TIMEOUT", "NETWORK", "RATE_LIMITED", "SERVICE_UNAVAILABLE", "INVALID_PAYLOAD", "UNAUTHORIZED"]);
 
-messenger.runtime.onMessage.addListener(async (message, expediteur) => {
-  if (!message) return;
+/**
+ * Traite les requêtes de messages internes de façon asynchrone.
+ * @param {Object} message
+ * @param {Object} expediteur
+ * @returns {Promise<Object>}
+ */
+async function traiterMessage(message, expediteur) {
+  if (!message) return { success: false, error: "INVALID_PAYLOAD" };
 
   // [M-S1] Validation de l'expéditeur : seul notre propre script ou page d'options est autorisé.
   if (!expediteur || expediteur.id !== messenger.runtime.id) {
@@ -280,4 +286,20 @@ messenger.runtime.onMessage.addListener(async (message, expediteur) => {
       };
     }
   }
+
+  return { success: false, error: "UNKNOWN_ACTION" };
+}
+
+// Écouteur synchrone officiel pour WebExtensions Thunderbird MV3 :
+// La fonction listener n'est pas async, retourne true pour maintenir le canal ouvert,
+// et répond via sendResponse() une fois la promesse résolue.
+messenger.runtime.onMessage.addListener((message, expediteur, sendResponse) => {
+  traiterMessage(message, expediteur)
+    .then((reponse) => {
+      sendResponse(reponse);
+    })
+    .catch((err) => {
+      sendResponse({ success: false, error: err.message || "SERVICE_UNAVAILABLE" });
+    });
+  return true;
 });

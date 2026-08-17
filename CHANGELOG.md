@@ -9,6 +9,13 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.2.1] — 2026-08-17
+
+Correctif de conformité Mozilla Add-ons (ATN).
+
+### Modifié
+- **`background.js`** : Refactorisation de l'écouteur `runtime.onMessage` en écouteur synchrone officiel retournant `true` et répondant via `sendResponse()` conformément aux guides d'API Thunderbird MV3.
+
 ## [2.2.0] — 2026-08-17
 
 Sprint 2 — Hub LLMs Cloud (Google Gemini API, OpenAI, Groq, Mistral) & LLMs Locaux (Ollama, LM Studio).
