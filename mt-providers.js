@@ -285,30 +285,284 @@
     }
   };
 
+  // ── TABLE DES LANGUES POUR LES PROMPTS LLM ─────────────────────────────────
+  const NOMS_LANGUES_LLM = {
+    fr: "French", en: "English", es: "Spanish", de: "German", it: "Italian",
+    pt: "Portuguese", "pt-br": "Brazilian Portuguese", "pt-pt": "European Portuguese",
+    ja: "Japanese", "zh-cn": "Simplified Chinese", "zh-tw": "Traditional Chinese", zh: "Chinese",
+    ru: "Russian", ar: "Arabic", nl: "Dutch", pl: "Polish", tr: "Turkish",
+    vi: "Vietnamese", ko: "Korean", sv: "Swedish", no: "Norwegian", da: "Danish",
+    fi: "Finnish", el: "Greek", cs: "Czech", hu: "Hungarian", ro: "Romanian",
+    uk: "Ukrainian", id: "Indonesian", hi: "Hindi", th: "Thai", he: "Hebrew"
+  };
+
+  /**
+   * Retourne le nom de la langue en anglais pour le prompt système du LLM.
+   * @param {string} code - Code langue ISO/BCP-47 (ex: "fr", "pt-br")
+   * @returns {string} Nom de la langue en clair
+   */
+  function obtenirNomLangue(code) {
+    if (!code) return "English";
+    const c = code.toLowerCase().trim();
+    return NOMS_LANGUES_LLM[c] || NOMS_LANGUES_LLM[c.split("-")[0]] || code;
+  }
+
+  /**
+   * Nettoie la réponse textuelle générée par un LLM (supprime balises markdown et guillemets superflus).
+   * @param {string} texte - Texte brut issu du LLM
+   * @returns {string} Texte traduit épuré
+   */
+  function nettoyerReponseLLM(texte) {
+    if (!texte) return "";
+    let propre = texte.trim();
+    // Suppression des encadrements de blocs de code markdown ```...```
+    if (propre.startsWith("```") && propre.endsWith("```")) {
+      propre = propre.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
+    }
+    // Suppression des guillemets enveloppants si le LLM a entouré tout le texte
+    if ((propre.startsWith('"') && propre.endsWith('"') && propre.length >= 2) ||
+        (propre.startsWith("«") && propre.endsWith("»") && propre.length >= 2)) {
+      propre = propre.slice(1, -1).trim();
+    }
+    return propre;
+  }
+
+  // ── 4. FOURNISSEUR GOOGLE GEMINI API ───────────────────────────────────────
+  const FournisseurGemini = {
+    id: "gemini",
+    label: "Gemini",
+    nomComplet: "Google Gemini API",
+
+    /**
+     * Traduit un texte via l'API REST de Google Gemini (Google AI Studio).
+     * @param {string} texte - Texte brut à traduire
+     * @param {string} _source - Langue source ("auto" ou code)
+     * @param {string} cible - Langue cible
+     * @param {Object} config - Configuration ({ apiKey, model, ... })
+     * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
+     */
+    async traduire(texte, _source, cible, config = {}) {
+      const apiKey = config.apiKey ? config.apiKey.trim() : (config.geminiApiKey ? config.geminiApiKey.trim() : "");
+      if (!apiKey) {
+        throw new Error("UNAUTHORIZED");
+      }
+
+      const modele = (config.model || config.geminiModel || "gemini-2.0-flash").trim();
+      const cibleNom = obtenirNomLangue(cible);
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      const promptSysteme = `You are a professional translator. Translate the following text into ${cibleNom}. Output ONLY the raw translated text with NO explanations, NO quotes, NO markdown formatting.`;
+
+      const payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `${promptSysteme}\n\nText to translate:\n${texte}`
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2
+        }
+      };
+
+      let reponse;
+      try {
+        reponse = await fetch(url, {
+          method: "POST",
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (erreur) {
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("NETWORK");
+      }
+
+      if (!reponse.ok) {
+        if (reponse.status === 400 || reponse.status === 401 || reponse.status === 403) throw new Error("UNAUTHORIZED");
+        if (reponse.status === 429) throw new Error("RATE_LIMITED");
+        if (reponse.status >= 500) throw new Error("SERVICE_UNAVAILABLE");
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      let donnees;
+      try {
+        donnees = await reponse.json();
+      } catch {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      if (donnees && donnees.candidates && donnees.candidates[0] && donnees.candidates[0].content && donnees.candidates[0].content.parts && donnees.candidates[0].content.parts[0] && donnees.candidates[0].content.parts[0].text) {
+        const traductionBrute = donnees.candidates[0].content.parts[0].text;
+        const traduction = nettoyerReponseLLM(traductionBrute);
+        if (!traduction) throw new Error("SERVICE_UNAVAILABLE");
+
+        return {
+          success: true,
+          text: traduction,
+          detectedLang: null
+        };
+      }
+
+      throw new Error("SERVICE_UNAVAILABLE");
+    }
+  };
+
+  // ── 5. FOURNISSEUR OPENAI-COMPATIBLE (HUB LLMS) ────────────────────────────
+  const PRESET_LABELS = {
+    openai: "OpenAI",
+    groq: "Groq",
+    mistral: "Mistral",
+    ollama: "Ollama",
+    lmstudio: "LM Studio",
+    custom: "LLM"
+  };
+
+  const FournisseurOpenAICompatible = {
+    id: "llm",
+    label: "LLM",
+    nomComplet: "Modèle de Langage (LLM)",
+
+    obtenirLabel(config = {}) {
+      const preset = config.preset || config.llmPreset || "custom";
+      return PRESET_LABELS[preset] || "LLM";
+    },
+
+    /**
+     * Traduit un texte via un endpoint OpenAI-compatible (OpenAI, Groq, Mistral, Ollama, LM Studio, etc.).
+     * @param {string} texte - Texte brut à traduire
+     * @param {string} _source - Langue source
+     * @param {string} cible - Langue cible
+     * @param {Object} config - Configuration ({ url, apiKey, model, preset, ... })
+     * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
+     */
+    async traduire(texte, _source, cible, config = {}) {
+      let baseUrl = (config.url || config.llmBaseUrl || "https://api.openai.com").trim();
+      const apiKey = config.apiKey ? config.apiKey.trim() : (config.llmApiKey ? config.llmApiKey.trim() : "");
+      const modele = (config.model || config.llmModel || "gpt-4o-mini").trim();
+      const preset = config.preset || config.llmPreset || "openai";
+
+      // Rejet immédiat si clé manquante pour les fournisseurs Cloud
+      const exigeCle = preset === "openai" || preset === "groq" || preset === "mistral";
+      if (exigeCle && !apiKey) {
+        throw new Error("UNAUTHORIZED");
+      }
+
+      baseUrl = baseUrl.replace(/\/+$/, "");
+      const endpoint = baseUrl.endsWith("/v1/chat/completions")
+        ? baseUrl
+        : `${baseUrl}/v1/chat/completions`;
+
+      const cibleNom = obtenirNomLangue(cible);
+
+      const payload = {
+        model: modele,
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional translator. Translate the user text accurately into ${cibleNom}. Output ONLY the raw translated text, with no markdown code blocks, quotes, preamble, or comments.`
+          },
+          {
+            role: "user",
+            content: texte
+          }
+        ],
+        temperature: 0.2
+      };
+
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+      }
+
+      let reponse;
+      try {
+        reponse = await fetch(endpoint, {
+          method: "POST",
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
+          headers,
+          body: JSON.stringify(payload)
+        });
+      } catch (erreur) {
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("NETWORK");
+      }
+
+      if (!reponse.ok) {
+        if (reponse.status === 401 || reponse.status === 403) throw new Error("UNAUTHORIZED");
+        if (reponse.status === 429) throw new Error("RATE_LIMITED");
+        if (reponse.status >= 500) throw new Error("SERVICE_UNAVAILABLE");
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      let donnees;
+      try {
+        donnees = await reponse.json();
+      } catch {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      if (donnees && donnees.choices && donnees.choices[0] && donnees.choices[0].message && donnees.choices[0].message.content) {
+        const traductionBrute = donnees.choices[0].message.content;
+        const traduction = nettoyerReponseLLM(traductionBrute);
+        if (!traduction) throw new Error("SERVICE_UNAVAILABLE");
+
+        return {
+          success: true,
+          text: traduction,
+          detectedLang: null
+        };
+      }
+
+      throw new Error("SERVICE_UNAVAILABLE");
+    }
+  };
+
   // ── REGISTRE & GESTIONNAIRE GLOBAL ─────────────────────────────────────────
   const FOURNISSEURS = {
     google: FournisseurGoogle,
     deepl: FournisseurDeepL,
-    libretranslate: FournisseurLibreTranslate
+    libretranslate: FournisseurLibreTranslate,
+    gemini: FournisseurGemini,
+    llm: FournisseurOpenAICompatible
   };
 
   const MTProviders = {
     FOURNISSEURS,
     normaliserCodeDeepL,
     obtenirEndpointDeepL,
+    obtenirNomLangue,
+    nettoyerReponseLLM,
 
     /**
      * Récupère un fournisseur par son identifiant.
-     * @param {string} id - 'google', 'deepl', 'libretranslate'
+     * @param {string} id - 'google', 'deepl', 'libretranslate', 'gemini', 'llm'
+     * @param {Object} [config] - Configuration optionnelle pour dynamiser le label
      * @returns {Object} Le fournisseur correspondant (ou Google par défaut)
      */
-    obtenirFournisseur(id) {
-      return FOURNISSEURS[id] || FournisseurGoogle;
+    obtenirFournisseur(id, config = {}) {
+      const fournisseur = FOURNISSEURS[id] || FournisseurGoogle;
+      if (id === "llm" && fournisseur.obtenirLabel) {
+        return {
+          ...fournisseur,
+          label: fournisseur.obtenirLabel(config)
+        };
+      }
+      return fournisseur;
     },
 
     /**
      * Exécute une traduction avec la configuration demandée.
-     * @param {Object} config - Configuration active ({ provider, apiKey, url, plan })
+     * @param {Object} config - Configuration active
      * @param {string} texte - Texte à traduire
      * @param {string} source - Langue source
      * @param {string} cible - Langue cible
@@ -316,7 +570,7 @@
      */
     async traduire(config, texte, source, cible) {
       const providerId = (config && config.provider) || "google";
-      const fournisseur = MTProviders.obtenirFournisseur(providerId);
+      const fournisseur = MTProviders.obtenirFournisseur(providerId, config);
       return await fournisseur.traduire(texte, source, cible, config);
     },
 
@@ -327,7 +581,7 @@
      */
     async testerConnexion(config) {
       const providerId = (config && config.provider) || "google";
-      const fournisseur = MTProviders.obtenirFournisseur(providerId);
+      const fournisseur = MTProviders.obtenirFournisseur(providerId, config);
 
       try {
         const resultat = await fournisseur.traduire("Hello", "en", "fr", config);
@@ -344,3 +598,4 @@
   // Exposition pour le background script et les tests unitaires Node.js
   globalThis.MTProviders = MTProviders;
 })();
+

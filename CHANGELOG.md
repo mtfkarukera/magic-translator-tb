@@ -9,6 +9,38 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.2.0] — 2026-08-17
+
+Sprint 2 — Hub LLMs Cloud (Google Gemini API, OpenAI, Groq, Mistral) & LLMs Locaux (Ollama, LM Studio).
+
+### Ajouté
+- **Google Gemini API Dédiée (`FournisseurGemini`)** :
+  - Support natif de l'API REST Google AI Studio (`generativelanguage.googleapis.com`).
+  - Modèle ultra-rapide et économique `gemini-2.0-flash` par défaut, avec support des variantes `gemini-1.5-flash` et `gemini-1.5-pro`.
+- **Hub LLMs OpenAI-Compatible (`FournisseurOpenAICompatible`)** :
+  - Adaptateur universel standardisé `/v1/chat/completions`.
+  - Presets en un clic avec pré-remplissage intelligent :
+    - **OpenAI** (`https://api.openai.com`, modèle `gpt-4o-mini`)
+    - **Groq Cloud** (`https://api.groq.com/openai`, modèle `llama-3.3-70b-versatile`)
+    - **Mistral AI** (`https://api.mistral.ai`, modèle `mistral-small-latest`)
+    - **Ollama (Local)** (`http://localhost:11434`, modèle `llama3.2`, sans clé requise)
+    - **LM Studio (Local)** (`http://localhost:1234`, modèle `local-model`, sans clé requise)
+    - **Serveur Personnalisé** (vLLM, Text-Generation-WebUI, etc.)
+  - Prompting système étanche imposant un retour strictement brut du texte traduit.
+  - Fonction de nettoyage `nettoyerReponseLLM` pour supprimer les éventuels encadrements markdown et guillemets parasites.
+- **Interface d'Options Étendue (`options/options.html`, `.js`)** :
+  - Deux nouvelles sections dédiées (*Google Gemini API* et *Hub LLMs*).
+  - Gestion du pré-remplissage dynamique d'URL et de modèle lors du choix d'un preset.
+  - Demande automatique des permissions d'hôte pour tous les nouveaux endpoints Cloud et locaux.
+- **Tests Unitaires Étendus (`test/providers.test.js`)** :
+  - 17 tests unitaires couvrant la résolution des noms de langues, le nettoyage des réponses LLM, et les flux Gemini / OpenAI-compatible.
+
+### Modifié
+- **`manifest.json`** : Ajout des permissions d'hôtes pour `generativelanguage.googleapis.com`, `api.openai.com`, `api.groq.com`, et `api.mistral.ai`.
+- **`background.js`** : Extension de `CONFIG_DEFAUT` et acheminement dynamique des clés, modèles et endpoints vers `MTProviders`.
+
+---
+
 ## [2.1.0] — 2026-08-17
 
 Sprint 1 — Socle Multi-Fournisseurs (Google Translate, DeepL API, LibreTranslate), Page d'Options dédiée & Badge Moteur.

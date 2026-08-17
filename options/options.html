@@ -29,6 +29,8 @@
           <select id="select-provider" class="mt-select">
             <option value="google">Google Translate (Par défaut — Gratuit, zéro config)</option>
             <option value="deepl">DeepL API (Qualité linguistique pro)</option>
+            <option value="gemini">Google Gemini API (Cloud — Rapide &amp; Intelligent)</option>
+            <option value="llm">Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)</option>
             <option value="libretranslate">LibreTranslate (Open source / Auto-hébergé)</option>
           </select>
           <p class="mt-help-text" id="help-provider">
@@ -56,6 +58,68 @@
               <option value="free">DeepL API Free (api-free.deepl.com)</option>
               <option value="pro">DeepL API Pro (api.deepl.com)</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Section Google Gemini API -->
+        <div id="section-gemini" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <label for="gemini-api-key" class="mt-label">Clé d'API Google AI Studio (Gemini API Key)</label>
+            <div class="mt-input-password-wrapper">
+              <input type="password" id="gemini-api-key" class="mt-input" placeholder="Ex: AIzaSy..." autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+            </div>
+            <p class="mt-help-text">
+              Obtenez une clé gratuite sur <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="mt-link">aistudio.google.com</a>.
+            </p>
+          </div>
+
+          <div class="mt-field-group">
+            <label for="gemini-model" class="mt-label">Modèle Gemini</label>
+            <select id="gemini-model" class="mt-select">
+              <option value="gemini-2.0-flash">gemini-2.0-flash (Recommandé — Ultra-rapide)</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+              <option value="gemini-1.5-pro">gemini-1.5-pro (Raisonnement approfondi)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom) -->
+        <div id="section-llm" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <label for="llm-preset" class="mt-label">Fournisseur ou Moteur LLM</label>
+            <select id="llm-preset" class="mt-select">
+              <option value="openai">OpenAI (gpt-4o-mini)</option>
+              <option value="groq">Groq Cloud (llama-3.3-70b-versatile — Inférence instantanée)</option>
+              <option value="mistral">Mistral AI (mistral-small-latest)</option>
+              <option value="ollama">Ollama (Local — http://localhost:11434)</option>
+              <option value="lmstudio">LM Studio (Local — http://localhost:1234)</option>
+              <option value="custom">Serveur Personnalisé (URL libre)</option>
+            </select>
+          </div>
+
+          <div class="mt-field-group">
+            <label for="llm-base-url" class="mt-label">URL de Base de l'API (Base URL)</label>
+            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com" spellcheck="false">
+            <p class="mt-help-text" id="help-llm-url">
+              Endpoint standard. Le chemin <code>/v1/chat/completions</code> sera ajouté automatiquement.
+            </p>
+          </div>
+
+          <div class="mt-field-group" id="group-llm-key">
+            <label for="llm-api-key" class="mt-label">Clé d'API (Bearer Token)</label>
+            <div class="mt-input-password-wrapper">
+              <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+            </div>
+            <p class="mt-help-text" id="help-llm-key">
+              Clé d'authentification pour le service distant.
+            </p>
+          </div>
+
+          <div class="mt-field-group">
+            <label for="llm-model" class="mt-label">Identifiant du Modèle (Model Name)</label>
+            <input type="text" id="llm-model" class="mt-input" placeholder="Ex: gpt-4o-mini, llama-3.3-70b-versatile, llama3.2" spellcheck="false">
           </div>
         </div>
 

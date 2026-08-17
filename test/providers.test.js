@@ -101,3 +101,116 @@ test("LibreTranslate : URL personnalisée avec nettoyage du slash final", async 
     globalThis.fetch = fetchOriginal;
   }
 });
+
+test("nettoyerReponseLLM : suppression des balises markdown et guillemets superflus", () => {
+  const { nettoyerReponseLLM } = globalThis.MTProviders;
+  assert.equal(nettoyerReponseLLM("```\nBonjour le monde\n```"), "Bonjour le monde");
+  assert.equal(nettoyerReponseLLM("```markdown\nBonjour le monde\n```"), "Bonjour le monde");
+  assert.equal(nettoyerReponseLLM('"Bonjour le monde"'), "Bonjour le monde");
+  assert.equal(nettoyerReponseLLM("« Bonjour le monde »"), "Bonjour le monde");
+  assert.equal(nettoyerReponseLLM("   Bonjour le monde   "), "Bonjour le monde");
+});
+
+test("obtenirNomLangue : résolution des noms en clair", () => {
+  const { obtenirNomLangue } = globalThis.MTProviders;
+  assert.equal(obtenirNomLangue("fr"), "French");
+  assert.equal(obtenirNomLangue("en"), "English");
+  assert.equal(obtenirNomLangue("pt-br"), "Brazilian Portuguese");
+  assert.equal(obtenirNomLangue("zh-cn"), "Simplified Chinese");
+  assert.equal(obtenirNomLangue("de"), "German");
+});
+
+test("FournisseurGemini : rejet si clé absente et succès sur mock API", async () => {
+  // Rejet si clé vide
+  await assert.rejects(
+    async () => {
+      await FOURNISSEURS.gemini.traduire("Hello", "en", "fr", { apiKey: "" });
+    },
+    { message: "UNAUTHORIZED" }
+  );
+
+  // Mock appel réussi
+  const fetchOriginal = globalThis.fetch;
+  let urlAppelee = "";
+
+  globalThis.fetch = async (url) => {
+    urlAppelee = url;
+    return {
+      ok: true,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: "Bonjour" }]
+            }
+          }
+        ]
+      })
+    };
+  };
+
+  try {
+    const res = await traduire(
+      { provider: "gemini", apiKey: "AIzaSyTestKey123", model: "gemini-2.0-flash" },
+      "Hello",
+      "en",
+      "fr"
+    );
+    assert.match(urlAppelee, /generativelanguage\.googleapis\.com/);
+    assert.match(urlAppelee, /gemini-2\.0-flash/);
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Bonjour");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurOpenAICompatible : Cloud (OpenAI, Groq) vs Local (Ollama, LM Studio)", async () => {
+  // Rejet si clé absente pour OpenAI
+  await assert.rejects(
+    async () => {
+      await FOURNISSEURS.llm.traduire("Hello", "en", "fr", { preset: "openai", apiKey: "" });
+    },
+    { message: "UNAUTHORIZED" }
+  );
+
+  // Succès sans clé pour Ollama (local)
+  const fetchOriginal = globalThis.fetch;
+  let urlAppelee = "";
+  let payloadRecu = null;
+
+  globalThis.fetch = async (url, options) => {
+    urlAppelee = url;
+    payloadRecu = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: "Bonjour tout le monde" }
+          }
+        ]
+      })
+    };
+  };
+
+  try {
+    const res = await traduire(
+      {
+        provider: "llm",
+        preset: "ollama",
+        url: "http://localhost:11434",
+        model: "llama3.2"
+      },
+      "Hello everyone",
+      "en",
+      "fr"
+    );
+    assert.equal(urlAppelee, "http://localhost:11434/v1/chat/completions");
+    assert.equal(payloadRecu.model, "llama3.2");
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Bonjour tout le monde");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});

@@ -20,6 +20,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectDeeplPlan = document.getElementById("deepl-plan");
   const btnToggleDeeplKey = document.getElementById("btn-toggle-deepl-key");
 
+  const sectionGemini = document.getElementById("section-gemini");
+  const inputGeminiKey = document.getElementById("gemini-api-key");
+  const selectGeminiModel = document.getElementById("gemini-model");
+  const btnToggleGeminiKey = document.getElementById("btn-toggle-gemini-key");
+
+  const sectionLlm = document.getElementById("section-llm");
+  const selectLlmPreset = document.getElementById("llm-preset");
+  const inputLlmBaseUrl = document.getElementById("llm-base-url");
+  const inputLlmApiKey = document.getElementById("llm-api-key");
+  const inputLlmModel = document.getElementById("llm-model");
+  const btnToggleLlmKey = document.getElementById("btn-toggle-llm-key");
+
   const sectionLibreTranslate = document.getElementById("section-libretranslate");
   const inputLibreTranslateUrl = document.getElementById("libretranslate-url");
   const inputLibreTranslateKey = document.getElementById("libretranslate-api-key");
@@ -32,13 +44,58 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnTest = document.getElementById("btn-test");
   const btnSave = document.getElementById("btn-save");
 
-  // ── Valeurs par défaut ─────────────────────────────────────────────────────
+  // ── Valeurs par défaut & Presets LLM ───────────────────────────────────────
   const DEFAUTS = {
     provider: "google",
     deeplApiKey: "",
     deeplPlan: "auto",
     libretranslateUrl: "https://libretranslate.com",
-    libretranslateApiKey: ""
+    libretranslateApiKey: "",
+    geminiApiKey: "",
+    geminiModel: "gemini-2.0-flash",
+    llmPreset: "openai",
+    llmBaseUrl: "https://api.openai.com",
+    llmApiKey: "",
+    llmModel: "gpt-4o-mini"
+  };
+
+  const LLM_PRESETS = {
+    openai: {
+      url: "https://api.openai.com",
+      model: "gpt-4o-mini",
+      keyPlaceholder: "sk-proj-...",
+      requiresKey: true
+    },
+    groq: {
+      url: "https://api.groq.com/openai",
+      model: "llama-3.3-70b-versatile",
+      keyPlaceholder: "gsk_...",
+      requiresKey: true
+    },
+    mistral: {
+      url: "https://api.mistral.ai",
+      model: "mistral-small-latest",
+      keyPlaceholder: "Clé API Mistral",
+      requiresKey: true
+    },
+    ollama: {
+      url: "http://localhost:11434",
+      model: "llama3.2",
+      keyPlaceholder: "Laisser vide (inutile en local)",
+      requiresKey: false
+    },
+    lmstudio: {
+      url: "http://localhost:1234",
+      model: "local-model",
+      keyPlaceholder: "Laisser vide (inutile en local)",
+      requiresKey: false
+    },
+    custom: {
+      url: "",
+      model: "",
+      keyPlaceholder: "Clé d'API si requise",
+      requiresKey: false
+    }
   };
 
   /**
@@ -68,6 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const provider = selectProvider.value;
 
     sectionDeepl.classList.add("mt-hidden");
+    sectionGemini.classList.add("mt-hidden");
+    sectionLlm.classList.add("mt-hidden");
     sectionLibreTranslate.classList.add("mt-hidden");
 
     if (provider === "google") {
@@ -79,6 +138,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       providerBadge.textContent = "Clé requise";
       providerBadge.style.display = "inline-block";
       helpProvider.textContent = "DeepL offre une fidélité linguistique reconnue et le respect des nuances formelles.";
+    } else if (provider === "gemini") {
+      sectionGemini.classList.remove("mt-hidden");
+      providerBadge.textContent = "Cloud IA (Gratuit/Clé)";
+      providerBadge.style.display = "inline-block";
+      helpProvider.textContent = "Google Gemini offre des traductions nuancées ultra-rapides grâce aux modèles de dernière génération.";
+    } else if (provider === "llm") {
+      sectionLlm.classList.remove("mt-hidden");
+      providerBadge.textContent = "Hub LLMs";
+      providerBadge.style.display = "inline-block";
+      helpProvider.textContent = "Connectez n'importe quel LLM Cloud (OpenAI, Groq, Mistral) ou local (Ollama, LM Studio).";
     } else if (provider === "libretranslate") {
       sectionLibreTranslate.classList.remove("mt-hidden");
       providerBadge.textContent = "Auto-hébergé / Public";
@@ -95,6 +164,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectProvider.value = config.provider;
     inputDeeplKey.value = config.deeplApiKey;
     selectDeeplPlan.value = config.deeplPlan;
+
+    inputGeminiKey.value = config.geminiApiKey;
+    selectGeminiModel.value = config.geminiModel || "gemini-2.0-flash";
+
+    selectLlmPreset.value = config.llmPreset || "openai";
+    inputLlmBaseUrl.value = config.llmBaseUrl || "https://api.openai.com";
+    inputLlmApiKey.value = config.llmApiKey;
+    inputLlmModel.value = config.llmModel || "gpt-4o-mini";
+
     inputLibreTranslateUrl.value = config.libretranslateUrl || "https://libretranslate.com";
     inputLibreTranslateKey.value = config.libretranslateApiKey;
 
@@ -110,6 +188,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     statusContainer.classList.add("mt-hidden");
   });
 
+  // ── Changement de preset LLM ────────────────────────────────────────────────
+  selectLlmPreset.addEventListener("change", () => {
+    const preset = selectLlmPreset.value;
+    const info = LLM_PRESETS[preset];
+    if (info && preset !== "custom") {
+      inputLlmBaseUrl.value = info.url;
+      inputLlmModel.value = info.model;
+      inputLlmApiKey.placeholder = info.keyPlaceholder;
+    }
+    statusContainer.classList.add("mt-hidden");
+  });
+
   // ── Bascules Afficher / Masquer Mot de passe ────────────────────────────────
   function configurerBasculeMotDePasse(btn, input) {
     btn.addEventListener("click", () => {
@@ -121,6 +211,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   configurerBasculeMotDePasse(btnToggleDeeplKey, inputDeeplKey);
+  configurerBasculeMotDePasse(btnToggleGeminiKey, inputGeminiKey);
+  configurerBasculeMotDePasse(btnToggleLlmKey, inputLlmApiKey);
   configurerBasculeMotDePasse(btnToggleLtKey, inputLibreTranslateKey);
 
   /**
@@ -132,6 +224,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       provider: selectProvider.value,
       deeplApiKey: inputDeeplKey.value.trim(),
       deeplPlan: selectDeeplPlan.value,
+      geminiApiKey: inputGeminiKey.value.trim(),
+      geminiModel: selectGeminiModel.value,
+      llmPreset: selectLlmPreset.value,
+      llmBaseUrl: inputLlmBaseUrl.value.trim(),
+      llmApiKey: inputLlmApiKey.value.trim(),
+      llmModel: inputLlmModel.value.trim() || "gpt-4o-mini",
       libretranslateUrl: inputLibreTranslateUrl.value.trim() || "https://libretranslate.com",
       libretranslateApiKey: inputLibreTranslateKey.value.trim()
     };
@@ -151,6 +249,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         pattern = "https://api-free.deepl.com/*";
       } else {
         pattern = "https://api.deepl.com/*";
+      }
+    } else if (config.provider === "gemini") {
+      pattern = "https://generativelanguage.googleapis.com/*";
+    } else if (config.provider === "llm") {
+      const preset = config.llmPreset || "openai";
+      if (preset === "openai") {
+        pattern = "https://api.openai.com/*";
+      } else if (preset === "groq") {
+        pattern = "https://api.groq.com/*";
+      } else if (preset === "mistral") {
+        pattern = "https://api.mistral.ai/*";
+      } else {
+        try {
+          const u = new URL(config.llmBaseUrl || "http://localhost:11434");
+          pattern = `${u.origin}/*`;
+        } catch {
+          return false;
+        }
       }
     } else if (config.provider === "libretranslate") {
       try {
@@ -190,6 +306,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    if (provider === "gemini" && !config.geminiApiKey) {
+      afficherStatut("Veuillez renseigner votre clé d'API Google AI Studio avant de tester.", "error");
+      inputGeminiKey.focus();
+      return;
+    }
+
+    if (provider === "llm") {
+      const preset = config.llmPreset;
+      const exigeCle = preset === "openai" || preset === "groq" || preset === "mistral";
+      if (exigeCle && !config.llmApiKey) {
+        afficherStatut(`Veuillez renseigner votre clé d'API pour ${selectLlmPreset.selectedOptions[0].text.split("(")[0].trim()}.`, "error");
+        inputLlmApiKey.focus();
+        return;
+      }
+      if (!config.llmBaseUrl) {
+        afficherStatut("Veuillez renseigner l'URL de base du serveur LLM.", "error");
+        inputLlmBaseUrl.focus();
+        return;
+      }
+    }
+
     if (provider === "libretranslate" && !config.libretranslateUrl) {
       afficherStatut("Veuillez renseigner l'URL de votre instance LibreTranslate.", "error");
       inputLibreTranslateUrl.focus();
@@ -204,11 +341,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnSave.disabled = true;
 
     try {
+      let apiKey = "";
+      let url = "";
+      let model = "";
+
+      if (config.provider === "deepl") {
+        apiKey = config.deeplApiKey;
+      } else if (config.provider === "libretranslate") {
+        apiKey = config.libretranslateApiKey;
+        url = config.libretranslateUrl;
+      } else if (config.provider === "gemini") {
+        apiKey = config.geminiApiKey;
+        model = config.geminiModel;
+      } else if (config.provider === "llm") {
+        apiKey = config.llmApiKey;
+        url = config.llmBaseUrl;
+        model = config.llmModel;
+      }
+
       const configAiguillee = {
-        provider: config.provider,
-        apiKey: config.provider === "deepl" ? config.deeplApiKey : config.libretranslateApiKey,
-        plan: config.deeplPlan,
-        url: config.libretranslateUrl
+        ...config,
+        apiKey,
+        url,
+        model,
+        preset: config.llmPreset,
+        plan: config.deeplPlan
       };
 
       const reponse = await browser.runtime.sendMessage({

@@ -12,21 +12,27 @@ Magic Translator est une **extension Thunderbird Manifest V3** qui traduit le co
 d'aucune dépendance runtime (pas de bundler, pas de framework, pas d'Experiment API).
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  Thunderbird                                                      │
-│                                                                   │
-│   ┌───────────────────────┐         ┌──────────────────────────┐ │
-│   │  background.js         │         │  translator-injected.js  │ │
-│   │  (contexte privilégié) │◄───────►│  (script de contenu,     │ │
-│   │                        │ runtime │   DOM du message)        │ │
-│   │  • registerScripts     │ message │                          │ │
-│   │  • bouton + menu        │ passing │  • UI Shadow DOM         │ │
-│   │  • proxy fetch Google  │         │  • collecte/réinjection  │ │
-│   └───────────┬────────────┘         └──────────────────────────┘ │
-│               │ fetch HTTPS                                        │
-└───────────────┼───────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│  Thunderbird                                                           │
+│                                                                        │
+│   ┌───────────────────────┐            ┌──────────────────────────┐   │
+│   │  background.js        │            │  translator-injected.js  │   │
+│   │  (contexte privilégié)│◄──────────►│  (script de contenu,     │   │
+│   │                       │  runtime   │   DOM du message)        │   │
+│   │  • registerScripts    │  message   │                          │   │
+│   │  • bouton + menu      │  passing   │  • UI Shadow DOM         │   │
+│   │  • mt-providers.js    │            │  • badge moteur          │   │
+│   │    ├─ Google (défaut) │            │  • collecte/réinjection  │   │
+│   │    ├─ DeepL API       │            └──────────────────────────┘   │
+│   │    ├─ Google Gemini   │                                           │
+│   │    ├─ LLM Hub OpenAI  │                                           │
+│   │    └─ LibreTranslate  │                                           │
+│   └───────────┬───────────┘                                           │
+│               │ fetch direct (HTTPS / local)                          │
+└───────────────┼───────────────────────────────────────────────────────┘
                 ▼
-   translate.googleapis.com  (API Google Translate, client=gtx)
+   Endpoints de Traduction / IA
+   (Google Translate, DeepL, Google AI Studio, OpenAI, Groq, Mistral, Ollama, LM Studio...)
 ```
 
 ---

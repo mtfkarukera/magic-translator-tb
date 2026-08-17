@@ -46,7 +46,7 @@ Pour traduire, l'extension **transmet le texte de l'e-mail concerné au service 
 
 | Donnée | Destinataire | Transport | Quand |
 |--------|--------------|-----------|-------|
-| **Corps rendu** du message à traduire | **Google Translate** (par défaut), **DeepL API** ou instance **LibreTranslate** | HTTPS / HTTP local | À chaque clic « Traduire » |
+| **Corps rendu** du message à traduire | **Google Translate** (par défaut), **DeepL API**, **Google Gemini API**, **LLMs Cloud/Locaux** (OpenAI, Groq, Mistral, Ollama, LM Studio) ou instance **LibreTranslate** | HTTPS / HTTP local | À chaque clic « Traduire » |
 
 - Ces données transitent **directement** entre votre client Thunderbird et le service de traduction choisi ; elles ne passent par aucun serveur intermédiaire du projet.
 - **Seul le corps rendu est collecté** (`document.body` du document de contenu du message). Le bloc

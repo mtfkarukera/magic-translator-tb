@@ -150,7 +150,13 @@ const CONFIG_DEFAUT = {
   deeplApiKey: "",
   deeplPlan: "auto",
   libretranslateUrl: "https://libretranslate.com",
-  libretranslateApiKey: ""
+  libretranslateApiKey: "",
+  geminiApiKey: "",
+  geminiModel: "gemini-2.0-flash",
+  llmPreset: "openai",
+  llmBaseUrl: "https://api.openai.com",
+  llmApiKey: "",
+  llmModel: "gpt-4o-mini"
 };
 
 /**
@@ -191,7 +197,7 @@ messenger.runtime.onMessage.addListener(async (message, expediteur) => {
   // ── Action 1 : Demande de configuration active (pour affichage du badge) ──
   if (message.action === "getConfig") {
     const config = await chargerConfiguration();
-    const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider);
+    const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
     return {
       success: true,
       provider: config.provider,
@@ -220,21 +226,42 @@ messenger.runtime.onMessage.addListener(async (message, expediteur) => {
     }
 
     const config = await chargerConfiguration();
+    let apiKey = "";
+    let url = "";
+    let model = "";
+
+    if (config.provider === "deepl") {
+      apiKey = config.deeplApiKey;
+    } else if (config.provider === "libretranslate") {
+      apiKey = config.libretranslateApiKey;
+      url = config.libretranslateUrl;
+    } else if (config.provider === "gemini") {
+      apiKey = config.geminiApiKey;
+      model = config.geminiModel;
+    } else if (config.provider === "llm") {
+      apiKey = config.llmApiKey;
+      url = config.llmBaseUrl;
+      model = config.llmModel;
+    }
+
     const configProvider = {
-      provider: config.provider,
-      apiKey: config.provider === "deepl" ? config.deeplApiKey : config.libretranslateApiKey,
-      plan: config.deeplPlan,
-      url: config.libretranslateUrl
+      ...config,
+      apiKey,
+      url,
+      model,
+      preset: config.llmPreset,
+      plan: config.deeplPlan
     };
 
     try {
       const res = await globalThis.MTProviders.traduire(configProvider, message.text, message.source, message.target);
+      const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
       return {
         success: true,
         text: res.text,
         detectedLang: res.detectedLang,
         provider: config.provider,
-        providerLabel: globalThis.MTProviders.obtenirFournisseur(config.provider).label
+        providerLabel: fournisseur.label
       };
     } catch (erreur) {
       return {

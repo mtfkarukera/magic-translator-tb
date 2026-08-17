@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.1.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.2.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
@@ -9,12 +9,20 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
 - **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**
-- **Hub multi-fournisseurs** :
+- **Hub multi-fournisseurs & LLMs** :
   - **Google Translate** (*par défaut*, gratuit, zéro configuration)
-  - **DeepL API** (*Free & Pro*, qualité linguistique reconnue, clé requise)
+  - **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
+  - **Google Gemini API** (*Cloud IA*, `gemini-2.0-flash`, ultra-rapide et économique)
+  - **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
+    - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
+    - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
+    - **Mistral AI** (`mistral-small-latest`)
+    - **Ollama** (`http://localhost:11434`, traduction 100% locale)
+    - **LM Studio** (`http://localhost:1234`, traduction 100% locale)
+    - **Serveur Personnalisé** (vLLM, etc.)
   - **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
-- **Badge moteur transparent** — Indique en un coup d'œil quel moteur est actif sur le bandeau de traduction
-- **Page d'options dédiée** — Interface Dark Glassmorphism pour configurer et tester ses clés en direct
+- **Badge moteur transparent** — Indique en un coup d'œil quel moteur est actif sur le bandeau de traduction ([MT] Google, DeepL, Gemini, Groq, OpenAI, Ollama...)
+- **Page d'options dédiée** — Interface adaptative (Light & Dark Glassmorphism) pour configurer et tester ses clés en direct
 - **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
 - **Flux UX fluide** : `Rien → [Traduire] → Bandeau → (traduction) → Pilule → [Traduire] → Rien`
 - **Logo [MT] cliquable** dans le bandeau — referme le bandeau en pilule d'un seul clic
