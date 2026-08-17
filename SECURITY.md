@@ -34,29 +34,26 @@ des e-mails. Les hypothèses structurantes sont :
 - ✅ **Aucune écriture HTML.** Toutes les insertions de texte (UI et contenu du message) passent par
   `textContent` / `createTextNode`. Pas d'`innerHTML`, `outerHTML`, `insertAdjacentHTML`, ni `eval`.
   → un e-mail hostile **ne peut pas** exécuter de code via l'extension.
-- ✅ **Aucune persistance de données.** Rien n'est écrit en `storage`, aucun cache du contenu des
-  e-mails.
-- ✅ **HTTPS forcé** pour l'unique appel réseau (Google Translate).
-- ✅ **Isolation Shadow DOM** de l'interface.
+- ✅ **Aucune persistance du contenu des e-mails.** Seules les préférences d'options et les clés d'API (ex: DeepL) sont stockées localement via `browser.storage.local`. Aucun historique ni cache de texte d'e-mail n'est conservé.
+- ✅ **HTTPS forcé** pour tous les appels réseau distants.
+- ✅ **Isolation Shadow DOM** de l'interface utilisateur.
 
 ---
 
 ## Flux de données — transparence
 
-Pour traduire, l'extension **transmet le texte de l'e-mail concerné à un service tiers** :
+Pour traduire, l'extension **transmet le texte de l'e-mail concerné au service configuré** :
 
 | Donnée | Destinataire | Transport | Quand |
 |--------|--------------|-----------|-------|
-| **Corps rendu** du message à traduire (peut inclure sujet/adresses uniquement s'ils figurent dans le corps lui-même) | **Google Translate** (`translate.googleapis.com`, client `gtx`) | HTTPS | À chaque clic « Traduire » |
+| **Corps rendu** du message à traduire | **Google Translate** (par défaut), **DeepL API** ou instance **LibreTranslate** | HTTPS / HTTP local | À chaque clic « Traduire » |
 
-- Ces données transitent **directement** entre Thunderbird et Google ; elles ne passent par aucun
-  serveur du projet.
+- Ces données transitent **directement** entre votre client Thunderbird et le service de traduction choisi ; elles ne passent par aucun serveur intermédiaire du projet.
 - **Seul le corps rendu est collecté** (`document.body` du document de contenu du message). Le bloc
   d'en-têtes géré par Thunderbird (de / à / sujet) est *hors* de ce document et n'est donc **pas**
   transmis — vérifiable : le sujet affiché dans l'en-tête n'est jamais traduit.
-- L'API `gtx` est **non officielle** : pas de contrat de service ni de garantie de confidentialité
-  au-delà du transport HTTPS. La politique de confidentialité applicable est celle de Google.
-- Aucune donnée n'est envoyée ailleurs en production.
+- La politique de confidentialité applicable pour le traitement linguistique est celle du fournisseur actif (Google, DeepL ou l'hébergeur de l'instance LibreTranslate).
+- Aucune donnée de télémétrie, analytique ou publicitaire n'est collectée.
 
 > **Déclaration alignée (v2.0.10)** : le manifest déclare désormais
 > `data_collection_permissions: { required: ["personalCommunications"] }` — le contenu des messages

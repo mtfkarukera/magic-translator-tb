@@ -9,6 +9,31 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.1.0] — 2026-08-17
+
+Sprint 1 — Socle Multi-Fournisseurs (Google Translate, DeepL API, LibreTranslate), Page d'Options dédiée & Badge Moteur.
+
+### Ajouté
+- **Module Multi-Fournisseurs (`mt-providers.js`)** :
+  - **Google Translate** : Moteur par défaut, gratuit, sans configuration.
+  - **DeepL API** : Support complet des plans Free (`api-free.deepl.com`) et Pro (`api.deepl.com`) avec normalisation automatique des codes cibles BCP-47 (`EN-US`, `PT-PT`, `PT-BR`, `ZH-HANS`).
+  - **LibreTranslate** : Support des instances ouvertes et des serveurs locaux/auto-hébergés avec clé d'API optionnelle.
+- **Page d'Options (`options/options.html`, `.css`, `.js`)** :
+  - Interface soignée en *Dark Glassmorphism* respectant les normes WCAG AA.
+  - Formulaire dynamique s'adaptant au moteur sélectionné.
+  - Bouton de **test de connexion en direct** pour valider immédiatement ses clés d'API.
+  - Persistance sécurisée dans `browser.storage.local`.
+- **Badge Moteur Visuel** :
+  - Badge discret (`.mt-engine-badge`) affiché sur le bandeau de traduction pour identifier le moteur actif en un coup d'œil.
+- **Menu Contextuel Avancé** :
+  - Nouvelle entrée « Options / Paramètres » au clic droit sur le bouton de barre de message.
+- **Tests Unitaires (`test/providers.test.js`)** :
+  - Suite de tests `node:test` validant le mapping des langues DeepL, la détection Free/Pro, l'authentification et le fallback automatique.
+
+### Modifié
+- **`manifest.json`** : Ajout de la permission `storage`, déclaration de `options_ui`, et ajout des `host_permissions` nécessaires.
+- **`build.sh`** : Inclusion de `mt-providers.js` et du dossier `options/` dans l'archive `.xpi` de distribution.
+
 ---
 
 ## [2.0.17] — 2026-06-30

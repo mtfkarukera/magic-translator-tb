@@ -101,14 +101,18 @@ réinjection, restauration, gestion du cycle de vie.
 | Sens | Message | Réponse |
 |------|---------|---------|
 | background → injected | `{ action: "toggleBanner" }` | — (ouvre/ferme l'UI) |
-| injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang }` ou `{ success: false, error }` |
+| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom }` |
+| options → background | `{ action: "testProvider", config }` | `{ success: boolean, message: string }` |
+| injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel }` ou `{ success: false, error }` |
 
-L'appel Google : `POST https://translate.googleapis.com/translate_a/single?client=gtx&sl=<src>&tl=<tgt>&dt=t`
-avec corps `q=<texte>`. Réponse parsée : `donnees[0]` = segments `[trad, orig, …]`, `donnees[2]` =
-code de langue détectée. Timeout : `AbortSignal.timeout(15000)` **par lot**. Les erreurs
-reviennent sous forme de **codes** (`RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`) que
-le script injecté traduit en messages localisés ; une réponse HTML/non-JSON (blocage/captcha) est
-traitée comme `SERVICE_UNAVAILABLE`. Le payload entrant est validé côté background.
+### 3.1 Hub Multi-Fournisseurs (`mt-providers.js`)
+
+Le module `mt-providers.js` encapsule la communication avec les différents services de traduction :
+- **Google Translate (`google`)** : `POST https://translate.googleapis.com/translate_a/single?client=gtx&sl=<src>&tl=<tgt>&dt=t` avec corps `q=<texte>`.
+- **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
+- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text", api_key }`.
+
+Les erreurs sont normalisées en codes fiables (`UNAUTHORIZED`, `RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`, `INVALID_PAYLOAD`).
 
 ---
 

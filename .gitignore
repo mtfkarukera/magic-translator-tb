@@ -29,7 +29,13 @@ Thumbs.db
 
 # Private files — locaux, NON publiés (ni dans Git, ni dans le XPI)
 AGENTS.md
+task.md
+tasks.md
+submission_kit.md
 PLAN_ACTION.md
 RAPPORT_AUDIT.md
 CONCEPTION_POST-GLODA.md
 VEILLE_COMPATIBILITE.md
+
+# Travaux de publication
+publication/

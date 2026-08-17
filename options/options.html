@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic Translator — Paramètres</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="mt-options-wrapper">
+    <header class="mt-options-header">
+      <div class="mt-logo-badge">
+        <span class="mt-logo-icon" aria-hidden="true">MT</span>
+        <div class="mt-logo-titles">
+          <h1>Magic Translator</h1>
+          <p class="mt-subtitle">Configuration des moteurs de traduction &amp; options avancées</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="mt-card">
+      <form id="form-options" novalidate>
+        <!-- Sélection du Fournisseur -->
+        <div class="mt-field-group">
+          <label for="select-provider" class="mt-label">
+            <span>Fournisseur de traduction actif</span>
+            <span class="mt-badge-info" id="provider-badge">Par défaut</span>
+          </label>
+          <select id="select-provider" class="mt-select">
+            <option value="google">Google Translate (Par défaut — Gratuit, zéro config)</option>
+            <option value="deepl">DeepL API (Qualité linguistique pro)</option>
+            <option value="libretranslate">LibreTranslate (Open source / Auto-hébergé)</option>
+          </select>
+          <p class="mt-help-text" id="help-provider">
+            Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.
+          </p>
+        </div>
+
+        <!-- Section DeepL -->
+        <div id="section-deepl" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <label for="deepl-api-key" class="mt-label">Clé d'API DeepL (Auth-Key)</label>
+            <div class="mt-input-password-wrapper">
+              <input type="password" id="deepl-api-key" class="mt-input" placeholder="Ex: 12345678-abcd-ef01-2345-6789abcdef01:fx" autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+            </div>
+            <p class="mt-help-text">
+              Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer" class="mt-link">deepl.com/pro-api</a>.
+            </p>
+          </div>
+
+          <div class="mt-field-group">
+            <label for="deepl-plan" class="mt-label">Type d'abonnement DeepL</label>
+            <select id="deepl-plan" class="mt-select">
+              <option value="auto">Détection automatique (recommandé — selon suffixe :fx)</option>
+              <option value="free">DeepL API Free (api-free.deepl.com)</option>
+              <option value="pro">DeepL API Pro (api.deepl.com)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section LibreTranslate -->
+        <div id="section-libretranslate" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <label for="libretranslate-url" class="mt-label">URL de l'instance LibreTranslate</label>
+            <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false">
+            <p class="mt-help-text">
+              Indiquez l'URL de votre serveur auto-hébergé (ex: <code>http://localhost:5000</code>) ou d'une instance publique.
+            </p>
+          </div>
+
+          <div class="mt-field-group">
+            <label for="libretranslate-api-key" class="mt-label">Clé d'API LibreTranslate (Optionnel)</label>
+            <div class="mt-input-password-wrapper">
+              <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone de Statut & Feedback -->
+        <div id="status-container" class="mt-status-container mt-hidden" role="status" aria-live="polite">
+          <span id="status-icon" class="mt-status-icon" aria-hidden="true"></span>
+          <span id="status-text" class="mt-status-text"></span>
+        </div>
+
+        <!-- Boutons d'Action -->
+        <div class="mt-actions">
+          <button type="button" id="btn-test" class="mt-btn mt-btn-secondary">
+            <span class="mt-btn-text">Tester la connexion</span>
+          </button>
+          <button type="submit" id="btn-save" class="mt-btn mt-btn-primary">
+            <span class="mt-btn-text">Enregistrer les préférences</span>
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="mt-options-footer">
+      <p>Magic Translator · Version Manifest V3 · Conçu pour Mozilla Thunderbird</p>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

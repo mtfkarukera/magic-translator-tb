@@ -447,6 +447,19 @@
   flex-shrink: 0;
 }
 
+.mt-engine-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--mt-radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mt-text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.2px;
+  text-transform: none;
+  user-select: none;
+}
+
 .mt-logo-icon {
   min-width: 28px;
   height: 20px;
@@ -753,7 +766,11 @@
       target: cible
     });
     if (reponse && reponse.success) {
-      return { text: reponse.text, detectedLang: reponse.detectedLang || null };
+      return {
+        text: reponse.text,
+        detectedLang: reponse.detectedLang || null,
+        providerLabel: reponse.providerLabel || null
+      };
     }
     // [Mi-R3] Si sendMessage retourne undefined (listener background sans return Promise)
     // ou une réponse d'échec, on lance une erreur avec un code structuré.
@@ -894,6 +911,14 @@
     const logoTexte = document.createElement("span");
     logoTexte.textContent = t("bannerTitle");
     logo.appendChild(logoTexte);
+
+    // Badge moteur actif
+    const badgeMoteur = document.createElement("span");
+    badgeMoteur.className = "mt-engine-badge";
+    badgeMoteur.textContent = "Google";
+    badgeMoteur.title = "Moteur actif : Google Translate";
+    logo.appendChild(badgeMoteur);
+
     bandeau.appendChild(logo);
 
     // Séparateur vertical
@@ -1005,6 +1030,7 @@
       indicateurStatut,
       bandeau,
       logoIcone,
+      badgeMoteur,
       selectSource,
       selectCible,
       btnTraduire,
@@ -1058,6 +1084,18 @@
     } else {
       document.documentElement.insertBefore(ui.conteneur, document.documentElement.firstChild);
     }
+
+    // ── Actualisation du badge moteur actif ───────────────────────────────
+    try {
+      browser.runtime.sendMessage({ action: "getConfig" })
+        .then((res) => {
+          if (res && res.success && ui.badgeMoteur) {
+            ui.badgeMoteur.textContent = res.providerLabel || "Google";
+            ui.badgeMoteur.title = `Moteur actif : ${res.providerNom || res.providerLabel || "Google"}`;
+          }
+        })
+        .catch(() => {});
+    } catch { /* contexte non disponible */ }
 
     // ── Repli automatique respectueux ──────────────────────────────────────
     // Après une traduction réussie, le bandeau se replie en pilule au bout de 1,5 s,
@@ -1278,6 +1316,9 @@
 
           if (resultat.detectedLang) {
             derniereLangDetectee = resultat.detectedLang;
+          }
+          if (resultat.providerLabel && ui.badgeMoteur) {
+            ui.badgeMoteur.textContent = resultat.providerLabel;
           }
 
           if (lot.noeuds.length === 1) {

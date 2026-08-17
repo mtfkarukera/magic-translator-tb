@@ -55,5 +55,8 @@
   },
   "toggleTranslatorTitle": {
     "message": "Bật / Tắt trình dịch"
+  },
+  "menuOptionsTitle": {
+    "message": "Tùy chọn / Cài đặt"
   }
 }

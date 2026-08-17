@@ -92,23 +92,33 @@ messenger.messageDisplayAction.onClicked.addListener((tab) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 // 4. MENU CLIC DROIT SUR LE BOUTON BARRE
 // ═══════════════════════════════════════════════════════════════════════════
 // Un clic droit sur le bouton [T] affiche un menu contextuel permettant
-// d'activer ou de désactiver le bandeau de traduction.
+// d'activer ou de désactiver le bandeau, ou d'ouvrir les options.
 
-// Les menus survivent aux rechargements du background : on supprime d'abord
-// pour éviter l'erreur « lastError: The menu id already exists ».
 messenger.menus.remove("toggle-translator").catch(() => {});
+messenger.menus.remove("open-options").catch(() => {});
+
 messenger.menus.create({
   id: "toggle-translator",
   title: messenger.i18n.getMessage("toggleTranslatorTitle"),
   contexts: ["message_display_action"]
 });
 
+messenger.menus.create({
+  id: "open-options",
+  title: messenger.i18n.getMessage("menuOptionsTitle") || "Options",
+  contexts: ["message_display_action"]
+});
+
 messenger.menus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId !== "toggle-translator") return;
-  envoyerToggleBanner(tab.id).catch(console.error);
+  if (info.menuItemId === "toggle-translator") {
+    envoyerToggleBanner(tab.id).catch(console.error);
+  } else if (info.menuItemId === "open-options") {
+    browser.runtime.openOptionsPage().catch(console.error);
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -132,11 +142,35 @@ messenger.commands.onCommand.addListener(async (commande) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 5. GESTIONNAIRE DE MESSAGES (traduction)
+// 6. GESTION DE LA CONFIGURATION (storage)
 // ═══════════════════════════════════════════════════════════════════════════
-// Écoute les messages envoyés par le script de contenu via
-// browser.runtime.sendMessage(). Seuls les messages avec action "translate"
-// sont traités.
+
+const CONFIG_DEFAUT = {
+  provider: "google",
+  deeplApiKey: "",
+  deeplPlan: "auto",
+  libretranslateUrl: "https://libretranslate.com",
+  libretranslateApiKey: ""
+};
+
+/**
+ * Récupère la configuration persistée dans browser.storage.local.
+ * @returns {Promise<typeof CONFIG_DEFAUT>}
+ */
+async function chargerConfiguration() {
+  try {
+    const stocke = await browser.storage.local.get(Object.keys(CONFIG_DEFAUT));
+    return { ...CONFIG_DEFAUT, ...stocke };
+  } catch {
+    return { ...CONFIG_DEFAUT };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 7. GESTIONNAIRE DE MESSAGES (traduction & configuration)
+// ═══════════════════════════════════════════════════════════════════════════
+// Écoute les messages envoyés par le script de contenu ou la page d'options
+// via browser.runtime.sendMessage().
 
 // Format BCP-47 simplifié : "auto", "fr", "en", "zh-CN", "zh-TW", etc.
 // [M-S2] Validation des codes de langue pour éviter toute injection de paramètre URL.
@@ -146,108 +180,67 @@ const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[A-Z]{2}|(-Hans|-Hant))?)$/;
 // [Mi-S1] On n'expose jamais d'erreur JavaScript interne à l'UI.
 const CODES_ERREURS_CONNUS = new Set(["TIMEOUT", "NETWORK", "RATE_LIMITED", "SERVICE_UNAVAILABLE", "INVALID_PAYLOAD", "UNAUTHORIZED"]);
 
-messenger.runtime.onMessage.addListener((message, expediteur) => {
-  if (!message || message.action !== "translate") return;
+messenger.runtime.onMessage.addListener(async (message, expediteur) => {
+  if (!message) return;
 
-  // [M-S1] Validation de l'expéditeur : seul notre propre script de contenu est autorisé.
-  // expediteur.id correspond à l'extension ID ; un message externe aura un ID différent.
+  // [M-S1] Validation de l'expéditeur : seul notre propre script ou page d'options est autorisé.
   if (!expediteur || expediteur.id !== messenger.runtime.id) {
-    return Promise.resolve({ success: false, error: "UNAUTHORIZED" });
+    return { success: false, error: "UNAUTHORIZED" };
   }
 
-  // Validation du payload : type strict pour éviter toute injection.
-  if (typeof message.text !== "string" ||
-      typeof message.source !== "string" ||
-      typeof message.target !== "string") {
-    return Promise.resolve({ success: false, error: "INVALID_PAYLOAD" });
-  }
-
-  // [M-S2] Validation du format BCP-47 des codes de langue.
-  if (!CODE_LANGUE_RE.test(message.source) || !CODE_LANGUE_RE.test(message.target)) {
-    return Promise.resolve({ success: false, error: "INVALID_PAYLOAD" });
-  }
-
-  return traduireTexte(message.text, message.source, message.target)
-    .catch((erreur) => ({
-      success: false,
-      // [Mi-S1] Normalisation : on n'expose que les codes d'erreur connus, jamais le
-      // message JavaScript brut (stack trace, nom de fonction interne, etc.).
-      error: CODES_ERREURS_CONNUS.has(erreur.message) ? erreur.message : "SERVICE_UNAVAILABLE"
-    }));
-});
-
-/**
- * Envoie une requête POST à l'API Google Translate (client=gtx).
- *
- * @param   {string} texte   — Texte brut à traduire
- * @param   {string} source  — Code langue source ("auto" pour auto-détection)
- * @param   {string} cible   — Code langue cible (ex: "fr", "en")
- * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
- */
-async function traduireTexte(texte, source, cible) {
-  // ── Construction de l'URL avec les paramètres de requête ──────────────
-  const url =
-    "https://translate.googleapis.com/translate_a/single" +
-    "?client=gtx" +
-    "&sl=" + encodeURIComponent(source) +
-    "&tl=" + encodeURIComponent(cible) +
-    "&dt=t"; // dt=t → demande les segments de traduction
-
-  // ── Envoi de la requête ───────────────────────────────────────────────
-  // [I-R1] Constante nommée pour faciliter l'ajustement du timeout.
-  const TIMEOUT_TRADUCTION_MS = 10000; // 10 s (réduit depuis 15 s)
-
-  let reponse;
-  try {
-    reponse = await fetch(url, {
-      method: "POST",
-      signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "q=" + encodeURIComponent(texte)
-    });
-  } catch (erreur) {
-    // Délai dépassé (AbortSignal.timeout) ou échec réseau : on renvoie des codes
-    // d'erreur explicites, traduits côté UI en messages clairs et localisés.
-    if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
-      throw new Error("TIMEOUT");
-    }
-    throw new Error("NETWORK");
-  }
-
-  if (!reponse.ok) {
-    if (reponse.status === 429) throw new Error("RATE_LIMITED");
-    if (reponse.status >= 500) throw new Error("SERVICE_UNAVAILABLE");
-    throw new Error("Google Translate HTTP " + reponse.status);
-  }
-
-  // ── Analyse de la réponse ─────────────────────────────────────────────
-  // Format Google : [[["texte traduit","texte original",...], ...], null, "code_langue"]
-  // Google peut aussi renvoyer du HTML (blocage / captcha) avec un HTTP 200 : .json()
-  // lèverait alors une SyntaxError, qu'on transforme en erreur de service claire.
-  let donnees;
-  try {
-    donnees = await reponse.json();
-  } catch {
-    throw new Error("SERVICE_UNAVAILABLE");
-  }
-
-  if (donnees && donnees[0] && Array.isArray(donnees[0])) {
-    const traduction = donnees[0]
-      .filter((segment) => segment && segment[0])
-      .map((segment) => segment[0])
-      .join("");
-
-    // [Mi-R1] Vérification que la traduction n'est pas vide : Google peut retourner
-    // des segments valides mais avec un contenu null, résultant en une chaîne vide
-    // qui viderait silencieusement le contenu de l'e-mail.
-    if (!traduction.trim()) throw new Error("SERVICE_UNAVAILABLE");
-
+  // ── Action 1 : Demande de configuration active (pour affichage du badge) ──
+  if (message.action === "getConfig") {
+    const config = await chargerConfiguration();
+    const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider);
     return {
       success: true,
-      text: traduction,
-      detectedLang: donnees[2] || null
+      provider: config.provider,
+      providerLabel: fournisseur.label,
+      providerNom: fournisseur.nomComplet
     };
   }
 
-  throw new Error("SERVICE_UNAVAILABLE");
-}
+  // ── Action 2 : Test direct de connexion fournisseur (depuis options) ──────
+  if (message.action === "testProvider") {
+    return await globalThis.MTProviders.testerConnexion(message.config);
+  }
+
+  // ── Action 3 : Requête de traduction ─────────────────────────────────────
+  if (message.action === "translate") {
+    // Validation du payload : type strict pour éviter toute injection.
+    if (typeof message.text !== "string" ||
+        typeof message.source !== "string" ||
+        typeof message.target !== "string") {
+      return { success: false, error: "INVALID_PAYLOAD" };
+    }
+
+    // [M-S2] Validation du format BCP-47 des codes de langue.
+    if (!CODE_LANGUE_RE.test(message.source) || !CODE_LANGUE_RE.test(message.target)) {
+      return { success: false, error: "INVALID_PAYLOAD" };
+    }
+
+    const config = await chargerConfiguration();
+    const configProvider = {
+      provider: config.provider,
+      apiKey: config.provider === "deepl" ? config.deeplApiKey : config.libretranslateApiKey,
+      plan: config.deeplPlan,
+      url: config.libretranslateUrl
+    };
+
+    try {
+      const res = await globalThis.MTProviders.traduire(configProvider, message.text, message.source, message.target);
+      return {
+        success: true,
+        text: res.text,
+        detectedLang: res.detectedLang,
+        provider: config.provider,
+        providerLabel: globalThis.MTProviders.obtenirFournisseur(config.provider).label
+      };
+    } catch (erreur) {
+      return {
+        success: false,
+        error: CODES_ERREURS_CONNUS.has(erreur.message) ? erreur.message : "SERVICE_UNAVAILABLE"
+      };
+    }
+  }
+});

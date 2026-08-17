@@ -55,5 +55,8 @@
   },
   "toggleTranslatorTitle": {
     "message": "翻訳機能の有効化 / 無効化"
+  },
+  "menuOptionsTitle": {
+    "message": "設定 / オプション"
   }
 }

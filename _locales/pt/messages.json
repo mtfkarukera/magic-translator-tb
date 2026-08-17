@@ -55,5 +55,8 @@
   },
   "toggleTranslatorTitle": {
     "message": "Ativar / Desativar o tradutor"
+  },
+  "menuOptionsTitle": {
+    "message": "Opções / Configurações"
   }
 }

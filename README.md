@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.0.16-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.1.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
@@ -8,7 +8,13 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## ✨ Fonctionnalités
 
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
-- **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur
+- **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**
+- **Hub multi-fournisseurs** :
+  - **Google Translate** (*par défaut*, gratuit, zéro configuration)
+  - **DeepL API** (*Free & Pro*, qualité linguistique reconnue, clé requise)
+  - **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
+- **Badge moteur transparent** — Indique en un coup d'œil quel moteur est actif sur le bandeau de traduction
+- **Page d'options dédiée** — Interface Dark Glassmorphism pour configurer et tester ses clés en direct
 - **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
 - **Flux UX fluide** : `Rien → [Traduire] → Bandeau → (traduction) → Pilule → [Traduire] → Rien`
 - **Logo [MT] cliquable** dans le bandeau — referme le bandeau en pilule d'un seul clic
@@ -72,10 +78,15 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ```
 magic-translator-tb/
-├── manifest.json              # Manifest V3 Thunderbird
-├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + proxy traduction)
-├── translator-injected.js     # Script injecté dans le panneau de message (UI + logique)
+├── manifest.json              # Manifest V3 Thunderbird (permissions, options_ui, host_permissions)
+├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + routage traduction)
+├── mt-providers.js            # Adaptateurs de traduction (Google, DeepL API, LibreTranslate)
+├── translator-injected.js     # Script injecté dans le panneau de message (UI Shadow DOM + badge moteur)
 ├── mt-text.js                 # Helpers de texte purs (testables ; injecté avant l'UI)
+├── options/                   # Page de configuration des options
+│   ├── options.html           # Interface utilisateur en Dark Glassmorphism
+│   ├── options.css            # Styles autonomes et accessibles WCAG AA
+│   └── options.js             # Logique de chargement, test et persistance storage.local
 ├── icon.png                   # Icône de l'extension (128×128)
 ├── build.sh                   # Packaging reproductible du XPI (→ dist/)
 ├── LICENSE                    # Licence MPL-2.0
@@ -86,16 +97,10 @@ magic-translator-tb/
 ├── CONTRIBUTING.md            # Guide de contribution
 ├── eslint.config.js           # Configuration ESLint (flat config)
 ├── package.json               # Métadonnées npm, scripts (lint/test/build) et devDependencies
-├── test/                      # Tests unitaires (node:test) des helpers purs
-├── .claude/skills/            # Skills Claude Code (fin-de-sprint, build-xpi, revue-securite…)
+├── test/                      # Tests unitaires (node:test)
+│   ├── text.test.js           # Tests des helpers de texte
+│   └── providers.test.js      # Tests des adaptateurs de fournisseurs
 └── _locales/                  # Fichiers de localisation (manifest uniquement)
-    ├── fr/messages.json       # Français
-    ├── en/messages.json       # Anglais (fallback universel)
-    ├── es/messages.json       # Espagnol
-    ├── de/messages.json       # Allemand
-    ├── ja/messages.json       # Japonais
-    ├── pt/messages.json       # Portugais
-    └── vi/messages.json       # Vietnamien
 ```
 
 ### Flux de données

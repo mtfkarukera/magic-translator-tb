@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.17",
+  "version": "2.1.0",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -18,7 +18,14 @@
     "128": "icon.png"
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "mt-providers.js",
+      "background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
   },
   "message_display_action": {
     "default_icon": {
@@ -35,9 +42,15 @@
   "permissions": [
     "scripting",
     "messagesRead",
-    "menus"
+    "menus",
+    "storage"
   ],
   "host_permissions": [
-    "https://translate.googleapis.com/*"
+    "https://translate.googleapis.com/*",
+    "https://api-free.deepl.com/*",
+    "https://api.deepl.com/*"
+  ],
+  "optional_host_permissions": [
+    "*://*/*"
   ]
 }
