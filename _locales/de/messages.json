@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Optionen / Einstellungen"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Einstellungen"
+  },
+  "optionsSubtitle": {
+    "message": "Konfiguration der Übersetzungs-Engines & erweiterte Optionen"
+  },
+  "optActiveProviderLabel": {
+    "message": "Aktiver Übersetzungsdienst"
+  },
+  "badgeDefault": {
+    "message": "Standard"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Standard — Kostenlos, keine Konfig)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Professionelle Sprachqualität)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Cloud — Schnell & Intelligent)"
+  },
+  "optProviderLlm": {
+    "message": "LLM-Hub (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Open Source / Selbst gehostet)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google Translate funktioniert sofort ohne API-Schlüssel oder Konfiguration."
+  },
+  "labelDeeplKey": {
+    "message": "DeepL API-Schlüssel (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Kostenlosen Schlüssel (500.000 Zeichen/Monat) oder Pro-Plan erhalten auf"
+  },
+  "labelDeeplPlan": {
+    "message": "DeepL Abonnement-Typ"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Automatische Erkennung (empfohlen — anhand des Suffixes :fx)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Google AI Studio API-Schlüssel (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Kostenlosen API-Schlüssel erhalten auf"
+  },
+  "labelGeminiModel": {
+    "message": "Gemini-Modell"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Modelle aktualisieren"
+  },
+  "titleRefreshModels": {
+    "message": "Offizielle Google-Modellliste live abrufen"
+  },
+  "helpGeminiModels": {
+    "message": "Modelle werden in Echtzeit mit der offiziellen Google AI Studio API synchronisiert."
+  },
+  "labelLlmPreset": {
+    "message": "LLM-Anbieter oder Engine"
+  },
+  "labelLlmBaseUrl": {
+    "message": "API-Basis-URL (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Standard-Endpunkt. Der Pfad /v1/chat/completions wird automatisch angehängt."
+  },
+  "labelLlmApiKey": {
+    "message": "API-Schlüssel (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Leer lassen, falls kein Schlüssel erforderlich (lokal)"
+  },
+  "helpLlmApiKey": {
+    "message": "Authentifizierungsschlüssel für den Remote-Dienst."
+  },
+  "labelLlmModel": {
+    "message": "Modell-Identifikator (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "LibreTranslate-Instanz-URL"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Geben Sie die URL Ihres selbst gehosteten Servers (z.B. http://localhost:5000) oder einer öffentlichen Instanz ein."
+  },
+  "labelLibreTranslateKey": {
+    "message": "LibreTranslate API-Schlüssel (Optional)"
+  },
+  "placeholderLtKey": {
+    "message": "Leer lassen, wenn kein Schlüssel erforderlich"
+  },
+  "btnTestConnection": {
+    "message": "Verbindung testen"
+  },
+  "btnSavePreferences": {
+    "message": "Einstellungen speichern"
+  },
+  "btnTesting": {
+    "message": "Verbindung wird getestet…"
+  },
+  "btnSaving": {
+    "message": "Wird gespeichert…"
+  },
+  "statusSaved": {
+    "message": "Einstellungen erfolgreich gespeichert!"
+  },
+  "statusTestSuccess": {
+    "message": "Verbindung erfolgreich!"
+  },
+  "statusTestError": {
+    "message": "Verbindung fehlgeschlagen:"
+  },
+  "errorKeyRequired": {
+    "message": "Für diesen Anbieter ist ein API-Schlüssel erforderlich."
+  },
+  "errorUrlRequired": {
+    "message": "Die Server-URL ist erforderlich."
+  },
+  "errorModelRequired": {
+    "message": "Der Modell-Name ist erforderlich."
+  },
+  "ariaToggleKey": {
+    "message": "API-Schlüssel ein-/ausblenden"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Version Manifest V3 · Entwickelt für Mozilla Thunderbird"
   }
 }

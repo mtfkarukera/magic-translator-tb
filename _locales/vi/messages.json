@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Tùy chọn / Cài đặt"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Cài đặt"
+  },
+  "optionsSubtitle": {
+    "message": "Cấu hình công cụ dịch & tùy chọn nâng cao"
+  },
+  "optActiveProviderLabel": {
+    "message": "Nhà cung cấp dịch đang hoạt động"
+  },
+  "badgeDefault": {
+    "message": "Mặc định"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Mặc định — Miễn phí, không cần cấu hình)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Chất lượng dịch chuyên nghiệp)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Đám mây — Nhanh & Thông minh)"
+  },
+  "optProviderLlm": {
+    "message": "Trung tâm LLM (OpenAI, Groq, Mistral, Ollama, LM Studio, Tùy chỉnh)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Mã nguồn mở / Tự lưu trữ)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google Translate hoạt động ngay lập tức mà không cần khóa API hoặc cấu hình nào."
+  },
+  "labelDeeplKey": {
+    "message": "Khóa API DeepL (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Nhận khóa miễn phí (500.000 ký tự/tháng) hoặc gói Pro tại"
+  },
+  "labelDeeplPlan": {
+    "message": "Gói đăng ký DeepL"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Tự động phát hiện (khuyên dùng — qua hậu tố :fx)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Khóa API Google AI Studio (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Nhận khóa API miễn phí tại"
+  },
+  "labelGeminiModel": {
+    "message": "Mô hình Gemini"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Làm mới danh sách mô hình"
+  },
+  "titleRefreshModels": {
+    "message": "Lấy danh sách mô hình chính thức trực tiếp từ Google"
+  },
+  "helpGeminiModels": {
+    "message": "Các mô hình được đồng bộ hóa theo thời gian thực với Google AI Studio API chính thức."
+  },
+  "labelLlmPreset": {
+    "message": "Nhà cung cấp hoặc Công cụ LLM"
+  },
+  "labelLlmBaseUrl": {
+    "message": "URL Cơ sở của API (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Điểm cuối chuẩn. Đường dẫn /v1/chat/completions sẽ được tự động thêm vào."
+  },
+  "labelLlmApiKey": {
+    "message": "Khóa API (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Để trống nếu không cần khóa (cục bộ)"
+  },
+  "helpLlmApiKey": {
+    "message": "Mã xác thực cho dịch vụ từ xa."
+  },
+  "labelLlmModel": {
+    "message": "Tên Mô hình (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "URL phiên bản LibreTranslate"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Nhập URL máy chủ tự lưu trữ của bạn (ví dụ: http://localhost:5000) hoặc máy chủ công khai."
+  },
+  "labelLibreTranslateKey": {
+    "message": "Khóa API LibreTranslate (Tùy chọn)"
+  },
+  "placeholderLtKey": {
+    "message": "Để trống nếu không cần khóa"
+  },
+  "btnTestConnection": {
+    "message": "Kiểm tra kết nối"
+  },
+  "btnSavePreferences": {
+    "message": "Lưu tùy chọn"
+  },
+  "btnTesting": {
+    "message": "Đang kiểm tra kết nối…"
+  },
+  "btnSaving": {
+    "message": "Đang lưu…"
+  },
+  "statusSaved": {
+    "message": "Đã lưu tùy chọn thành công!"
+  },
+  "statusTestSuccess": {
+    "message": "Kết nối thành công!"
+  },
+  "statusTestError": {
+    "message": "Kết nối thất bại:"
+  },
+  "errorKeyRequired": {
+    "message": "Cần có khóa API cho nhà cung cấp này."
+  },
+  "errorUrlRequired": {
+    "message": "Bắt buộc phải có URL máy chủ."
+  },
+  "errorModelRequired": {
+    "message": "Bắt buộc phải có tên mô hình."
+  },
+  "ariaToggleKey": {
+    "message": "Bật/tắt hiển thị khóa API"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Phiên bản Manifest V3 · Được thiết kế cho Mozilla Thunderbird"
   }
 }

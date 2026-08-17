@@ -3,12 +3,59 @@
  * ══════════════════════════════════════════════
  *
  * Gère le chargement, la validation en direct et la persistance des préférences
- * dans browser.storage.local.
+ * dans browser.storage.local, avec support multilingue i18n natif (7 langues).
  */
 
 "use strict";
 
+/**
+ * Récupère un message localisé depuis browser.i18n.
+ * @param {string} cle - Clé de message
+ * @param {string} [repli=""] - Texte de repli si la clé est absente
+ * @returns {string}
+ */
+function t(cle, repli = "") {
+  try {
+    if (typeof browser !== "undefined" && browser.i18n && browser.i18n.getMessage) {
+      const msg = browser.i18n.getMessage(cle);
+      if (msg) return msg;
+    }
+  } catch {
+    // Ignorer
+  }
+  return repli;
+}
+
+/**
+ * Parcourt le DOM et applique les traductions sur tous les éléments data-i18n*.
+ */
+function appliquerI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const cle = el.getAttribute("data-i18n");
+    const msg = t(cle);
+    if (msg) el.textContent = msg;
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const cle = el.getAttribute("data-i18n-placeholder");
+    const msg = t(cle);
+    if (msg) el.placeholder = msg;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const cle = el.getAttribute("data-i18n-title");
+    const msg = t(cle);
+    if (msg) el.title = msg;
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+    const cle = el.getAttribute("data-i18n-aria-label");
+    const msg = t(cle);
+    if (msg) el.setAttribute("aria-label", msg);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+  // ── Application immédiate de l'internationalisation ─────────────────────────
+  appliquerI18n();
+
   // ── Éléments du DOM ────────────────────────────────────────────────────────
   const form = document.getElementById("form-options");
   const selectProvider = document.getElementById("select-provider");
@@ -77,25 +124,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     mistral: {
       url: "https://api.mistral.ai",
       model: "mistral-small-latest",
-      keyPlaceholder: "Clé API Mistral",
+      keyPlaceholder: "api_key...",
       requiresKey: true
     },
     ollama: {
       url: "http://localhost:11434",
       model: "llama3.2",
-      keyPlaceholder: "Laisser vide (inutile en local)",
+      keyPlaceholder: t("placeholderLlmApiKey", "Leave empty if no key required (local)"),
       requiresKey: false
     },
     lmstudio: {
       url: "http://localhost:1234",
       model: "local-model",
-      keyPlaceholder: "Laisser vide (inutile en local)",
+      keyPlaceholder: t("placeholderLlmApiKey", "Leave empty if no key required (local)"),
       requiresKey: false
     },
     custom: {
       url: "",
       model: "",
-      keyPlaceholder: "Clé d'API si requise",
+      keyPlaceholder: t("placeholderLlmApiKey", "Leave empty if no key required"),
       requiresKey: false
     }
   };
@@ -132,29 +179,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     sectionLibreTranslate.classList.add("mt-hidden");
 
     if (provider === "google") {
-      providerBadge.textContent = "Par défaut";
+      providerBadge.textContent = t("badgeDefault", "Par défaut");
       providerBadge.style.display = "inline-block";
-      helpProvider.textContent = "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.";
+      helpProvider.textContent = t("helpProviderGoogle", "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.");
     } else if (provider === "deepl") {
       sectionDeepl.classList.remove("mt-hidden");
-      providerBadge.textContent = "Clé requise";
+      providerBadge.textContent = "DeepL";
       providerBadge.style.display = "inline-block";
-      helpProvider.textContent = "DeepL offre une fidélité linguistique reconnue et le respect des nuances formelles.";
+      helpProvider.textContent = t("helpDeeplKey", "DeepL API") + " (https://www.deepl.com/pro-api)";
     } else if (provider === "gemini") {
       sectionGemini.classList.remove("mt-hidden");
-      providerBadge.textContent = "Cloud IA (Gratuit/Clé)";
+      providerBadge.textContent = "Gemini API";
       providerBadge.style.display = "inline-block";
-      helpProvider.textContent = "Google Gemini offre des traductions nuancées ultra-rapides grâce aux modèles de dernière génération.";
+      helpProvider.textContent = t("helpGeminiModels", "Google Gemini API");
     } else if (provider === "llm") {
       sectionLlm.classList.remove("mt-hidden");
-      providerBadge.textContent = "Hub LLMs";
+      providerBadge.textContent = "LLMs Hub";
       providerBadge.style.display = "inline-block";
-      helpProvider.textContent = "Connectez n'importe quel LLM Cloud (OpenAI, Groq, Mistral) ou local (Ollama, LM Studio).";
+      helpProvider.textContent = t("helpLlmBaseUrl", "OpenAI, Groq, Mistral, Ollama, LM Studio");
     } else if (provider === "libretranslate") {
       sectionLibreTranslate.classList.remove("mt-hidden");
-      providerBadge.textContent = "Auto-hébergé / Public";
+      providerBadge.textContent = "LibreTranslate";
       providerBadge.style.display = "inline-block";
-      helpProvider.textContent = "LibreTranslate permet la traduction souveraine sur votre propre serveur ou une instance ouverte.";
+      helpProvider.textContent = t("helpLibreTranslateUrl", "LibreTranslate API");
     }
   }
 
@@ -431,7 +478,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Demande de permission à la volée sur le geste utilisateur
     await assurerPermissionsHote(config);
 
-    afficherStatut(`Test de connexion en cours avec ${selectProvider.selectedOptions[0].text.split("(")[0].trim()}…`, "loading");
+    const nomFournisseur = selectProvider.selectedOptions[0] ? selectProvider.selectedOptions[0].text.split("(")[0].trim() : provider;
+    afficherStatut(t("btnTesting", `Test de connexion en cours avec ${nomFournisseur}…`), "loading");
     btnTest.disabled = true;
     btnSave.disabled = true;
 
@@ -469,13 +517,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       if (reponse && reponse.success) {
-        afficherStatut("✓ Connexion réussie ! Le moteur fonctionne correctement.", "success");
+        afficherStatut(t("statusTestSuccess", "✓ Connexion réussie ! Le moteur fonctionne correctement."), "success");
       } else {
         const msg = (reponse && reponse.message) || "Échec de la connexion.";
-        afficherStatut(`Échec du test : ${msg}`, "error");
+        afficherStatut(`${t("statusTestError", "Échec du test :")} ${msg}`, "error");
       }
     } catch (err) {
-      afficherStatut(`Erreur : ${err.message || "Impossible de contacter le service."}`, "error");
+      afficherStatut(`${t("errorGeneric", "Erreur :")} ${err.message || "Impossible de contacter le service."}`, "error");
     } finally {
       btnTest.disabled = false;
       btnSave.disabled = false;
@@ -493,14 +541,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     btnSave.disabled = true;
     btnTest.disabled = true;
-    afficherStatut("Enregistrement des préférences…", "loading");
+    afficherStatut(t("btnSaving", "Enregistrement des préférences…"), "loading");
 
     try {
       await browser.storage.local.set(config);
-      afficherStatut("✓ Préférences enregistrées avec succès !", "success");
+      afficherStatut(t("statusSaved", "✓ Préférences enregistrées avec succès !"), "success");
     } catch (err) {
       console.error("[MagicTranslator Options] Erreur sauvegarde :", err);
-      afficherStatut(`Erreur lors de la sauvegarde : ${err.message}`, "error");
+      afficherStatut(`${t("errorGeneric", "Erreur lors de la sauvegarde :")} ${err.message}`, "error");
     } finally {
       btnSave.disabled = false;
       btnTest.disabled = false;

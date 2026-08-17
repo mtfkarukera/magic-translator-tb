@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Opciones / Configuración"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Configuración"
+  },
+  "optionsSubtitle": {
+    "message": "Configuración de motores de traducción y opciones avanzadas"
+  },
+  "optActiveProviderLabel": {
+    "message": "Proveedor de traducción activo"
+  },
+  "badgeDefault": {
+    "message": "Por defecto"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Por defecto — Gratis, sin config)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Calidad lingüística pro)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Cloud — Rápido e Inteligente)"
+  },
+  "optProviderLlm": {
+    "message": "Hub de LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Código abierto / Auto-alojado)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google Translate funciona inmediatamente sin ninguna clave API ni configuración."
+  },
+  "labelDeeplKey": {
+    "message": "Clave API de DeepL (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Obtenga una clave gratuita (500.000 caracteres/mes) o plan Pro en"
+  },
+  "labelDeeplPlan": {
+    "message": "Tipo de suscripción DeepL"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Detección automática (recomendado — según sufijo :fx)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Clave API de Google AI Studio (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Obtenga una clave gratuita en"
+  },
+  "labelGeminiModel": {
+    "message": "Modelo Gemini"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Actualizar modelos"
+  },
+  "titleRefreshModels": {
+    "message": "Consultar la lista oficial de modelos de Google en directo"
+  },
+  "helpGeminiModels": {
+    "message": "Los modelos se sincronizan en tiempo real con la API oficial de Google AI Studio."
+  },
+  "labelLlmPreset": {
+    "message": "Proveedor o Motor LLM"
+  },
+  "labelLlmBaseUrl": {
+    "message": "URL Base de la API (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Punto de enlace estándar. La ruta /v1/chat/completions se añadirá automáticamente."
+  },
+  "labelLlmApiKey": {
+    "message": "Clave API (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Dejar vacío si no se requiere clave (local)"
+  },
+  "helpLlmApiKey": {
+    "message": "Token de autenticación para el servicio remoto."
+  },
+  "labelLlmModel": {
+    "message": "Identificador del Modelo (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "URL de la instancia LibreTranslate"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Indique la URL de su servidor auto-alojado (ej: http://localhost:5000) o de una instancia pública."
+  },
+  "labelLibreTranslateKey": {
+    "message": "Clave API LibreTranslate (Opcional)"
+  },
+  "placeholderLtKey": {
+    "message": "Dejar vacío si no se requiere clave"
+  },
+  "btnTestConnection": {
+    "message": "Probar conexión"
+  },
+  "btnSavePreferences": {
+    "message": "Guardar preferencias"
+  },
+  "btnTesting": {
+    "message": "Probando conexión…"
+  },
+  "btnSaving": {
+    "message": "Guardando…"
+  },
+  "statusSaved": {
+    "message": "¡Preferencias guardadas con éxito!"
+  },
+  "statusTestSuccess": {
+    "message": "¡Conexión exitosa!"
+  },
+  "statusTestError": {
+    "message": "Fallo en la conexión:"
+  },
+  "errorKeyRequired": {
+    "message": "Se requiere una clave API para este proveedor."
+  },
+  "errorUrlRequired": {
+    "message": "La URL del servidor es obligatoria."
+  },
+  "errorModelRequired": {
+    "message": "El identificador del modelo es obligatorio."
+  },
+  "ariaToggleKey": {
+    "message": "Mostrar u ocultar clave API"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Versión Manifest V3 · Diseñado para Mozilla Thunderbird"
   }
 }

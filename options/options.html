@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magic Translator — Paramètres</title>
+  <title data-i18n="optionsTitle">Magic Translator — Paramètres</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <span class="mt-logo-icon" aria-hidden="true">MT</span>
         <div class="mt-logo-titles">
           <h1>Magic Translator</h1>
-          <p class="mt-subtitle">Configuration des moteurs de traduction &amp; options avancées</p>
+          <p class="mt-subtitle" data-i18n="optionsSubtitle">Configuration des moteurs de traduction &amp; options avancées</p>
         </div>
       </div>
     </header>
@@ -23,17 +23,17 @@
         <!-- Sélection du Fournisseur -->
         <div class="mt-field-group">
           <label for="select-provider" class="mt-label">
-            <span>Fournisseur de traduction actif</span>
-            <span class="mt-badge-info" id="provider-badge">Par défaut</span>
+            <span data-i18n="optActiveProviderLabel">Fournisseur de traduction actif</span>
+            <span class="mt-badge-info" id="provider-badge" data-i18n="badgeDefault">Par défaut</span>
           </label>
           <select id="select-provider" class="mt-select">
-            <option value="google">Google Translate (Par défaut — Gratuit, zéro config)</option>
-            <option value="deepl">DeepL API (Qualité linguistique pro)</option>
-            <option value="gemini">Google Gemini API (Cloud — Rapide &amp; Intelligent)</option>
-            <option value="llm">Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)</option>
-            <option value="libretranslate">LibreTranslate (Open source / Auto-hébergé)</option>
+            <option value="google" data-i18n="optProviderGoogle">Google Translate (Par défaut — Gratuit, zéro config)</option>
+            <option value="deepl" data-i18n="optProviderDeepl">DeepL API (Qualité linguistique pro)</option>
+            <option value="gemini" data-i18n="optProviderGemini">Google Gemini API (Cloud — Rapide &amp; Intelligent)</option>
+            <option value="llm" data-i18n="optProviderLlm">Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)</option>
+            <option value="libretranslate" data-i18n="optProviderLibreTranslate">LibreTranslate (Open source / Auto-hébergé)</option>
           </select>
-          <p class="mt-help-text" id="help-provider">
+          <p class="mt-help-text" id="help-provider" data-i18n="helpProviderGoogle">
             Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.
           </p>
         </div>
@@ -41,22 +41,22 @@
         <!-- Section DeepL -->
         <div id="section-deepl" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
-            <label for="deepl-api-key" class="mt-label">Clé d'API DeepL (Auth-Key)</label>
+            <label for="deepl-api-key" class="mt-label" data-i18n="labelDeeplKey">Clé d'API DeepL (Auth-Key)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="deepl-api-key" class="mt-input" placeholder="Ex: 12345678-abcd-ef01-2345-6789abcdef01:fx" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
             </div>
             <p class="mt-help-text">
-              Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer" class="mt-link">deepl.com/pro-api</a>.
+              <span data-i18n="helpDeeplKey">Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur</span> <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer" class="mt-link">deepl.com/pro-api</a>.
             </p>
           </div>
 
           <div class="mt-field-group">
-            <label for="deepl-plan" class="mt-label">Type d'abonnement DeepL</label>
+            <label for="deepl-plan" class="mt-label" data-i18n="labelDeeplPlan">Type d'abonnement DeepL</label>
             <select id="deepl-plan" class="mt-select">
-              <option value="auto">Détection automatique (recommandé — selon suffixe :fx)</option>
-              <option value="free">DeepL API Free (api-free.deepl.com)</option>
-              <option value="pro">DeepL API Pro (api.deepl.com)</option>
+              <option value="auto" data-i18n="optDeeplPlanAuto">Détection automatique (recommandé — selon suffixe :fx)</option>
+              <option value="free" data-i18n="optDeeplPlanFree">DeepL API Free (api-free.deepl.com)</option>
+              <option value="pro" data-i18n="optDeeplPlanPro">DeepL API Pro (api.deepl.com)</option>
             </select>
           </div>
         </div>
@@ -64,20 +64,20 @@
         <!-- Section Google Gemini API -->
         <div id="section-gemini" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
-            <label for="gemini-api-key" class="mt-label">Clé d'API Google AI Studio (Gemini API Key)</label>
+            <label for="gemini-api-key" class="mt-label" data-i18n="labelGeminiKey">Clé d'API Google AI Studio (Gemini API Key)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="gemini-api-key" class="mt-input" placeholder="Ex: AIzaSy..." autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
             </div>
             <p class="mt-help-text">
-              Obtenez une clé gratuite sur <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="mt-link">aistudio.google.com</a>.
+              <span data-i18n="helpGeminiKey">Obtenez une clé gratuite sur</span> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="mt-link">aistudio.google.com</a>.
             </p>
           </div>
 
           <div class="mt-field-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label for="gemini-model" class="mt-label" style="margin-bottom: 0;">Modèle Gemini</label>
-              <button type="button" id="btn-refresh-gemini-models" class="mt-btn mt-btn-secondary" style="padding: 2px 8px; font-size: 11px; min-height: auto;" title="Interroger la liste officielle des modèles Google en direct">🔄 Actualiser les modèles</button>
+              <label for="gemini-model" class="mt-label" style="margin-bottom: 0;" data-i18n="labelGeminiModel">Modèle Gemini</label>
+              <button type="button" id="btn-refresh-gemini-models" class="mt-btn mt-btn-secondary" style="padding: 2px 8px; font-size: 11px; min-height: auto;" title="Interroger la liste officielle des modèles Google en direct" data-i18n="btnRefreshModels" data-i18n-title="titleRefreshModels">🔄 Actualiser les modèles</button>
             </div>
             <select id="gemini-model" class="mt-select">
               <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Recommandé — Ultra-rapide &amp; économique)</option>
@@ -87,7 +87,7 @@
               <option value="gemini-2.0-flash">gemini-2.0-flash</option>
               <option value="gemini-1.5-pro">gemini-1.5-pro (Raisonnement approfondi)</option>
             </select>
-            <p class="mt-help-text" id="help-gemini-models">
+            <p class="mt-help-text" id="help-gemini-models" data-i18n="helpGeminiModels">
               Les modèles sont synchronisés en temps réel avec l'API officielle Google AI Studio.
             </p>
           </div>
@@ -96,7 +96,7 @@
         <!-- Section Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom) -->
         <div id="section-llm" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
-            <label for="llm-preset" class="mt-label">Fournisseur ou Moteur LLM</label>
+            <label for="llm-preset" class="mt-label" data-i18n="labelLlmPreset">Fournisseur ou Moteur LLM</label>
             <select id="llm-preset" class="mt-select">
               <option value="openai">OpenAI (gpt-4o-mini)</option>
               <option value="groq">Groq Cloud (llama-3.3-70b-versatile — Inférence instantanée)</option>
@@ -108,26 +108,26 @@
           </div>
 
           <div class="mt-field-group">
-            <label for="llm-base-url" class="mt-label">URL de Base de l'API (Base URL)</label>
+            <label for="llm-base-url" class="mt-label" data-i18n="labelLlmBaseUrl">URL de Base de l'API (Base URL)</label>
             <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com" spellcheck="false">
-            <p class="mt-help-text" id="help-llm-url">
+            <p class="mt-help-text" id="help-llm-url" data-i18n="helpLlmBaseUrl">
               Endpoint standard. Le chemin <code>/v1/chat/completions</code> sera ajouté automatiquement.
             </p>
           </div>
 
           <div class="mt-field-group" id="group-llm-key">
-            <label for="llm-api-key" class="mt-label">Clé d'API (Bearer Token)</label>
+            <label for="llm-api-key" class="mt-label" data-i18n="labelLlmApiKey">Clé d'API (Bearer Token)</label>
             <div class="mt-input-password-wrapper">
-              <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+              <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" data-i18n-placeholder="placeholderLlmApiKey" autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
             </div>
-            <p class="mt-help-text" id="help-llm-key">
+            <p class="mt-help-text" id="help-llm-key" data-i18n="helpLlmApiKey">
               Clé d'authentification pour le service distant.
             </p>
           </div>
 
           <div class="mt-field-group">
-            <label for="llm-model" class="mt-label">Identifiant du Modèle (Model Name)</label>
+            <label for="llm-model" class="mt-label" data-i18n="labelLlmModel">Identifiant du Modèle (Model Name)</label>
             <input type="text" id="llm-model" class="mt-input" placeholder="Ex: gpt-4o-mini, llama-3.3-70b-versatile, llama3.2" spellcheck="false">
           </div>
         </div>
@@ -135,18 +135,18 @@
         <!-- Section LibreTranslate -->
         <div id="section-libretranslate" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
-            <label for="libretranslate-url" class="mt-label">URL de l'instance LibreTranslate</label>
+            <label for="libretranslate-url" class="mt-label" data-i18n="labelLibreTranslateUrl">URL de l'instance LibreTranslate</label>
             <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false">
-            <p class="mt-help-text">
+            <p class="mt-help-text" data-i18n="helpLibreTranslateUrl">
               Indiquez l'URL de votre serveur auto-hébergé (ex: <code>http://localhost:5000</code>) ou d'une instance publique.
             </p>
           </div>
 
           <div class="mt-field-group">
-            <label for="libretranslate-api-key" class="mt-label">Clé d'API LibreTranslate (Optionnel)</label>
+            <label for="libretranslate-api-key" class="mt-label" data-i18n="labelLibreTranslateKey">Clé d'API LibreTranslate (Optionnel)</label>
             <div class="mt-input-password-wrapper">
-              <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé">👁️</button>
+              <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" data-i18n-placeholder="placeholderLtKey" autocomplete="off" spellcheck="false">
+              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
             </div>
           </div>
         </div>
@@ -160,17 +160,17 @@
         <!-- Boutons d'Action -->
         <div class="mt-actions">
           <button type="button" id="btn-test" class="mt-btn mt-btn-secondary">
-            <span class="mt-btn-text">Tester la connexion</span>
+            <span class="mt-btn-text" data-i18n="btnTestConnection">Tester la connexion</span>
           </button>
           <button type="submit" id="btn-save" class="mt-btn mt-btn-primary">
-            <span class="mt-btn-text">Enregistrer les préférences</span>
+            <span class="mt-btn-text" data-i18n="btnSavePreferences">Enregistrer les préférences</span>
           </button>
         </div>
       </form>
     </main>
 
     <footer class="mt-options-footer">
-      <p>Magic Translator · Version Manifest V3 · Conçu pour Mozilla Thunderbird</p>
+      <p data-i18n="optionsFooter">Magic Translator · Version Manifest V3 · Conçu pour Mozilla Thunderbird</p>
     </footer>
   </div>
 

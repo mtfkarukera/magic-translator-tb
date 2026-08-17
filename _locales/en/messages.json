@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Options / Settings"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Settings"
+  },
+  "optionsSubtitle": {
+    "message": "Translation engines configuration & advanced options"
+  },
+  "optActiveProviderLabel": {
+    "message": "Active translation provider"
+  },
+  "badgeDefault": {
+    "message": "Default"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Default — Free, zero config)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Pro linguistic quality)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Cloud — Fast & Intelligent)"
+  },
+  "optProviderLlm": {
+    "message": "LLMs Hub (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Open source / Self-hosted)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google Translate works out-of-the-box with zero API key or configuration required."
+  },
+  "labelDeeplKey": {
+    "message": "DeepL API Key (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Get a free key (500,000 chars/month) or Pro plan on"
+  },
+  "labelDeeplPlan": {
+    "message": "DeepL Subscription Plan"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Auto-detection (recommended — via :fx suffix)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Google AI Studio API Key (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Get a free API key on"
+  },
+  "labelGeminiModel": {
+    "message": "Gemini Model"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Refresh models"
+  },
+  "titleRefreshModels": {
+    "message": "Fetch live official Google models list"
+  },
+  "helpGeminiModels": {
+    "message": "Models are synchronized in real time with the official Google AI Studio API."
+  },
+  "labelLlmPreset": {
+    "message": "LLM Provider or Engine"
+  },
+  "labelLlmBaseUrl": {
+    "message": "API Base URL"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Standard endpoint. The path /v1/chat/completions will be appended automatically."
+  },
+  "labelLlmApiKey": {
+    "message": "API Key (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Leave empty if no key required (local)"
+  },
+  "helpLlmApiKey": {
+    "message": "Authentication token for the remote service."
+  },
+  "labelLlmModel": {
+    "message": "Model Name / Identifier"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "LibreTranslate Instance URL"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Enter your self-hosted server URL (e.g. http://localhost:5000) or a public instance."
+  },
+  "labelLibreTranslateKey": {
+    "message": "LibreTranslate API Key (Optional)"
+  },
+  "placeholderLtKey": {
+    "message": "Leave empty if no key required"
+  },
+  "btnTestConnection": {
+    "message": "Test connection"
+  },
+  "btnSavePreferences": {
+    "message": "Save preferences"
+  },
+  "btnTesting": {
+    "message": "Testing connection…"
+  },
+  "btnSaving": {
+    "message": "Saving…"
+  },
+  "statusSaved": {
+    "message": "Preferences saved successfully!"
+  },
+  "statusTestSuccess": {
+    "message": "Connection successful!"
+  },
+  "statusTestError": {
+    "message": "Connection failed:"
+  },
+  "errorKeyRequired": {
+    "message": "An API key is required for this provider."
+  },
+  "errorUrlRequired": {
+    "message": "The server URL is required."
+  },
+  "errorModelRequired": {
+    "message": "The model identifier is required."
+  },
+  "ariaToggleKey": {
+    "message": "Toggle API key visibility"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Manifest V3 Version · Designed for Mozilla Thunderbird"
   }
 }

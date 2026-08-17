@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "設定 / オプション"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — 設定"
+  },
+  "optionsSubtitle": {
+    "message": "翻訳エンジンの設定と高度なオプション"
+  },
+  "optActiveProviderLabel": {
+    "message": "有効な翻訳プロバイダー"
+  },
+  "badgeDefault": {
+    "message": "デフォルト"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (デフォルト — 無料・設定不要)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (高精度プロ翻訳)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (クラウド — 高速＆高精度)"
+  },
+  "optProviderLlm": {
+    "message": "LLMハブ (OpenAI, Groq, Mistral, Ollama, LM Studio, カスタム)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (オープンソース / セルフホスト)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google TranslateはAPIキーや設定なしですぐに使用できます。"
+  },
+  "labelDeeplKey": {
+    "message": "DeepL APIキー (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "無料キー (月50万文字) またはProプランの取得先:"
+  },
+  "labelDeeplPlan": {
+    "message": "DeepL サブスクリプションプラン"
+  },
+  "optDeeplPlanAuto": {
+    "message": "自動検出 (推奨 — :fx サフィックスから判別)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Google AI Studio APIキー (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "無料キーの取得先:"
+  },
+  "labelGeminiModel": {
+    "message": "Gemini モデル"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 モデル一覧を更新"
+  },
+  "titleRefreshModels": {
+    "message": "公式Googleモデル一覧をリアルタイム取得"
+  },
+  "helpGeminiModels": {
+    "message": "公式Google AI Studio APIとリアルタイム同期されます。"
+  },
+  "labelLlmPreset": {
+    "message": "LLMプロバイダーまたはエンジン"
+  },
+  "labelLlmBaseUrl": {
+    "message": "API ベースURL (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "標準エンドポイント。/v1/chat/completions が自動的に付加されます。"
+  },
+  "labelLlmApiKey": {
+    "message": "APIキー (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "キー不要の場合は空欄 (ローカル)"
+  },
+  "helpLlmApiKey": {
+    "message": "リモートサービス用の認証トークン。"
+  },
+  "labelLlmModel": {
+    "message": "モデル識別子 (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "LibreTranslate インスタンスURL"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "セルフホストサーバー (例: http://localhost:5000) またはパブリックURLを指定してください。"
+  },
+  "labelLibreTranslateKey": {
+    "message": "LibreTranslate APIキー (任意)"
+  },
+  "placeholderLtKey": {
+    "message": "キー不要の場合は空欄"
+  },
+  "btnTestConnection": {
+    "message": "接続テスト"
+  },
+  "btnSavePreferences": {
+    "message": "設定を保存"
+  },
+  "btnTesting": {
+    "message": "接続テスト中…"
+  },
+  "btnSaving": {
+    "message": "保存中…"
+  },
+  "statusSaved": {
+    "message": "設定を保存しました！"
+  },
+  "statusTestSuccess": {
+    "message": "接続に成功しました！"
+  },
+  "statusTestError": {
+    "message": "接続に失敗しました:"
+  },
+  "errorKeyRequired": {
+    "message": "このプロバイダーにはAPIキーが必要です。"
+  },
+  "errorUrlRequired": {
+    "message": "サーバーURLが必要です。"
+  },
+  "errorModelRequired": {
+    "message": "モデル識別子が必要です。"
+  },
+  "ariaToggleKey": {
+    "message": "APIキーの表示/非表示を切り替え"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Manifest V3版 · Mozilla Thunderbird専用設計"
   }
 }

@@ -9,6 +9,14 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.2.4] — 2026-08-18
+
+Internationalisation intégrale de la page de préférences (7 langues).
+
+### Ajouté
+- **`options/options.html` & `options/options.js`** : Support multilingue complet via le moteur `appliquerI18n()` et l'API native `browser.i18n.getMessage()`.
+- **`_locales/{en,fr,de,es,ja,pt,vi}/messages.json`** : Ajout de l'intégralité des clés de traduction de l'interface des options (titres, sélecteurs, champs de saisie, aides textuelles, messages de statut et tooltips) pour les 7 langues officielles de l'extension.
+
 ## [2.2.3] — 2026-08-18
 
 Correctif de dimensionnement de la page d'options (boucle infinie de scroll).

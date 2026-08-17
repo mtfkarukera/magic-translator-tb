@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Options / Paramètres"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Paramètres"
+  },
+  "optionsSubtitle": {
+    "message": "Configuration des moteurs de traduction & options avancées"
+  },
+  "optActiveProviderLabel": {
+    "message": "Fournisseur de traduction actif"
+  },
+  "badgeDefault": {
+    "message": "Par défaut"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Par défaut — Gratuit, zéro config)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Qualité linguistique pro)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Cloud — Rapide & Intelligent)"
+  },
+  "optProviderLlm": {
+    "message": "Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Open source / Auto-hébergé)"
+  },
+  "helpProviderGoogle": {
+    "message": "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration."
+  },
+  "labelDeeplKey": {
+    "message": "Clé d'API DeepL (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur"
+  },
+  "labelDeeplPlan": {
+    "message": "Type d'abonnement DeepL"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Détection automatique (recommandé — selon suffixe :fx)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Clé d'API Google AI Studio (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Obtenez une clé gratuite sur"
+  },
+  "labelGeminiModel": {
+    "message": "Modèle Gemini"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Actualiser les modèles"
+  },
+  "titleRefreshModels": {
+    "message": "Interroger la liste officielle des modèles Google en direct"
+  },
+  "helpGeminiModels": {
+    "message": "Les modèles sont synchronisés en temps réel avec l'API officielle Google AI Studio."
+  },
+  "labelLlmPreset": {
+    "message": "Fournisseur ou Moteur LLM"
+  },
+  "labelLlmBaseUrl": {
+    "message": "URL de Base de l'API (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Endpoint standard. Le chemin /v1/chat/completions sera ajouté automatiquement."
+  },
+  "labelLlmApiKey": {
+    "message": "Clé d'API (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Laisser vide si aucune clé requise (local)"
+  },
+  "helpLlmApiKey": {
+    "message": "Clé d'authentification pour le service distant."
+  },
+  "labelLlmModel": {
+    "message": "Identifiant du Modèle (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "URL de l'instance LibreTranslate"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Indiquez l'URL de votre serveur auto-hébergé (ex: http://localhost:5000) ou d'une instance publique."
+  },
+  "labelLibreTranslateKey": {
+    "message": "Clé d'API LibreTranslate (Optionnel)"
+  },
+  "placeholderLtKey": {
+    "message": "Laisser vide si aucune clé requise"
+  },
+  "btnTestConnection": {
+    "message": "Tester la connexion"
+  },
+  "btnSavePreferences": {
+    "message": "Enregistrer les préférences"
+  },
+  "btnTesting": {
+    "message": "Test en cours…"
+  },
+  "btnSaving": {
+    "message": "Enregistrement…"
+  },
+  "statusSaved": {
+    "message": "Préférences enregistrées avec succès !"
+  },
+  "statusTestSuccess": {
+    "message": "Connexion réussie !"
+  },
+  "statusTestError": {
+    "message": "Échec de la connexion :"
+  },
+  "errorKeyRequired": {
+    "message": "Une clé d'API est requise pour ce fournisseur."
+  },
+  "errorUrlRequired": {
+    "message": "L'URL du serveur est requise."
+  },
+  "errorModelRequired": {
+    "message": "L'identifiant du modèle est requis."
+  },
+  "ariaToggleKey": {
+    "message": "Afficher ou masquer la clé d'API"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Version Manifest V3 · Conçu pour Mozilla Thunderbird"
   }
 }

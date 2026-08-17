@@ -58,5 +58,140 @@
   },
   "menuOptionsTitle": {
     "message": "Opções / Configurações"
+  },
+  "optionsTitle": {
+    "message": "Magic Translator — Configurações"
+  },
+  "optionsSubtitle": {
+    "message": "Configuração dos motores de tradução e opções avançadas"
+  },
+  "optActiveProviderLabel": {
+    "message": "Provedor de tradução ativo"
+  },
+  "badgeDefault": {
+    "message": "Padrão"
+  },
+  "optProviderGoogle": {
+    "message": "Google Translate (Padrão — Gratuito, sem config)"
+  },
+  "optProviderDeepl": {
+    "message": "DeepL API (Qualidade linguística profissional)"
+  },
+  "optProviderGemini": {
+    "message": "Google Gemini API (Nuvem — Rápido e Inteligente)"
+  },
+  "optProviderLlm": {
+    "message": "Hub de LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)"
+  },
+  "optProviderLibreTranslate": {
+    "message": "LibreTranslate (Código aberto / Auto-hospedado)"
+  },
+  "helpProviderGoogle": {
+    "message": "O Google Translate funciona imediatamente sem nenhuma chave de API ou configuração."
+  },
+  "labelDeeplKey": {
+    "message": "Chave de API do DeepL (Auth-Key)"
+  },
+  "helpDeeplKey": {
+    "message": "Obtenha uma chave gratuita (500.000 caracteres/mês) ou plano Pro em"
+  },
+  "labelDeeplPlan": {
+    "message": "Plano de assinatura DeepL"
+  },
+  "optDeeplPlanAuto": {
+    "message": "Deteção automática (recomendado — via sufixo :fx)"
+  },
+  "optDeeplPlanFree": {
+    "message": "DeepL API Free (api-free.deepl.com)"
+  },
+  "optDeeplPlanPro": {
+    "message": "DeepL API Pro (api.deepl.com)"
+  },
+  "labelGeminiKey": {
+    "message": "Chave de API do Google AI Studio (Gemini API Key)"
+  },
+  "helpGeminiKey": {
+    "message": "Obtenha uma chave gratuita em"
+  },
+  "labelGeminiModel": {
+    "message": "Modelo Gemini"
+  },
+  "btnRefreshModels": {
+    "message": "🔄 Atualizar modelos"
+  },
+  "titleRefreshModels": {
+    "message": "Consultar lista oficial de modelos do Google em tempo real"
+  },
+  "helpGeminiModels": {
+    "message": "Os modelos são sincronizados em tempo real com a API oficial do Google AI Studio."
+  },
+  "labelLlmPreset": {
+    "message": "Provedor ou Motor LLM"
+  },
+  "labelLlmBaseUrl": {
+    "message": "URL Base da API (Base URL)"
+  },
+  "helpLlmBaseUrl": {
+    "message": "Ponto de extremidade padrão. O caminho /v1/chat/completions será adicionado automaticamente."
+  },
+  "labelLlmApiKey": {
+    "message": "Chave de API (Bearer Token)"
+  },
+  "placeholderLlmApiKey": {
+    "message": "Deixar em branco se nenhuma chave for necessária (local)"
+  },
+  "helpLlmApiKey": {
+    "message": "Token de autenticação para o serviço remoto."
+  },
+  "labelLlmModel": {
+    "message": "Identificador do Modelo (Model Name)"
+  },
+  "labelLibreTranslateUrl": {
+    "message": "URL da instância LibreTranslate"
+  },
+  "helpLibreTranslateUrl": {
+    "message": "Indique a URL do seu servidor auto-hospedado (ex: http://localhost:5000) ou de uma instância pública."
+  },
+  "labelLibreTranslateKey": {
+    "message": "Chave de API LibreTranslate (Opcional)"
+  },
+  "placeholderLtKey": {
+    "message": "Deixar em branco se não for necessária chave"
+  },
+  "btnTestConnection": {
+    "message": "Testar conexão"
+  },
+  "btnSavePreferences": {
+    "message": "Salvar preferências"
+  },
+  "btnTesting": {
+    "message": "Testando conexão…"
+  },
+  "btnSaving": {
+    "message": "Salvando…"
+  },
+  "statusSaved": {
+    "message": "Preferências salvas com sucesso!"
+  },
+  "statusTestSuccess": {
+    "message": "Conexão bem-sucedida!"
+  },
+  "statusTestError": {
+    "message": "Falha na conexão:"
+  },
+  "errorKeyRequired": {
+    "message": "Uma chave de API é necessária para este provedor."
+  },
+  "errorUrlRequired": {
+    "message": "A URL do servidor é obrigatória."
+  },
+  "errorModelRequired": {
+    "message": "O identificador do modelo é obrigatório."
+  },
+  "ariaToggleKey": {
+    "message": "Exibir ou ocultar chave de API"
+  },
+  "optionsFooter": {
+    "message": "Magic Translator · Versão Manifest V3 · Projetado para Mozilla Thunderbird"
   }
 }
