@@ -97,7 +97,7 @@ réinjection, restauration, gestion du cycle de vie.
        • si #segments ≠ #nœuds : FALLBACK nœud-par-nœud (1 requête par nœud)
 
 7. [Statut]      "✓ Traduit depuis <langue>" (ou "⚠ Traduit partiellement")
-       → repli automatique en pilule [MT ✓] après 1,5 s (sauf échec partiel)
+       → fermeture automatique après 1,5 s (sauf échec partiel)
 
 8. [Restauration] bouton « Original » : restaure chaque nœud depuis contenusOriginaux
 ```
@@ -116,6 +116,8 @@ réinjection, restauration, gestion du cycle de vie.
 Le module `mt-providers.js` encapsule la communication avec les différents services de traduction :
 - **Google Translate (`google`)** : `POST https://translate.googleapis.com/translate_a/single?client=gtx&sl=<src>&tl=<tgt>&dt=t` avec corps `q=<texte>`.
 - **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
+- **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent?key=<apiKey>` avec prompt système étanche.
+- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut.
 - **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text", api_key }`.
 
 Les erreurs sont normalisées en codes fiables (`UNAUTHORIZED`, `RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`, `INVALID_PAYLOAD`).
@@ -124,19 +126,18 @@ Les erreurs sont normalisées en codes fiables (`UNAUTHORIZED`, `RATE_LIMITED`, 
 
 ## 4. Interface utilisateur
 
-Deux états, dans un **Shadow DOM** (isolation CSS totale) :
+L'interface est injectée dans un **Shadow DOM** (isolation CSS totale) :
 
-- **Pilule** (replié) : `[MT ▸]`, avec un indicateur `✓` après une traduction.
-- **Bandeau** (déplié, sémantiquement taggué par `role="region" aria-label="Translator"`) : `[MT Translator | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
+- **Bandeau de traduction** (sémantiquement taggué par `role="region" aria-label="Translator"`) : `[MT Translator | Badge | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
+- **Zéro élément résiduel** : Dès que le bandeau est refermé (bouton ▴, logo [MT], touche Escape ou bouton de la barre d'outils), aucun élément ne flotte sur le corps de l'e-mail, garantissant une lisibilité 100% propre du premier au dernier caractère.
 
 Transitions et navigation au clavier :
-*   `pilule.click → déplier` : Le bandeau s'affiche et le focus clavier est immédiatement transféré sur le premier contrôle interactif (sélecteur source).
-*   `logo MT / bouton ▴ (aria-label="Replier") → replier` : Le bandeau se masque et le focus clavier est renvoyé à la pilule.
-*   `raccourci (Alt+Shift+T) → toggleBanner`.
+*   `Clic bouton barre [Traduire] / Raccourci (Alt+Shift+T) → toggleBanner` : Le bandeau s'affiche ou se masque.
+*   `logo MT / bouton ▴ (aria-label="Replier") / Escape → replier` : Le bandeau se masque proprement.
+*   Le focus clavier est immédiatement transféré sur le premier contrôle interactif (sélecteur source) à l'ouverture.
 
 Le raccourci est déclaré via la clé `commands` du manifest (remappable) ; `background.js` reçoit
-`commands.onCommand` et envoie `toggleBanner` à l'onglet actif. Les éléments cliquables non natifs
-(pilule, logo) sont `role="button"` + `tabindex="0"` (activables au clavier) ; le statut est une
+`commands.onCommand` et envoie `toggleBanner` à l'onglet actif. Le statut est une
 région `aria-live` annoncée aux lecteurs d'écran. Les sélecteurs de langue disposent de balises `<label>`
 liées sémantiquement par leur attribut `for`.
 

@@ -6,14 +6,17 @@
  */
 
 :root {
+  /* Indique au moteur Gecko de Thunderbird de supporter les deux thèmes dans l'iframe */
+  color-scheme: light dark;
+
   /* ── Thème Clair (par défaut) ────────────────────────────────────────── */
   --mt-bg-base: transparent;
   --mt-bg-card: #ffffff;
   --mt-border: #e2e8f0;
   --mt-border-hover: #cbd5e1;
   --mt-border-focus: #7c3aed;
-  --mt-text-primary: #0f172a;
-  --mt-text-secondary: #64748b;
+  --mt-text-primary: #15141a;
+  --mt-text-secondary: #5b5b66;
   --mt-accent-purple: #7c3aed;
   --mt-accent-purple-hover: #6d28d9;
   --mt-accent-purple-dim: rgba(124, 58, 237, 0.08);
@@ -25,7 +28,7 @@
   --mt-btn-sec-bg: #f1f5f9;
   --mt-btn-sec-hover: #e2e8f0;
   --mt-btn-sec-border: #cbd5e1;
-  --mt-btn-sec-text: #0f172a;
+  --mt-btn-sec-text: #15141a;
   --mt-code-bg: rgba(0, 0, 0, 0.05);
   --mt-link-color: #6d28d9;
   --mt-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -47,27 +50,27 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --mt-bg-base: transparent;
-    --mt-bg-card: rgba(30, 41, 59, 0.85);
-    --mt-border: rgba(255, 255, 255, 0.1);
-    --mt-border-hover: rgba(255, 255, 255, 0.2);
+    --mt-bg-card: #2b2a33;
+    --mt-border: rgba(255, 255, 255, 0.12);
+    --mt-border-hover: rgba(255, 255, 255, 0.22);
     --mt-border-focus: #a78bfa;
-    --mt-text-primary: #f8fafc;
-    --mt-text-secondary: #94a3b8;
+    --mt-text-primary: #fbfbfe;
+    --mt-text-secondary: #cfcfd8;
     --mt-accent-purple: #7c3aed;
     --mt-accent-purple-hover: #6d28d9;
-    --mt-accent-purple-dim: rgba(124, 58, 237, 0.2);
+    --mt-accent-purple-dim: rgba(124, 58, 237, 0.25);
     --mt-badge-text: #c4b5fd;
-    --mt-badge-border: rgba(167, 139, 250, 0.25);
-    --mt-select-bg: rgba(15, 23, 42, 0.7);
-    --mt-section-bg: rgba(15, 23, 42, 0.4);
-    --mt-section-border: rgba(255, 255, 255, 0.06);
-    --mt-btn-sec-bg: rgba(255, 255, 255, 0.06);
-    --mt-btn-sec-hover: rgba(255, 255, 255, 0.12);
-    --mt-btn-sec-border: rgba(255, 255, 255, 0.1);
-    --mt-btn-sec-text: #f8fafc;
+    --mt-badge-border: rgba(167, 139, 250, 0.35);
+    --mt-select-bg: #1c1b22;
+    --mt-section-bg: rgba(0, 0, 0, 0.25);
+    --mt-section-border: rgba(255, 255, 255, 0.08);
+    --mt-btn-sec-bg: #383740;
+    --mt-btn-sec-hover: #484752;
+    --mt-btn-sec-border: rgba(255, 255, 255, 0.15);
+    --mt-btn-sec-text: #fbfbfe;
     --mt-code-bg: rgba(255, 255, 255, 0.08);
     --mt-link-color: #a78bfa;
-    --mt-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.36);
+    --mt-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     --mt-success: #10b981;
     --mt-success-bg: rgba(16, 185, 129, 0.15);
     --mt-success-text: #6ee7b7;
@@ -85,7 +88,7 @@
   padding: 0;
 }
 
-body {
+html, body {
   background-color: var(--mt-bg-base);
   color: var(--mt-text-primary);
   font-family: var(--mt-font);

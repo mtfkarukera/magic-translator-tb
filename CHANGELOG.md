@@ -9,6 +9,14 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.2.2] — 2026-08-18
+
+Épuration visuelle & Correction du thème sombre des options.
+
+### Modifié
+- **`translator-injected.js`** : Suppression complète de la pilule flottante résiduelle `mt-pill`. Le bandeau se referme proprement sans laisser d'élément flottant masquant le texte des e-mails. L'ouverture et la fermeture sont pilotées directement par le bouton `[Traduire]` de la barre de message, le menu ou le raccourci `Alt+Shift+T`.
+- **`options/options.css`** : Ajout de la directive standard `color-scheme: light dark;` sur `:root` et harmonisation des fonds avec les couleurs natives de Thunderbird (`#2b2a33`, `#1c1b22`), éliminant tout cadre blanc disgracieux en mode sombre.
+
 ## [2.2.1] — 2026-08-17
 
 Correctif de conformité Mozilla Add-ons (ATN).

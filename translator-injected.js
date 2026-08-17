@@ -342,78 +342,6 @@
   }
 }
 
-/* ── PILULE COMPACTE (ÉTAT REPLIÉ) ── */
-.mt-pill {
-  position: absolute;
-  top: 0;
-  left: 12px;
-  z-index: 999999;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  /* [Mi-D4] Zone de clic agrandie : min-height 32px pour faciliter l'interaction */
-  min-height: 32px;
-  padding: 6px 14px 6px 10px;
-  background: var(--mt-bg-glass);
-  backdrop-filter: blur(12px) saturate(190%);
-  -webkit-backdrop-filter: blur(12px) saturate(190%);
-  border-radius: 0 0 var(--mt-radius-md) var(--mt-radius-md);
-  border: 1px solid var(--mt-border-glass);
-  border-top: none;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--mt-accent-purple-hover);
-  /* [Mi-D1] Propriétés ciblées au lieu de "all" pour éviter les reflows inutiles */
-  transition: background-color var(--mt-duration) var(--mt-ease-out),
-              color var(--mt-duration) var(--mt-ease-out),
-              box-shadow var(--mt-duration) var(--mt-ease-out),
-              transform var(--mt-duration) var(--mt-ease-out);
-  user-select: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.mt-pill:hover {
-  /* [Mi-D3] Utilisation du token au lieu de la valeur hardcodée */
-  background: var(--mt-bg-pill-hover);
-  color: #c4b5fd;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
-  /* [Mi-D5] translateY(-1px) au lieu de (1px) : la pilule monte au hover pour inviter au clic */
-  transform: translateY(-1px);
-}
-
-.mt-pill:active {
-  transform: translateY(0) scale(0.97); /* Enfoncement physique */
-}
-
-.mt-pill-icon {
-  width: 18px;
-  height: 18px;
-  border-radius: var(--mt-radius-sm);
-  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  color: white;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.mt-pill-chevron {
-  font-size: 9px;
-  color: var(--mt-text-secondary);
-  transition: transform var(--mt-duration) var(--mt-ease-out);
-}
-
-.mt-pill:hover .mt-pill-chevron {
-  transform: translateX(2px); /* Indication visuelle de déploiement */
-}
-
-.mt-pill-status {
-  font-size: 11px;
-  color: var(--mt-success);
-}
-
 /* ── BANDEAU DÉPLIÉ ── */
 .mt-banner {
   display: flex;
@@ -865,36 +793,6 @@
     baliseStyle.textContent = CSS_BANDEAU;
     shadow.appendChild(baliseStyle);
 
-    // ── Pilule compacte ─────────────────────────────────────────────────
-    // [B-A4] Utilisation d'un vrai <button> au lieu de <div role="button"> :
-    // hérite des comportements natifs (focus, activation clavier, styles OS).
-    const pilule = document.createElement("button");
-    pilule.type = "button";
-    pilule.className = "mt-pill";
-    pilule.title = t("tooltipExpand");
-    pilule.setAttribute("aria-label", t("tooltipExpand"));
-    // [M-A3] aria-expanded : indique l'état ouvert/fermé du bandeau aux lecteurs d'écran.
-    pilule.setAttribute("aria-expanded", "false");
-
-    const iconeT = document.createElement("span");
-    iconeT.className = "mt-pill-icon";
-    iconeT.textContent = "MT";
-    iconeT.setAttribute("aria-hidden", "true");
-    pilule.appendChild(iconeT);
-
-    const chevron = document.createElement("span");
-    chevron.className = "mt-pill-chevron";
-    chevron.textContent = "▸";
-    chevron.setAttribute("aria-hidden", "true");
-    pilule.appendChild(chevron);
-
-    const indicateurStatut = document.createElement("span");
-    indicateurStatut.className = "mt-pill-status mt-hidden";
-    indicateurStatut.textContent = "✓";
-    pilule.appendChild(indicateurStatut);
-
-    shadow.appendChild(pilule);
-
     // ── Bandeau déplié ──────────────────────────────────────────────────
     const bandeau = document.createElement("div");
     bandeau.className = "mt-banner mt-hidden";
@@ -1030,8 +928,6 @@
     return {
       conteneur,
       shadow,
-      pilule,
-      indicateurStatut,
       bandeau,
       logoIcone,
       badgeMoteur,
@@ -1078,9 +974,8 @@
     // ── Insertion dans le DOM ────────────────────────────────────────────
     // On insère le conteneur en tout premier enfant du body pour que le
     // bandeau apparaisse au-dessus du contenu du message.
-    // La pilule et le bandeau sont masqués par défaut : l'UI n'apparaît
+    // Le bandeau est masqué par défaut : l'UI n'apparaît
     // qu'après un clic sur le bouton barre, le menu, ou le raccourci clavier.
-    ui.pilule.classList.add("mt-hidden");
     ui.bandeau.classList.add("mt-hidden");
 
     if (document.body) {
@@ -1102,7 +997,7 @@
     } catch { /* contexte non disponible */ }
 
     // ── Repli automatique respectueux ──────────────────────────────────────
-    // Après une traduction réussie, le bandeau se replie en pilule au bout de 1,5 s,
+    // Après une traduction réussie, le bandeau se referme au bout de 1,5 s,
     // MAIS le timer est suspendu tant que l'utilisateur survole le bandeau ou y a le
     // focus, puis reprogrammé à la sortie — ne fait pas disparaître le contexte sous
     // la souris ni au clavier.
@@ -1125,7 +1020,7 @@
       document.documentElement._mtTimerRepli = setTimeout(() => {
         document.documentElement._mtTimerRepli = null;
         repliAutoArme = false;
-        if (estDeplie) replier(true);
+        if (estDeplie) replier();
       }, 1500);
     };
     const reprogrammerSiArme = () => {
@@ -1137,55 +1032,32 @@
     const deplier = () => {
       annulerRepliAuto();
       estDeplie = true;
-      // [M-A3] aria-expanded : informe les lecteurs d'écran que le bandeau est ouvert.
-      ui.pilule.setAttribute("aria-expanded", "true");
-      ui.pilule.classList.add("mt-hidden");
       ui.bandeau.classList.remove("mt-hidden");
       ui.selectSource.focus();
     };
 
-    const replier = (afficherCoche) => {
+    const replier = () => {
       annulerRepliAuto();
       repliAutoArme = false;
       estDeplie = false;
-      // [M-A3] aria-expanded : informe les lecteurs d'écran que le bandeau est fermé.
-      ui.pilule.setAttribute("aria-expanded", "false");
       ui.bandeau.classList.add("mt-hidden");
-      ui.pilule.classList.remove("mt-hidden");
-      if (afficherCoche) {
-        ui.indicateurStatut.classList.remove("mt-hidden");
-      }
-      ui.pilule.focus();
     };
 
-    ui.pilule.addEventListener("click", deplier);
-
-    // Le logo [MT] dans le bandeau est cliquable : referme le bandeau en pilule.
+    // Le logo [MT] dans le bandeau est cliquable : referme le bandeau.
     // Même effet que le bouton ▴, mais plus grande zone de clic et plus intuitif.
     ui.logoIcone.addEventListener("click", () => {
-      replier(!!contenusOriginaux);
+      replier();
     });
 
     ui.btnReplier.addEventListener("click", () => {
-      replier(!!contenusOriginaux);
+      replier();
     });
-
-    // Activation clavier (Entrée/Espace) des éléments rôle=bouton (pilule, logo).
-    const activerAuClavier = (el, action) => {
-      el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          action();
-        }
-      });
-    };
-    activerAuClavier(ui.pilule, deplier);
 
     // [B-A4] Gestion de la touche Escape dans le bandeau : referme le bandeau.
     ui.bandeau.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        replier(!!contenusOriginaux);
+        replier();
       }
     });
 
@@ -1426,7 +1298,6 @@
       contenusOriginaux = null;
       ui.btnOriginal.classList.add("mt-hidden");
       ui.btnTraduire.textContent = t("btnTranslate");
-      ui.indicateurStatut.classList.add("mt-hidden");
       afficherStatut(ui.statut, "", "");
       ui.statut.classList.add("mt-hidden");
     });
@@ -1442,16 +1313,9 @@
     // ou par le menu clic droit sur ce même bouton.
     const gererMessageBg = (message) => {
       if (message && message.action === "toggleBanner") {
-        const piluleVisible = !ui.pilule.classList.contains("mt-hidden");
-
-        if (estDeplie || piluleVisible) {
-          // Désactivation : masquer bandeau ET pilule
-          ui.bandeau.classList.add("mt-hidden");
-          ui.pilule.classList.add("mt-hidden");
-          estDeplie = false;
+        if (estDeplie) {
+          replier();
         } else {
-          // Activation : ouvrir directement le bandeau
-          ui.pilule.classList.remove("mt-hidden");
           deplier();
         }
       }

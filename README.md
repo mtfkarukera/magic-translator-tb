@@ -22,15 +22,14 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
     - **Serveur Personnalisé** (vLLM, etc.)
   - **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
 - **Badge moteur transparent** — Indique en un coup d'œil quel moteur est actif sur le bandeau de traduction ([MT] Google, DeepL, Gemini, Groq, OpenAI, Ollama...)
-- **Page d'options dédiée** — Interface adaptative (Light & Dark Glassmorphism) pour configurer et tester ses clés en direct
+- **Page d'options dédiée** — Interface adaptative (Light & Dark Mode) s'intégrant au pixel près dans Thunderbird pour configurer et tester ses clés en direct
 - **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
-- **Flux UX fluide** : `Rien → [Traduire] → Bandeau → (traduction) → Pilule → [Traduire] → Rien`
-- **Logo [MT] cliquable** dans le bandeau — referme le bandeau en pilule d'un seul clic
-- **Bouton ▴ circulaire** pour replier le bandeau — dimensionné comme les sélecteurs de langue, facile à cibler
+- **Flux UX épuré & sans encombrement** : `Rien → [Traduire] → Bandeau → (traduction) → Fermeture propre (zéro élément résiduel sur l'e-mail)`
+- **Fermeture instantanée** — Clic sur le logo **[MT]**, sur le bouton **▴** ou sur la touche **Escape** pour fermer le bandeau
 - **Titre du bouton barre traduit** selon la langue de Thunderbird (Traduire / Translate / Traducir / Übersetzen / Dịch)
 - **Auto-détection** de la langue source
 - **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
-- **Restauration** du texte original en un clic
+- **Restauration** du texte original en un clic via le bouton **Original**
 - **Raccourci clavier** : `Alt+Shift+T` par défaut — **remappable** dans les paramètres de Thunderbird (Modules → ⚙️ → Gérer les raccourcis), et sans collision avec « rouvrir l'onglet »
 - **Interface i18n** — L'UI s'adapte à la langue de Thunderbird (FR, EN, ES, DE, VI, JA, PT) ; **fallback anglais** pour toute autre langue
 - **Design sobre et élégant** — Dark glassmorphism, animations fluides, Shadow DOM isolé
@@ -39,7 +38,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## 📋 Prérequis
 
 - Mozilla Thunderbird **128.0** ou supérieur (testé sur 151.0.1)
-- Connexion Internet (pour l'API Google Translate)
+- Connexion Internet (pour l'API Google Translate ou LLMs Cloud) ou serveur local actif (Ollama, LM Studio)
 
 ## 🚀 Installation
 
@@ -58,13 +57,12 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## 🎯 Utilisation
 
 1. Sélectionnez un e-mail dans Thunderbird
-2. Cliquez sur le bouton **Traduire** dans la barre de message
+2. Cliquez sur le bouton **Traduire** dans la barre de message (ou faites `Alt+Shift+T`)
 3. Le bandeau de traduction s'ouvre — choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
 4. Cliquez sur **Traduire**
-5. Le bandeau se replie automatiquement après la traduction (la pilule `[MT ▸ ✓]` reste visible)
-6. Pour replier le bandeau à tout moment : cliquez sur le logo **[MT]** ou sur le bouton **▴** circulaire (en haut à droite du bandeau)
-7. Pour restaurer le texte original, rouvrez le bandeau et cliquez sur **Original**
-8. Pour fermer complètement le traducteur, cliquez à nouveau sur **Traduire** dans la barre (ou clic droit → Désactiver)
+5. Le texte traduit s'affiche directement dans le corps de l'e-mail
+6. Pour refermer le bandeau : cliquez sur le bouton **▴** (ou sur le logo **[MT]**, ou appuyez sur **Escape**, ou recliquez sur le bouton **Traduire** de la barre)
+7. Pour restaurer le texte original : rouvrez le bandeau et cliquez sur **Original**
 
 > **Raccourci clavier :** `Alt+Shift+T` (par défaut, **remappable**) affiche / masque le traducteur, comme le bouton de la barre.
 
@@ -131,8 +129,8 @@ background.js → fetch() → Google Translate API (gtx)
 Réponse { success, text, detectedLang }
     ↓
 Texte traduit injecté dans le DOM du message
-Bandeau se referme → Pilule [MT ▸ ✓] visible
-Clic logo [MT] ou bouton ▴ → replie en pilule
+Bandeau se referme proprement (zéro résidu sur l'e-mail)
+Clic [Traduire] ou bouton barre → réaffiche le bandeau pour restaurer l'original ou changer de langue
 ```
 
 ## 🌐 Langues de l'interface
