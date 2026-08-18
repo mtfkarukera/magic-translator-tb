@@ -9,6 +9,19 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.3] — 2026-08-18
+
+Harmonisation ergonomique : badge moteur interactif dans le bandeau de lecture avec statut de connexion et accès direct aux préférences.
+
+### Ajouté
+- **`translator-injected.js` (Bandeau de Lecture)** :
+  - **Badge Moteur Interactif** : Transformation du badge texte en bouton capsule interactif `[ ● Google ⚙️ ]` / `[ ● DeepL ⚙️ ]` / `[ ● Mistral AI ⚙️ ]`.
+  - **Indicateur de statut vert (`●`)** : Visualisation instantanée de l'état prêt et connecté du moteur actif.
+  - **Accès direct aux Préférences** : Un clic sur le badge ouvre immédiatement l'onglet des paramètres de l'extension.
+  - **Accessibilité & WCAG AA** : Balise `<button type="button">`, infobulle explicite et contour `:focus-visible` calibré.
+- **`background.js`** :
+  - Ajout du gestionnaire de message `openOptions` pour une ouverture 100% résiliente des paramètres.
+
 ## [2.3.2] — 2026-08-18
 
 Correctifs post-audit de code : accessibilité clavier WCAG AA, verrouillage anti-concurrence, normalisation BCP-47 / LLM Hub et hardening DOM.

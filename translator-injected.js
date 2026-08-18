@@ -393,16 +393,49 @@
 }
 
 .mt-engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 10px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: var(--mt-radius-sm);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--mt-text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--mt-accent-purple-hover);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   letter-spacing: 0.2px;
   text-transform: none;
   user-select: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--mt-duration) var(--mt-ease-out);
+  outline: none;
+}
+
+.mt-engine-badge:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  border-color: var(--mt-accent-purple-hover);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+.mt-engine-badge:focus-visible {
+  outline: 2px solid var(--mt-accent-purple-hover);
+  outline-offset: 2px;
+}
+
+.mt-engine-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+  flex-shrink: 0;
+}
+
+.mt-engine-gear {
+  font-size: 9px;
+  opacity: 0.7;
 }
 
 .mt-logo-icon {
@@ -830,11 +863,36 @@
     logoIcone.title = t("tooltipCollapse");
     logo.appendChild(logoIcone);
 
-    // Badge moteur actif
-    const badgeMoteur = document.createElement("span");
+    // Badge moteur actif interactif
+    const badgeMoteur = document.createElement("button");
+    badgeMoteur.type = "button";
     badgeMoteur.className = "mt-engine-badge";
-    badgeMoteur.textContent = "Google";
-    badgeMoteur.title = "Moteur actif : Google Translate";
+    badgeMoteur.title = "Moteur actif : Google Translate (Modifier dans les paramètres)";
+    badgeMoteur.setAttribute("aria-label", "Paramètres du moteur de traduction");
+
+    const badgeDot = document.createElement("span");
+    badgeDot.className = "mt-engine-dot";
+    badgeMoteur.appendChild(badgeDot);
+
+    const badgeMoteurLabel = document.createElement("span");
+    badgeMoteurLabel.className = "mt-engine-label";
+    badgeMoteurLabel.textContent = "Google";
+    badgeMoteur.appendChild(badgeMoteurLabel);
+
+    const badgeGear = document.createElement("span");
+    badgeGear.className = "mt-engine-gear";
+    badgeGear.textContent = "⚙️";
+    badgeGear.setAttribute("aria-hidden", "true");
+    badgeMoteur.appendChild(badgeGear);
+
+    badgeMoteur.addEventListener("click", () => {
+      try {
+        browser.runtime.openOptionsPage();
+      } catch {
+        browser.runtime.sendMessage({ action: "openOptions" }).catch(() => {});
+      }
+    });
+
     logo.appendChild(badgeMoteur);
 
     bandeau.appendChild(logo);
@@ -935,6 +993,7 @@
       bandeau,
       logoIcone,
       badgeMoteur,
+      badgeMoteurLabel,
       selectSource,
       selectCible,
       btnTraduire,
@@ -993,8 +1052,13 @@
       browser.runtime.sendMessage({ action: "getConfig" })
         .then((res) => {
           if (res && res.success && ui.badgeMoteur) {
-            ui.badgeMoteur.textContent = res.providerLabel || "Google";
-            ui.badgeMoteur.title = `Moteur actif : ${res.providerNom || res.providerLabel || "Google"}`;
+            const nomLabel = res.providerLabel || "Google";
+            const nomComplet = res.providerNom || nomLabel;
+            if (ui.badgeMoteurLabel) {
+              ui.badgeMoteurLabel.textContent = nomLabel;
+            }
+            ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
+            ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
           }
         })
         .catch(() => {});
@@ -1159,7 +1223,10 @@
             derniereLangDetectee = resultat.detectedLang;
           }
           if (resultat.providerLabel && ui.badgeMoteur) {
-            ui.badgeMoteur.textContent = resultat.providerLabel;
+            if (ui.badgeMoteurLabel) {
+              ui.badgeMoteurLabel.textContent = resultat.providerLabel;
+            }
+            ui.badgeMoteur.title = `Moteur actif : ${resultat.providerNom || resultat.providerLabel} (Modifier dans les paramètres)`;
           }
 
           if (lot.noeuds.length === 1) {

@@ -248,6 +248,16 @@ async function traiterMessage(message, expediteur) {
     }
   }
 
+  // ── Action 2c : Ouverture directe de la page des options ──────────────────
+  if (message.action === "openOptions") {
+    try {
+      await messenger.runtime.openOptionsPage();
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
   // ── Action 3 : Requête de traduction ─────────────────────────────────────
   if (message.action === "translate") {
     // Validation du payload : type strict pour éviter toute injection.
