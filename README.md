@@ -1,43 +1,46 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.2.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.3.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
-Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le panneau de lecture avec une interface élégante et discrète.
+Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le **panneau de lecture** et dans la **fenêtre de rédaction (Compose Mode)** avec une interface Glassmorphism élégante et discrète.
 
 ## ✨ Fonctionnalités
 
+### 📖 1. Mode Lecture (Panneau de Message)
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
-- **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**
-- **Hub multi-fournisseurs & LLMs** :
-  - **Google Translate** (*par défaut*, gratuit, zéro configuration)
-  - **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
-  - **Google Gemini API** (*Cloud IA*, `gemini-2.0-flash`, ultra-rapide et économique)
-  - **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
-    - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
-    - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
-    - **Mistral AI** (`mistral-small-latest`)
-    - **Ollama** (`http://localhost:11434`, traduction 100% locale)
-    - **LM Studio** (`http://localhost:1234`, traduction 100% locale)
-    - **Serveur Personnalisé** (vLLM, etc.)
-  - **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
-- **Badge moteur transparent** — Indique en un coup d'œil quel moteur est actif sur le bandeau de traduction ([MT] Google, DeepL, Gemini, Groq, OpenAI, Ollama...)
-- **Page d'options dédiée** — Interface adaptative (Light & Dark Mode) s'intégrant au pixel près dans Thunderbird pour configurer et tester ses clés en direct
-- **Activation à la demande** — Aucune ressource consommée tant que l'utilisateur n'ouvre pas le traducteur
-- **Flux UX épuré & sans encombrement** : `Rien → [Traduire] → Bandeau → (traduction) → Fermeture propre (zéro élément résiduel sur l'e-mail)`
-- **Fermeture instantanée** — Clic sur le logo **[MT]**, sur le bouton **▴** ou sur la touche **Escape** pour fermer le bandeau
-- **Titre du bouton barre traduit** selon la langue de Thunderbird (Traduire / Translate / Traducir / Übersetzen / Dịch)
-- **Auto-détection** de la langue source
-- **30+ langues** supportées (français, anglais, espagnol, allemand, vietnamien, japonais, arabe, etc.)
-- **Restauration** du texte original en un clic via le bouton **Original**
-- **Raccourci clavier** : `Alt+Shift+T` par défaut — **remappable** dans les paramètres de Thunderbird (Modules → ⚙️ → Gérer les raccourcis), et sans collision avec « rouvrir l'onglet »
-- **Interface i18n** — L'UI s'adapte à la langue de Thunderbird (FR, EN, ES, DE, VI, JA, PT) ; **fallback anglais** pour toute autre langue
-- **Design sobre et élégant** — Dark glassmorphism, animations fluides, Shadow DOM isolé
-- **Support texte brut** — Les e-mails en texte brut (`<pre>`) sont traduits intégralement
+- **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**.
+- **Flux UX épuré** — Traduction in situ réversible sans élément résiduel obstruant la lecture.
+- **Raccourci clavier** — `Alt+Shift+T` par défaut (remappable).
+
+### ✍️ 2. Mode Rédaction (Fenêtre de Composition)
+- **Bouton MT dédié** dans la barre d'outils de rédaction (aux côtés de LanguageTool, Envoyer, etc.).
+- **Popup Glassmorphism adaptatif** — Interface fluide s'ajustant automatiquement au thème clair ou sombre de Thunderbird.
+- **Traduction de l'Objet et/ou du Corps** — Choix du périmètre de traduction avec cases à cocher dédiées.
+- **Traduction de la Sélection active** — Détection automatique du texte surligné dans l'éditeur pour un remplacement chirurgical in situ.
+- **Réversibilité totale** — Bouton **Restaurer l'original** pour retrouver l'état initial en un clic.
+
+### 🌐 3. Hub Multi-Fournisseurs & LLMs
+- **Google Translate** (*par défaut*, gratuit, zéro configuration)
+- **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
+- **Google Gemini API** (*Cloud IA*, `gemini-3.5-flash-lite`, ultra-rapide et intelligent)
+- **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
+  - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
+  - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
+  - **Mistral AI** (`mistral-small-latest`)
+  - **Ollama** (`http://localhost:11434`, traduction 100% locale)
+  - **LM Studio** (`http://localhost:1234`, traduction 100% locale)
+  - **Serveur Personnalisé** (vLLM, etc.)
+- **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
+
+### 🎨 4. Design, Accessibilité & Internationalisation
+- **Page d'options 100% multilingue** — Traduction complète de l'extension et des options en **7 langues** (`en`, `fr`, `de`, `es`, `ja`, `pt`, `vi`).
+- **Isolation stricte** — Shadow DOM dans le panneau de lecture et API native `messenger.compose` sans injection polluante en rédaction.
+- **Accessibilité WCAG AA** — Contrastes optimisés, navigation clavier et micro-animations fluides.
 
 ## 📋 Prérequis
 
-- Mozilla Thunderbird **128.0** ou supérieur (testé sur 151.0.1)
+- Mozilla Thunderbird **128.0** ou supérieur (testé sur 153.0.3)
 - Connexion Internet (pour l'API Google Translate ou LLMs Cloud) ou serveur local actif (Ollama, LM Studio)
 
 ## 🚀 Installation
@@ -56,13 +59,19 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ## 🎯 Utilisation
 
-1. Sélectionnez un e-mail dans Thunderbird
-2. Cliquez sur le bouton **Traduire** dans la barre de message (ou faites `Alt+Shift+T`)
-3. Le bandeau de traduction s'ouvre — choisissez la langue source (ou laissez « Auto-détection ») et la langue cible
-4. Cliquez sur **Traduire**
-5. Le texte traduit s'affiche directement dans le corps de l'e-mail
-6. Pour refermer le bandeau : cliquez sur le bouton **▴** (ou sur le logo **[MT]**, ou appuyez sur **Escape**, ou recliquez sur le bouton **Traduire** de la barre)
-7. Pour restaurer le texte original : rouvrez le bandeau et cliquez sur **Original**
+### En Mode Lecture :
+1. Sélectionnez un e-mail dans Thunderbird.
+2. Cliquez sur le bouton **Traduire** dans la barre de message (ou faites `Alt+Shift+T`).
+3. Le bandeau s'ouvre : choisissez la langue cible et cliquez sur **Traduire**.
+4. Cliquez sur **Original** pour restaurer le texte initial à tout moment.
+
+### En Mode Rédaction :
+1. Rédigez votre e-mail dans la fenêtre de composition (en français ou votre langue habituelle).
+2. Cliquez sur le bouton **MT** dans la barre d'outils de rédaction (ou faites `Alt+Shift+T`).
+3. Le popup Glassmorphism s'ouvre : choisissez la langue cible (ex: English, Deutsch).
+4. Cochez les éléments à traduire (Objet, Corps entier, ou Sélection active).
+5. Cliquez sur **Traduire le message** ➔ Le texte est mis à jour in situ !
+6. Cliquez sur **Restaurer l'original** si vous souhaitez revenir à votre brouillon initial.
 
 > **Raccourci clavier :** `Alt+Shift+T` (par défaut, **remappable**) affiche / masque le traducteur, comme le bouton de la barre.
 

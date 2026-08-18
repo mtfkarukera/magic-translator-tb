@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Translated from $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "English" }
+      "lang": {
+        "content": "$1",
+        "example": "English"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Error: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Manifest V3 Version · Designed for Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Translate"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Compose"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Open translation settings"
+  },
+  "composeSourceLangLabel": {
+    "message": "Source"
+  },
+  "composeTargetLangLabel": {
+    "message": "Target"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Swap languages"
+  },
+  "composeSelectionActive": {
+    "message": "Active selection"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Translate selection only"
+  },
+  "composeTranslateSubject": {
+    "message": "Subject (Email subject)"
+  },
+  "composeTranslateBody": {
+    "message": "Email body"
+  },
+  "composeBtnTranslate": {
+    "message": "Translate"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Translate"
+  },
+  "composeBtnRestore": {
+    "message": "Restore original"
+  },
+  "composeStatusReady": {
+    "message": "Ready"
+  },
+  "composeStatusTranslating": {
+    "message": "Translating…"
+  },
+  "composeStatusSuccess": {
+    "message": "Email successfully translated ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Restoring…"
+  },
+  "composeStatusRestored": {
+    "message": "Original restored ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "No compose tab detected"
+  },
+  "composeStatusError": {
+    "message": "Translation error"
+  },
+  "langAuto": {
+    "message": "Auto-detect"
+  },
+  "composeStatusRestorable": {
+    "message": "Ready (restore available)"
   }
 }

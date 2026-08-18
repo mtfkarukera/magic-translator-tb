@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Übersetzt aus $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "Englisch" }
+      "lang": {
+        "content": "$1",
+        "example": "Englisch"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Fehler: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Version Manifest V3 · Entwickelt für Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Übersetzen"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Verfassen"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Übersetzungseinstellungen öffnen"
+  },
+  "composeSourceLangLabel": {
+    "message": "Quelle"
+  },
+  "composeTargetLangLabel": {
+    "message": "Ziel"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Sprachen tauschen"
+  },
+  "composeSelectionActive": {
+    "message": "Aktive Auswahl"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Nur Auswahl übersetzen"
+  },
+  "composeTranslateSubject": {
+    "message": "Betreff (E-Mail-Betreff)"
+  },
+  "composeTranslateBody": {
+    "message": "E-Mail-Text"
+  },
+  "composeBtnTranslate": {
+    "message": "Übersetzen"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Übersetzen"
+  },
+  "composeBtnRestore": {
+    "message": "Original wiederherstellen"
+  },
+  "composeStatusReady": {
+    "message": "Bereit"
+  },
+  "composeStatusTranslating": {
+    "message": "Übersetzung läuft…"
+  },
+  "composeStatusSuccess": {
+    "message": "E-Mail erfolgreich übersetzt ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Wiederherstellung läuft…"
+  },
+  "composeStatusRestored": {
+    "message": "Original wiederhergestellt ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "Kein Verfassen-Tab erkannt"
+  },
+  "composeStatusError": {
+    "message": "Übersetzungsfehler"
+  },
+  "langAuto": {
+    "message": "Automatisch erkennen"
+  },
+  "composeStatusRestorable": {
+    "message": "Bereit (Wiederherstellung verfügbar)"
   }
 }

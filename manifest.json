@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -33,15 +33,27 @@
     },
     "default_title": "__MSG_actionTitle__"
   },
+  "compose_action": {
+    "default_popup": "compose/compose.html",
+    "default_icon": {
+      "128": "icon.png"
+    },
+    "default_title": "__MSG_composeActionTitle__"
+  },
   "commands": {
     "toggle-translator": {
       "suggested_key": { "default": "Alt+Shift+T" },
       "description": "__MSG_toggleTranslatorTitle__"
+    },
+    "_execute_compose_action": {
+      "suggested_key": { "default": "Alt+Shift+T" },
+      "description": "__MSG_composeActionTitle__"
     }
   },
   "permissions": [
     "scripting",
     "messagesRead",
+    "compose",
     "menus",
     "storage"
   ],

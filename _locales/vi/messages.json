@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Đã dịch từ $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "tiếng Anh" }
+      "lang": {
+        "content": "$1",
+        "example": "tiếng Anh"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Lỗi: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Phiên bản Manifest V3 · Được thiết kế cho Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Dịch"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Soạn thư"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Mở cài đặt dịch thuật"
+  },
+  "composeSourceLangLabel": {
+    "message": "Nguồn"
+  },
+  "composeTargetLangLabel": {
+    "message": "Đích"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Đổi ngôn ngữ"
+  },
+  "composeSelectionActive": {
+    "message": "Lựa chọn đang chọn"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Chỉ dịch phần đã chọn"
+  },
+  "composeTranslateSubject": {
+    "message": "Tiêu đề (Tiêu đề email)"
+  },
+  "composeTranslateBody": {
+    "message": "Nội dung email"
+  },
+  "composeBtnTranslate": {
+    "message": "Dịch"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Dịch"
+  },
+  "composeBtnRestore": {
+    "message": "Khôi phục bản gốc"
+  },
+  "composeStatusReady": {
+    "message": "Sẵn sàng"
+  },
+  "composeStatusTranslating": {
+    "message": "Đang dịch…"
+  },
+  "composeStatusSuccess": {
+    "message": "Email đã được dịch thành công ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Đang khôi phục…"
+  },
+  "composeStatusRestored": {
+    "message": "Đã khôi phục bản gốc ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "Không tìm thấy tab soạn thư"
+  },
+  "composeStatusError": {
+    "message": "Lỗi dịch thuật"
+  },
+  "langAuto": {
+    "message": "Tự động phát hiện"
+  },
+  "composeStatusRestorable": {
+    "message": "Sẵn sàng (có thể khôi phục)"
   }
 }

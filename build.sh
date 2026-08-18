@@ -32,6 +32,7 @@ FILES=(
   mt-providers.js
   translator-injected.js
   options
+  compose
   icon.png
   LICENSE
   _locales

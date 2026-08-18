@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Traducido desde $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "inglés" }
+      "lang": {
+        "content": "$1",
+        "example": "inglés"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Error: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Versión Manifest V3 · Diseñado para Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Traducir"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Redacción"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Abrir opciones de traducción"
+  },
+  "composeSourceLangLabel": {
+    "message": "Origen"
+  },
+  "composeTargetLangLabel": {
+    "message": "Destino"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Invertir idiomas"
+  },
+  "composeSelectionActive": {
+    "message": "Selección activa"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Traducir solo la selección"
+  },
+  "composeTranslateSubject": {
+    "message": "Asunto (Asunto del correo)"
+  },
+  "composeTranslateBody": {
+    "message": "Cuerpo del mensaje"
+  },
+  "composeBtnTranslate": {
+    "message": "Traducir"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Traducir"
+  },
+  "composeBtnRestore": {
+    "message": "Restaurar original"
+  },
+  "composeStatusReady": {
+    "message": "Listo"
+  },
+  "composeStatusTranslating": {
+    "message": "Traduciendo…"
+  },
+  "composeStatusSuccess": {
+    "message": "Correo traducido con éxito ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Restaurando…"
+  },
+  "composeStatusRestored": {
+    "message": "Original restaurado ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "No se detectó pestaña de redacción"
+  },
+  "composeStatusError": {
+    "message": "Error de traducción"
+  },
+  "langAuto": {
+    "message": "Detectar auto"
+  },
+  "composeStatusRestorable": {
+    "message": "Listo (restauración disponible)"
   }
 }

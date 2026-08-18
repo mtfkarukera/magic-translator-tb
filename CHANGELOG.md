@@ -9,6 +9,23 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.0] — 2026-08-18
+
+Mode Rédaction (*Compose Mode*) : Traduction in situ, multilingue et réversible dans la fenêtre de composition d'e-mails.
+
+### Ajouté
+- **`compose/` (Nouveau module)** :
+  - `compose/compose.html` : Interface popup dédiée à la fenêtre de composition avec sélection de langues, périmètres (Objet / Corps / Sélection), boutons d'action et feedback dynamique.
+  - `compose/compose.css` : Design **Glassmorphism** adaptatif (`backdrop-filter: blur(16px)`), prise en charge native des thèmes clair et sombre (`color-scheme: light dark`), conformité WCAG AA et micro-animations fluides.
+  - `compose/compose.js` : Logique d'interaction avec l'API officielle `messenger.compose` (`getComposeDetails` / `setComposeDetails`), traduction in situ réversible sans pollution DOM, détection intelligente de la sélection de texte et restauration en un clic.
+- **`manifest.json`** :
+  - Déclaration de `"compose_action"` avec icône et popup dédié.
+  - Ajout de la permission officielle `"compose"`.
+  - Déclaration du raccourci clavier `_execute_compose_action` (`Alt+Shift+T`).
+- **`_locales/{en,fr,de,es,ja,pt,vi}/messages.json`** : Ajout de 21 nouvelles clés de localisation pour le mode rédaction dans les 7 langues officielles.
+- **`background.js`** : Ajout d'une entrée de menu contextuel sur l'action de composition pour ouvrir les préférences.
+- **`build.sh`** : Inclusion automatique du dossier `compose/` dans le packaging XPI.
+
 ## [2.2.4] — 2026-08-18
 
 Internationalisation intégrale de la page de préférences (7 langues).

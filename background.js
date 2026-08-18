@@ -100,6 +100,7 @@ messenger.messageDisplayAction.onClicked.addListener((tab) => {
 
 messenger.menus.remove("toggle-translator").catch(() => {});
 messenger.menus.remove("open-options").catch(() => {});
+messenger.menus.remove("open-options-compose").catch(() => {});
 
 messenger.menus.create({
   id: "toggle-translator",
@@ -113,10 +114,16 @@ messenger.menus.create({
   contexts: ["message_display_action"]
 });
 
+messenger.menus.create({
+  id: "open-options-compose",
+  title: messenger.i18n.getMessage("menuOptionsTitle") || "Options",
+  contexts: ["compose_action"]
+});
+
 messenger.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "toggle-translator") {
     envoyerToggleBanner(tab.id).catch(console.error);
-  } else if (info.menuItemId === "open-options") {
+  } else if (info.menuItemId === "open-options" || info.menuItemId === "open-options-compose") {
     browser.runtime.openOptionsPage().catch(console.error);
   }
 });
@@ -139,6 +146,11 @@ messenger.commands.onCommand.addListener(async (commande) => {
   } catch (erreur) {
     console.error("[MagicTranslator] Raccourci clavier en erreur :", erreur);
   }
+});
+
+// Nettoyage automatique du coffre-fort de rédaction lors de la fermeture d'un onglet/fenêtre
+messenger.tabs.onRemoved.addListener((tabId) => {
+  browser.storage.local.remove(`compose_orig_${tabId}`).catch(() => {});
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

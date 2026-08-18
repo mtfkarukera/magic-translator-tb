@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Traduit depuis $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "l'anglais" }
+      "lang": {
+        "content": "$1",
+        "example": "l'anglais"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Erreur : $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Version Manifest V3 · Conçu pour Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Traduire"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Rédaction"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Ouvrir les paramètres du traducteur"
+  },
+  "composeSourceLangLabel": {
+    "message": "Source"
+  },
+  "composeTargetLangLabel": {
+    "message": "Cible"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Inverser les langues"
+  },
+  "composeSelectionActive": {
+    "message": "Sélection active"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Traduire uniquement la sélection"
+  },
+  "composeTranslateSubject": {
+    "message": "Objet (Sujet du message)"
+  },
+  "composeTranslateBody": {
+    "message": "Corps du message"
+  },
+  "composeBtnTranslate": {
+    "message": "Traduire"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Traduire"
+  },
+  "composeBtnRestore": {
+    "message": "Restaurer l'original"
+  },
+  "composeStatusReady": {
+    "message": "Prêt"
+  },
+  "composeStatusTranslating": {
+    "message": "Traduction en cours…"
+  },
+  "composeStatusSuccess": {
+    "message": "Message traduit avec succès ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Restauration en cours…"
+  },
+  "composeStatusRestored": {
+    "message": "Original restauré ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "Aucun onglet de rédaction détecté"
+  },
+  "composeStatusError": {
+    "message": "Erreur de traduction"
+  },
+  "langAuto": {
+    "message": "Détecter auto"
+  },
+  "composeStatusRestorable": {
+    "message": "Prêt (restauration disponible)"
   }
 }

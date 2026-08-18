@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "Traduzido de $LANG$",
     "placeholders": {
-      "lang": { "content": "$1", "example": "inglês" }
+      "lang": {
+        "content": "$1",
+        "example": "inglês"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "Erro: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Versão Manifest V3 · Projetado para Mozilla Thunderbird"
+  },
+  "composeActionTitle": {
+    "message": "Traduzir"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — Redação"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "Abrir configurações de tradução"
+  },
+  "composeSourceLangLabel": {
+    "message": "Origem"
+  },
+  "composeTargetLangLabel": {
+    "message": "Destino"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "Inverter idiomas"
+  },
+  "composeSelectionActive": {
+    "message": "Seleção ativa"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "Traduzir apenas a seleção"
+  },
+  "composeTranslateSubject": {
+    "message": "Assunto (Assunto do e-mail)"
+  },
+  "composeTranslateBody": {
+    "message": "Corpo do e-mail"
+  },
+  "composeBtnTranslate": {
+    "message": "Traduzir"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "Traduzir"
+  },
+  "composeBtnRestore": {
+    "message": "Restaurar original"
+  },
+  "composeStatusReady": {
+    "message": "Pronto"
+  },
+  "composeStatusTranslating": {
+    "message": "Traduzindo…"
+  },
+  "composeStatusSuccess": {
+    "message": "E-mail traduzido com sucesso ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "Restaurando…"
+  },
+  "composeStatusRestored": {
+    "message": "Original restaurado ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "Nenhuma aba de composição detectada"
+  },
+  "composeStatusError": {
+    "message": "Erro de tradução"
+  },
+  "langAuto": {
+    "message": "Detetar auto"
+  },
+  "composeStatusRestorable": {
+    "message": "Pronto (restauração disponible)"
   }
 }

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="composeTitle">Magic Translator — Rédaction</title>
+  <link rel="stylesheet" href="compose.css">
+</head>
+<body>
+  <div class="compose-card">
+    <!-- En-tête -->
+    <header class="compose-header">
+      <div class="compose-brand">
+        <img src="../icon.png" alt="Magic Translator Logo" class="compose-logo" width="24" height="24">
+        <h1 class="compose-app-name" data-i18n="extName">Magic Translator</h1>
+      </div>
+      <button type="button" id="btn-provider-badge" class="provider-badge" title="Modifier le moteur de traduction" data-i18n-title="composeOpenSettingsTooltip" aria-label="Paramètres du moteur">
+        <span class="provider-dot"></span>
+        <span id="txt-provider-label">Google</span>
+        <span class="provider-gear">⚙️</span>
+      </button>
+    </header>
+
+    <!-- Sélecteurs de Langues -->
+    <section class="lang-section" aria-label="Sélection des langues">
+      <div class="lang-field">
+        <label for="select-source" class="field-label" data-i18n="composeSourceLangLabel">Source</label>
+        <div class="select-wrapper">
+          <select id="select-source" class="lang-select" aria-label="Langue source">
+            <option value="auto" data-i18n="langAuto" selected>Détecter auto</option>
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ja">日本語</option>
+            <option value="zh-CN">中文 (简体)</option>
+            <option value="zh-TW">中文 (繁體)</option>
+            <option value="ar">العربية</option>
+            <option value="ru">Русский</option>
+            <option value="nl">Nederlands</option>
+            <option value="pl">Polski</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="tr">Türkçe</option>
+            <option value="el">Ελληνικά</option>
+            <option value="he">עברית</option>
+            <option value="sv">Svenska</option>
+            <option value="da">Dansk</option>
+            <option value="fi">Suomi</option>
+            <option value="no">Norsk</option>
+            <option value="cs">Čeština</option>
+            <option value="ro">Română</option>
+            <option value="hu">Magyar</option>
+            <option value="uk">Українська</option>
+            <option value="hi">हिन्दी</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="th">ไทย</option>
+            <option value="bg">Български</option>
+            <option value="ca">Català</option>
+            <option value="hr">Hrvatski</option>
+            <option value="sk">Slovenčina</option>
+            <option value="sl">Slovenščina</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" id="btn-swap-lang" class="btn-icon-swap" title="Inverser les langues" data-i18n-title="composeSwapLangsTooltip" aria-label="Inverser les langues">
+        ⇄
+      </button>
+
+      <div class="lang-field">
+        <label for="select-target" class="field-label" data-i18n="composeTargetLangLabel">Cible</label>
+        <div class="select-wrapper">
+          <select id="select-target" class="lang-select" aria-label="Langue cible">
+            <option value="en" selected>English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ja">日本語</option>
+            <option value="zh-CN">中文 (简体)</option>
+            <option value="zh-TW">中文 (繁體)</option>
+            <option value="ar">العربية</option>
+            <option value="ru">Русский</option>
+            <option value="nl">Nederlands</option>
+            <option value="pl">Polski</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="tr">Türkçe</option>
+            <option value="el">Ελληνικά</option>
+            <option value="he">עברית</option>
+            <option value="sv">Svenska</option>
+            <option value="da">Dansk</option>
+            <option value="fi">Suomi</option>
+            <option value="no">Norsk</option>
+            <option value="cs">Čeština</option>
+            <option value="ro">Română</option>
+            <option value="hu">Magyar</option>
+            <option value="uk">Українська</option>
+            <option value="hi">हिन्दी</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="th">ไทย</option>
+            <option value="bg">Български</option>
+            <option value="ca">Català</option>
+            <option value="hr">Hrvatski</option>
+            <option value="sk">Slovenčina</option>
+            <option value="sl">Slovenščina</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zone Périmètre & Options -->
+    <section class="scope-section" aria-label="Périmètre de traduction">
+      <!-- Bannière de Sélection Détectée (visible uniquement si sélection) -->
+      <div id="selection-banner" class="selection-banner is-hidden">
+        <div class="selection-badge">
+          <span class="selection-icon">🎯</span>
+          <span id="txt-selection-count" class="selection-label" data-i18n="composeSelectionActive">Sélection active</span>
+        </div>
+        <label class="toggle-control toggle-highlight">
+          <input type="checkbox" id="chk-selection" checked>
+          <span class="toggle-switch"></span>
+          <span class="toggle-text" data-i18n="composeTranslateSelectionOnly">Traduire uniquement la sélection</span>
+        </label>
+      </div>
+
+      <!-- Options Globales (Objet + Corps) -->
+      <div id="global-options" class="global-options">
+        <label class="toggle-control">
+          <input type="checkbox" id="chk-subject" checked>
+          <span class="toggle-switch"></span>
+          <span class="toggle-text" data-i18n="composeTranslateSubject">Objet (Sujet du message)</span>
+        </label>
+        <label class="toggle-control">
+          <input type="checkbox" id="chk-body" checked>
+          <span class="toggle-switch"></span>
+          <span class="toggle-text" data-i18n="composeTranslateBody">Corps du message</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Actions Principales -->
+    <section class="actions-section">
+      <button type="button" id="btn-translate" class="btn-primary">
+        <span class="btn-icon">✨</span>
+        <span id="txt-btn-translate" data-i18n="composeBtnTranslate">Traduire</span>
+      </button>
+      <button type="button" id="btn-restore" class="btn-secondary" disabled>
+        <span class="btn-icon">↩️</span>
+        <span data-i18n="composeBtnRestore">Restaurer l'original</span>
+      </button>
+    </section>
+
+    <!-- Barre d'état & Footer Promotionnel -->
+    <footer class="compose-footer">
+      <div id="status-bar" class="status-bar status-ready" role="status" aria-live="polite">
+        <span id="status-indicator" class="status-indicator"></span>
+        <span id="status-text" class="status-text" data-i18n="composeStatusReady">Prêt</span>
+      </div>
+      <a href="https://magic-clipper.mtfk.fr/" target="_blank" rel="noopener noreferrer" class="magic-softs-link" title="Découvrir la suite logicielle magic-softs">magic-softs</a>
+    </footer>
+  </div>
+
+  <script src="compose.js"></script>
+</body>
+</html>

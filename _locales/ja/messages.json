@@ -32,7 +32,10 @@
   "statusTranslatedFrom": {
     "message": "$LANG$から翻訳",
     "placeholders": {
-      "lang": { "content": "$1", "example": "英語" }
+      "lang": {
+        "content": "$1",
+        "example": "英語"
+      }
     }
   },
   "errorSameLanguage": {
@@ -44,7 +47,10 @@
   "errorGeneric": {
     "message": "エラー: $MSG$",
     "placeholders": {
-      "msg": { "content": "$1", "example": "Network error" }
+      "msg": {
+        "content": "$1",
+        "example": "Network error"
+      }
     }
   },
   "tooltipExpand": {
@@ -193,5 +199,71 @@
   },
   "optionsFooter": {
     "message": "Magic Translator · Manifest V3版 · Mozilla Thunderbird専用設計"
+  },
+  "composeActionTitle": {
+    "message": "翻訳"
+  },
+  "composeTitle": {
+    "message": "Magic Translator — メール作成"
+  },
+  "composeOpenSettingsTooltip": {
+    "message": "翻訳設定を開く"
+  },
+  "composeSourceLangLabel": {
+    "message": "元の言語"
+  },
+  "composeTargetLangLabel": {
+    "message": "翻訳先言語"
+  },
+  "composeSwapLangsTooltip": {
+    "message": "言語を入れ替える"
+  },
+  "composeSelectionActive": {
+    "message": "選択範囲アクティブ"
+  },
+  "composeTranslateSelectionOnly": {
+    "message": "選択範囲のみ翻訳"
+  },
+  "composeTranslateSubject": {
+    "message": "件名 (メール件名)"
+  },
+  "composeTranslateBody": {
+    "message": "本文"
+  },
+  "composeBtnTranslate": {
+    "message": "翻訳"
+  },
+  "composeBtnTranslateSelection": {
+    "message": "翻訳"
+  },
+  "composeBtnRestore": {
+    "message": "元の文章を復元"
+  },
+  "composeStatusReady": {
+    "message": "準備完了"
+  },
+  "composeStatusTranslating": {
+    "message": "翻訳中…"
+  },
+  "composeStatusSuccess": {
+    "message": "メールが正常に翻訳されました ✓"
+  },
+  "composeStatusRestoring": {
+    "message": "復元中…"
+  },
+  "composeStatusRestored": {
+    "message": "元の文章を復元しました ✓"
+  },
+  "composeStatusNoTab": {
+    "message": "メール作成タブが見つかりません"
+  },
+  "composeStatusError": {
+    "message": "翻訳エラー"
+  },
+  "langAuto": {
+    "message": "自動検出"
+  },
+  "composeStatusRestorable": {
+    "message": "準備完了 (復元可能)"
   }
 }

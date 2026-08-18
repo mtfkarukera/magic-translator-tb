@@ -56,13 +56,31 @@ Responsabilités :
 4. **Proxy de traduction** : écoute `runtime.onMessage`, et sur `{ action: "translate" }`, appelle
    `traduireTexte()` qui interroge Google et renvoie `{ success, text, detectedLang }`.
 
-### 2.2 `translator-injected.js` — script de contenu
+### 2.2 `translator-injected.js` — script de contenu (Mode Lecture)
 
 IIFE injectée dans le document du panneau de lecture. **N'a PAS** accès à `browser.i18n` ni au
-réseau cross-origin ; communique avec Google **uniquement** en passant par le background.
+réseau cross-origin ; communique avec le Hub **uniquement** en passant par le background.
 
-Responsabilités : construction de l'UI, détection de locale, collecte du texte, découpage/envoi,
-réinjection, restauration, gestion du cycle de vie.
+Responsabilités : construction de l'UI Shadow DOM, collecte du texte, découpage/envoi,
+réinjection in situ, restauration et nettoyage d'instance.
+
+### 2.3 `compose/` — popup du Mode Rédaction (Compose Mode)
+
+Module popup dédié (`compose.html`, `compose.js`, `compose.css`) s'exécutant lors du clic sur le
+bouton `compose_action` dans la fenêtre de composition d'e-mails.
+
+Responsabilités :
+- Lecture du brouillon via l'API native `messenger.compose.getComposeDetails()`.
+- Détection intelligente de la sélection active dans l'éditeur.
+- Interface Glassmorphism adaptative (thème clair / sombre) et multilingue via `browser.i18n`.
+- Traduction de l'Objet et/ou du Corps (HTML ou texte brut) via `background.js`.
+- Réinjection propre et sans pollution DOM via `messenger.compose.setComposeDetails()`.
+- Mémorisation de l'état initial pour restauration en un clic.
+
+### 2.4 `options/` — page de préférences
+
+Page d'options intégrée (`options.html`, `options.js`, `options.css`) permettant de configurer et
+tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% internationalisée en 7 langues.
 
 ---
 
