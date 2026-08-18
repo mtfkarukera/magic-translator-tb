@@ -10,6 +10,7 @@ const {
   obtenirEndpointDeepL,
   obtenirFournisseur,
   traduire,
+  construireEndpointLLM,
   FOURNISSEURS
 } = globalThis.MTProviders;
 
@@ -245,4 +246,35 @@ test("FournisseurOpenAICompatible : Cloud (OpenAI, Groq) vs Local (Ollama, LM St
   } finally {
     globalThis.fetch = fetchOriginal;
   }
+});
+
+test("construireEndpointLLM : normalisation des suffixes /v1 et URLs", () => {
+  assert.equal(
+    construireEndpointLLM("https://api.openai.com"),
+    "https://api.openai.com/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM("https://api.openai.com/"),
+    "https://api.openai.com/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM("https://api.openai.com/v1"),
+    "https://api.openai.com/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM("https://api.openai.com/v1/"),
+    "https://api.openai.com/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM("http://localhost:11434/v1/chat/completions"),
+    "http://localhost:11434/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM("http://localhost:1234/v1"),
+    "http://localhost:1234/v1/chat/completions"
+  );
+  assert.equal(
+    construireEndpointLLM(""),
+    "https://api.openai.com/v1/chat/completions"
+  );
 });

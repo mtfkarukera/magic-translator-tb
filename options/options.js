@@ -232,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (reponse && reponse.success && Array.isArray(reponse.models) && reponse.models.length > 0) {
         const valeurActuelle = selectGeminiModel.value;
-        selectGeminiModel.innerHTML = "";
+        selectGeminiModel.replaceChildren();
 
         let optionTrouvee = false;
         let optionFlashLite = null;

@@ -9,6 +9,29 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.2] — 2026-08-18
+
+Correctifs post-audit de code : accessibilité clavier WCAG AA, verrouillage anti-concurrence, normalisation BCP-47 / LLM Hub et hardening DOM.
+
+### Corrigé
+- **`compose/compose.css` (Accessibilité WCAG 2.1 AA)** :
+  - **Navigation Clavier** : Remplacement de `display: none` sur les cases à cocher par un masquage accessible (`position: absolute; opacity: 0;`), permettant le focus et l'activation des toggles (Objet / Corps / Sélection) au clavier via la touche `Espace`.
+  - **Focus Visible** : Ajout de règles `:focus-visible` avec anneaux contrastés sur les toggles, boutons d'action et badges.
+  - **Contrastes en thème clair** : Ajustement de `--status-busy` (`#b45309`, ratio 5.1:1 sur blanc) et de `.magic-softs-link` pour respecter le seuil minimal de 4.5:1.
+  - **Respect de `prefers-reduced-motion`** : Neutralisation de l'animation `pulse` et des transitions.
+- **`translator-injected.js` (Robustesse & Accessibilité)** :
+  - **Verrouillage Anti-Concurrence** : Ajout d'un verrou booléen `traductionEnCours` et désactivation explicite des boutons `btnTraduire` et `btnOriginal` (`disabled = true`) pendant la requête réseau pour éliminer tout risque de double-clic ou de perte de l'état initial.
+  - **Nettoyage ARIA** : Suppression systématique de `aria-busy` et `aria-disabled` dans le bloc `finally`.
+- **`background.js` (Robustesse & Gestion Réseau)** :
+  - **Assouplissement BCP-47** : Passage de `CODE_LANGUE_RE` en insensible à la casse (`/i`) pour accepter les sous-étiquettes régionales minuscules (`pt-br`, `zh-cn`).
+  - **Nettoyage du stockage** : Purge proactive au démarrage des clés temporaires de rédaction orphelines `compose_orig_*`.
+- **`mt-providers.js` (Robustesse LLM Hub)** :
+  - **Normalisation des endpoints LLM** : Ajout du helper `construireEndpointLLM` évitant les doubles `/v1` si l'utilisateur saisit déjà `/v1` comme base URL.
+- **`options/` (Sécurité & Accessibilité)** :
+  - `options/options.js` : Remplacement d'un `innerHTML = ""` résiduel par `replaceChildren()`.
+  - `options/options.html` : Ajout de l'attribut `lang="fr"` sur `<html>`.
+  - `options/options.css` : Ajout des indicateurs `:focus-visible` et support de `prefers-reduced-motion`.
+
 ## [2.3.1] — 2026-08-18
 
 Épure du bandeau de lecture, repli manuel exclusif et correctifs de contraste en thème clair.

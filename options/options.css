@@ -383,7 +383,22 @@ form {
   opacity: 0.85;
 }
 
+.mt-btn-icon:focus-visible,
+.mt-footer-link:focus-visible,
+.mt-link:focus-visible {
+  outline: 2px solid var(--mt-accent-purple-hover);
+  outline-offset: 2px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

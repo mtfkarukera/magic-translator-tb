@@ -48,6 +48,15 @@
   } catch (erreur) {
     console.log("[MagicTranslator] Note registerScripts :", erreur.message || erreur);
   }
+
+  // ── Purge proactive des clés temporaires de session de rédaction orphelines ──
+  try {
+    const tout = await browser.storage.local.get(null);
+    const clefsASupprimer = Object.keys(tout).filter((k) => k.startsWith("compose_orig_"));
+    if (clefsASupprimer.length > 0) {
+      await browser.storage.local.remove(clefsASupprimer);
+    }
+  } catch { /* ignorer */ }
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -190,9 +199,9 @@ async function chargerConfiguration() {
 // Écoute les messages envoyés par le script de contenu ou la page d'options
 // via browser.runtime.sendMessage().
 
-// Format BCP-47 simplifié : "auto", "fr", "en", "zh-CN", "zh-TW", etc.
+// Format BCP-47 simplifié : "auto", "fr", "en", "zh-CN", "zh-TW", "pt-br", etc.
 // [M-S2] Validation des codes de langue pour éviter toute injection de paramètre URL.
-const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[A-Z]{2}|(-Hans|-Hant))?)$/;
+const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[a-zA-Z]{2,4})?)$/i;
 
 // Codes d'erreur attendus du background — tout autre message brut est normalisé.
 // [Mi-S1] On n'expose jamais d'erreur JavaScript interne à l'UI.

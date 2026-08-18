@@ -439,6 +439,22 @@
     custom: "LLM"
   };
 
+  /**
+   * Construit l'URL d'endpoint chat/completions en normalisant les suffixes /v1.
+   * @param {string} [baseUrl]
+   * @returns {string}
+   */
+  function construireEndpointLLM(baseUrl) {
+    const url = (baseUrl || "https://api.openai.com").trim().replace(/\/+$/, "");
+    if (url.endsWith("/v1/chat/completions")) {
+      return url;
+    }
+    if (url.endsWith("/v1")) {
+      return `${url}/chat/completions`;
+    }
+    return `${url}/v1/chat/completions`;
+  }
+
   const FournisseurOpenAICompatible = {
     id: "llm",
     label: "LLM",
@@ -458,7 +474,7 @@
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
     async traduire(texte, _source, cible, config = {}) {
-      let baseUrl = (config.url || config.llmBaseUrl || "https://api.openai.com").trim();
+      const baseUrl = (config.url || config.llmBaseUrl || "https://api.openai.com").trim();
       const apiKey = config.apiKey ? config.apiKey.trim() : (config.llmApiKey ? config.llmApiKey.trim() : "");
       const modele = (config.model || config.llmModel || "gpt-4o-mini").trim();
       const preset = config.preset || config.llmPreset || "openai";
@@ -469,11 +485,7 @@
         throw new Error("UNAUTHORIZED");
       }
 
-      baseUrl = baseUrl.replace(/\/+$/, "");
-      const endpoint = baseUrl.endsWith("/v1/chat/completions")
-        ? baseUrl
-        : `${baseUrl}/v1/chat/completions`;
-
+      const endpoint = construireEndpointLLM(baseUrl);
       const cibleNom = obtenirNomLangue(cible);
 
       const payload = {
@@ -558,6 +570,7 @@
     obtenirEndpointDeepL,
     obtenirNomLangue,
     nettoyerReponseLLM,
+    construireEndpointLLM,
 
     /**
      * Récupère un fournisseur par son identifiant.

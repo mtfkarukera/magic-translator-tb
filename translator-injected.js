@@ -1030,11 +1030,11 @@
       }
     });
 
-    // ═════════════════════════════════════════════════════════════════════
-    // LOGIQUE DE TRADUCTION
-    // ═════════════════════════════════════════════════════════════════════
+    let traductionEnCours = false;
 
     const lancerTraduction = async () => {
+      if (traductionEnCours) return;
+
       if (!estDeplie) deplier();
 
       // [Mi-R2] Guard : document.body peut être null si Thunderbird n'a pas fini de charger.
@@ -1067,9 +1067,11 @@
       }
 
       // ── Verrouillage de l'interface pendant la traduction ─────────────
-      // [B-A3] Utilisation d'aria-busy + aria-disabled au lieu de disabled :
-      // le bouton reste dans l'arbre ARIA et le lecteur d'écran peut annoncer
-      // l'état de chargement (WCAG 4.1.3 Status Messages).
+      // [B-A3] Utilisation d'aria-busy + aria-disabled + disabled :
+      // le bouton annonce l'état de chargement et prévient tout double-clic concurrent.
+      traductionEnCours = true;
+      ui.btnTraduire.disabled  = true;
+      ui.btnOriginal.disabled  = true;
       ui.btnTraduire.setAttribute("aria-busy", "true");
       ui.btnTraduire.setAttribute("aria-disabled", "true");
       ui.selectSource.disabled = true;
@@ -1234,9 +1236,13 @@
         afficherStatut(ui.statut, msg, "error");
       } finally {
         // ── Déverrouillage de l'interface ────────────────────────────────
+        traductionEnCours = false;
         ui.btnTraduire.disabled  = false;
+        ui.btnOriginal.disabled  = false;
         ui.selectSource.disabled = false;
         ui.selectCible.disabled  = false;
+        ui.btnTraduire.removeAttribute("aria-busy");
+        ui.btnTraduire.removeAttribute("aria-disabled");
       }
     };
 
@@ -1245,7 +1251,7 @@
 
     // ── Bouton « Original » — restauration du texte d'origine ───────────
     ui.btnOriginal.addEventListener("click", () => {
-      if (!contenusOriginaux) return;
+      if (traductionEnCours || !contenusOriginaux) return;
 
       // Restauration de chaque nœud texte à son contenu original
       contenusOriginaux.forEach((texte, noeud) => {
