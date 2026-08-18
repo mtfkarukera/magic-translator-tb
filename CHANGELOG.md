@@ -9,6 +9,20 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.1] — 2026-08-18
+
+Épure du bandeau de lecture, repli manuel exclusif et correctifs de contraste en thème clair.
+
+### Modifié
+- **`translator-injected.js`** :
+  - **Épure du bandeau** : Suppression des libellés textuels redondants « DE » et « VERS » pour un flux épuré `[MT] Google | [ Auto-détection ▾ ] → [ Français ▾ ]`.
+  - **Accessibilité (a11y)** : Maintien et renforcement des attributs `aria-label` sur chaque sélecteur pour les lecteurs d'écran.
+  - **Repli manuel exclusif** : Suppression du timer asynchrone de repli automatique. Le bandeau reste désormais ouvert et stable après traduction, laissant les boutons « Retraduire » et « Original » directement accessibles.
+  - **Correction contraste & Focus en thème clair** : Suppression du fond sombre hardcodé sur `:focus`, ajout de tokens de thème dynamiques (`--mt-bg-input`, `--mt-bg-input-focus`, `--mt-option-bg`) et déclaration de `color-scheme: light dark;`.
+  - **Suppression du label "Translator"** dans le logo pour un en-tête ultra-compact.
+- **`options/options.html` & `options/options.css`** :
+  - Épure du pied de page avec lien interactif discret vers la suite logicielle `magic-softs` (`https://magic-clipper.mtfk.fr/`).
+
 ## [2.3.0] — 2026-08-18
 
 Mode Rédaction (*Compose Mode*) : Traduction in situ, multilingue et réversible dans la fenêtre de composition d'e-mails.

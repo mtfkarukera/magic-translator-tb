@@ -371,6 +371,18 @@ form {
   padding: 8px;
 }
 
+.mt-footer-link {
+  color: var(--mt-accent-purple-hover);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.mt-footer-link:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }

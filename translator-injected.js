@@ -296,6 +296,7 @@
   all: initial;
   display: block;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
   
   /* ── TOKENS DE DESIGN PREMIUM ── */
   --mt-bg-glass: rgba(15, 23, 42, 0.75); /* Ardoise profond translucide */
@@ -317,6 +318,12 @@
   --mt-divider: rgba(255, 255, 255, 0.08);
   --mt-btn-secondary-bg: rgba(255, 255, 255, 0.06);
   --mt-btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --mt-bg-input: rgba(255, 255, 255, 0.06);
+  --mt-bg-input-hover: rgba(255, 255, 255, 0.10);
+  --mt-bg-input-focus: rgba(15, 23, 42, 0.90);
+  --mt-option-bg: #1e293b;
+  --mt-option-color: #f8fafc;
+  --mt-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   /* Arrondis */
   --mt-radius-sm: 6px;
@@ -331,14 +338,20 @@
 /* [M-D3] Mode clair : variables retournées pour une meilleure intégration avec les thèmes clairs de Thunderbird */
 @media (prefers-color-scheme: light) {
   :host {
-    --mt-bg-glass: rgba(240, 245, 255, 0.90);
+    --mt-bg-glass: rgba(240, 245, 255, 0.92);
     --mt-bg-pill-hover: rgba(210, 220, 240, 0.95);
-    --mt-text-primary: #1e293b;
+    --mt-text-primary: #0f172a;
     --mt-text-secondary: #475569;
     --mt-border-glass: rgba(0, 0, 0, 0.10);
     --mt-divider: rgba(0, 0, 0, 0.08);
-    --mt-btn-secondary-bg: rgba(0, 0, 0, 0.04);
+    --mt-btn-secondary-bg: rgba(0, 0, 0, 0.05);
     --mt-btn-secondary-border: rgba(0, 0, 0, 0.10);
+    --mt-bg-input: rgba(255, 255, 255, 0.85);
+    --mt-bg-input-hover: #ffffff;
+    --mt-bg-input-focus: #ffffff;
+    --mt-option-bg: #ffffff;
+    --mt-option-color: #0f172a;
+    --mt-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23475569' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 }
 
@@ -449,7 +462,10 @@
 .mt-select {
   appearance: none;
   -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.04);
+  background-color: var(--mt-bg-input);
+  background-image: var(--mt-select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 10px center;
   border: 1px solid var(--mt-divider);
   border-radius: var(--mt-radius-sm);
   color: var(--mt-text-primary);
@@ -463,9 +479,6 @@
   transition: border-color var(--mt-duration) var(--mt-ease-out),
               background-color var(--mt-duration) var(--mt-ease-out),
               box-shadow var(--mt-duration) var(--mt-ease-out);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
   /* [M-D2] min-width réduit + max-width pour les panneaux étroits */
   min-width: 80px;
   max-width: 130px;
@@ -473,13 +486,19 @@
 
 .mt-select:hover {
   border-color: rgba(139, 92, 246, 0.4);
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--mt-bg-input-hover);
 }
 
 .mt-select:focus {
   border-color: var(--mt-accent-purple-hover);
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
-  background-color: rgba(15, 23, 42, 0.9);
+  background-color: var(--mt-bg-input-focus);
+  color: var(--mt-text-primary);
+}
+
+.mt-select option {
+  background-color: var(--mt-option-bg);
+  color: var(--mt-option-color);
 }
 
 .mt-arrow {
@@ -810,9 +829,6 @@
     logoIcone.setAttribute("aria-hidden", "true");
     logoIcone.title = t("tooltipCollapse");
     logo.appendChild(logoIcone);
-    const logoTexte = document.createElement("span");
-    logoTexte.textContent = t("bannerTitle");
-    logo.appendChild(logoTexte);
 
     // Badge moteur actif
     const badgeMoteur = document.createElement("span");
@@ -833,12 +849,6 @@
     controles.className = "mt-controls";
 
     // ── Sélecteur source ────────────────────────────────────────────
-    const labelSource = document.createElement("label");
-    labelSource.className = "mt-label";
-    labelSource.textContent = t("labelFrom");
-    labelSource.setAttribute("for", "mt-select-source");
-    controles.appendChild(labelSource);
-
     const selectSource = document.createElement("select");
     selectSource.className = "mt-select";
     selectSource.id = "mt-select-source";
@@ -860,12 +870,6 @@
     controles.appendChild(fleche);
 
     // ── Sélecteur cible ─────────────────────────────────────────────
-    const labelCible = document.createElement("label");
-    labelCible.className = "mt-label";
-    labelCible.textContent = t("labelTo");
-    labelCible.setAttribute("for", "mt-select-cible");
-    controles.appendChild(labelCible);
-
     const selectCible = document.createElement("select");
     selectCible.className = "mt-select";
     selectCible.id = "mt-select-cible";
@@ -996,49 +1000,14 @@
         .catch(() => {});
     } catch { /* contexte non disponible */ }
 
-    // ── Repli automatique respectueux ──────────────────────────────────────
-    // Après une traduction réussie, le bandeau se referme au bout de 1,5 s,
-    // MAIS le timer est suspendu tant que l'utilisateur survole le bandeau ou y a le
-    // focus, puis reprogrammé à la sortie — ne fait pas disparaître le contexte sous
-    // la souris ni au clavier.
-    let repliAutoArme = false;
-
-    const utilisateurSurLeBandeau = () =>
-      ui.bandeau.matches(":hover") ||
-      (ui.shadow.activeElement && ui.bandeau.contains(ui.shadow.activeElement));
-
-    const annulerRepliAuto = () => {
-      if (document.documentElement._mtTimerRepli) {
-        clearTimeout(document.documentElement._mtTimerRepli);
-        document.documentElement._mtTimerRepli = null;
-      }
-    };
-    const programmerRepliAuto = () => {
-      annulerRepliAuto();
-      repliAutoArme = true;
-      if (utilisateurSurLeBandeau()) return; // suspendu tant qu'il interagit
-      document.documentElement._mtTimerRepli = setTimeout(() => {
-        document.documentElement._mtTimerRepli = null;
-        repliAutoArme = false;
-        if (estDeplie) replier();
-      }, 1500);
-    };
-    const reprogrammerSiArme = () => {
-      if (repliAutoArme && estDeplie) programmerRepliAuto();
-    };
-
-    // ── Déplier / replier ───────────────────────────────────────────────
-
+    // ── Déplier / replier (Contrôle Manuel Exclusif) ─────────────────────
     const deplier = () => {
-      annulerRepliAuto();
       estDeplie = true;
       ui.bandeau.classList.remove("mt-hidden");
       ui.selectSource.focus();
     };
 
     const replier = () => {
-      annulerRepliAuto();
-      repliAutoArme = false;
       estDeplie = false;
       ui.bandeau.classList.add("mt-hidden");
     };
@@ -1060,12 +1029,6 @@
         replier();
       }
     });
-
-    // Suspension/reprise du repli automatique selon l'interaction de l'utilisateur.
-    ui.bandeau.addEventListener("mouseenter", annulerRepliAuto);
-    ui.bandeau.addEventListener("focusin", annulerRepliAuto);
-    ui.bandeau.addEventListener("mouseleave", reprogrammerSiArme);
-    ui.bandeau.addEventListener("focusout", reprogrammerSiArme);
 
     // ═════════════════════════════════════════════════════════════════════
     // LOGIQUE DE TRADUCTION
@@ -1264,11 +1227,6 @@
         ui.btnOriginal.classList.remove("mt-hidden");
         ui.btnTraduire.textContent = t("btnRetranslate");
 
-        // ── Repli automatique respectueux (sauf en cas d'échec partiel) ──
-        if (echecsNoeuds === 0) {
-          programmerRepliAuto();
-        }
-
       } catch (erreur) {
         console.error("[MagicTranslator] Erreur de traduction :", erreur);
         const cle = ERREURS_CONNUES[erreur.message];
@@ -1331,10 +1289,6 @@
     const observeur = new MutationObserver(() => {
       if (!document.body || !document.body.contains(ui.conteneur)) {
         observeur.disconnect();
-        // [M-R4] Annulation du timer de repli avant la réinitialisation : évite que
-        // replier() s'exécute sur une instance déjà nettoyée si le timer arrive
-        // entre la déconnexion de l'observateur et nettoyerInstance() dans initialiser().
-        annulerRepliAuto();
         initialiser().catch(console.error);
       }
     });
@@ -1360,10 +1314,6 @@
     document.documentElement._mtObserver?.disconnect();
     if (document.documentElement._mtMessageListener) {
       browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
-    }
-    if (document.documentElement._mtTimerRepli) {
-      clearTimeout(document.documentElement._mtTimerRepli);
-      document.documentElement._mtTimerRepli = null;
     }
   }
 
