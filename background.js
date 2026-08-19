@@ -196,16 +196,19 @@ async function chargerConfiguration() {
 // ═══════════════════════════════════════════════════════════════════════════
 // 7. GESTIONNAIRE DE MESSAGES (traduction & configuration)
 // ═══════════════════════════════════════════════════════════════════════════
-// Écoute les messages envoyés par le script de contenu ou la page d'options
-// via browser.runtime.sendMessage().
 
-// Format BCP-47 simplifié : "auto", "fr", "en", "zh-CN", "zh-TW", "pt-br", etc.
-// [M-S2] Validation des codes de langue pour éviter toute injection de paramètre URL.
 const CODE_LANGUE_RE = /^(auto|[a-z]{2,3}(-[a-zA-Z]{2,4})?)$/i;
-
 // Codes d'erreur attendus du background — tout autre message brut est normalisé.
 // [Mi-S1] On n'expose jamais d'erreur JavaScript interne à l'UI.
-const CODES_ERREURS_CONNUS = new Set(["TIMEOUT", "NETWORK", "RATE_LIMITED", "SERVICE_UNAVAILABLE", "INVALID_PAYLOAD", "UNAUTHORIZED"]);
+const CODES_ERREURS_CONNUS = new Set([
+  "TIMEOUT",
+  "NETWORK",
+  "RATE_LIMITED",
+  "SERVICE_UNAVAILABLE",
+  "INVALID_PAYLOAD",
+  "UNAUTHORIZED",
+  "PERMISSION_REQUIRED"
+]);
 
 /**
  * Traite les requêtes de messages internes de façon asynchrone.
@@ -221,15 +224,26 @@ async function traiterMessage(message, expediteur) {
     return { success: false, error: "UNAUTHORIZED" };
   }
 
-  // ── Action 1 : Demande de configuration active (pour affichage du badge) ──
+  // ── Action 1 : Demande de configuration active (avec vérification permission réelle) ──
   if (message.action === "getConfig") {
     const config = await chargerConfiguration();
     const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
+    const requiredOrigin = globalThis.MTProviders.obtenirPatternOrigine(config.provider, config);
+    let hasPermission = true;
+    try {
+      if (messenger.permissions && messenger.permissions.contains) {
+        hasPermission = await messenger.permissions.contains({ origins: [requiredOrigin] });
+      }
+    } catch {
+      hasPermission = true;
+    }
     return {
       success: true,
       provider: config.provider,
       providerLabel: fournisseur.label,
-      providerNom: fournisseur.nomComplet
+      providerNom: fournisseur.nomComplet,
+      hasPermission: Boolean(hasPermission),
+      requiredOrigin
     };
   }
 
@@ -253,6 +267,20 @@ async function traiterMessage(message, expediteur) {
     try {
       await messenger.runtime.openOptionsPage();
       return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  // ── Action 2d : Demande d'autorisation d'hôte 1-clic ─────────────────────
+  if (message.action === "requestPermission") {
+    const origin = message.origin || "https://translate.googleapis.com/*";
+    try {
+      if (messenger.permissions && messenger.permissions.request) {
+        const granted = await messenger.permissions.request({ origins: [origin] });
+        return { success: true, granted: Boolean(granted) };
+      }
+      return { success: true, granted: true };
     } catch (err) {
       return { success: false, error: err.message };
     }
@@ -299,6 +327,23 @@ async function traiterMessage(message, expediteur) {
       preset: config.llmPreset,
       plan: config.deeplPlan
     };
+
+    // Vérification préventive des permissions réseau
+    const requiredOrigin = globalThis.MTProviders.obtenirPatternOrigine(config.provider, configProvider);
+    try {
+      if (messenger.permissions && messenger.permissions.contains) {
+        const hasPerm = await messenger.permissions.contains({ origins: [requiredOrigin] });
+        if (!hasPerm) {
+          return {
+            success: false,
+            error: "PERMISSION_REQUIRED",
+            requiredOrigin
+          };
+        }
+      }
+    } catch {
+      // Ignore si non supporté
+    }
 
     try {
       const res = await globalThis.MTProviders.traduire(configProvider, message.text, message.source, message.target);

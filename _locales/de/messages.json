@@ -265,5 +265,8 @@
   },
   "composeStatusRestorable": {
     "message": "Bereit (Wiederherstellung verfügbar)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "Netzwerkberechtigung erforderlich"
   }
 }

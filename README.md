@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.3.3-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.3.4-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le **panneau de lecture** et dans la **fenêtre de rédaction (Compose Mode)** avec une interface Glassmorphism élégante et discrète.
@@ -9,7 +9,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ### 📖 1. Mode Lecture (Panneau de Message)
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
-- **Badge Moteur Interactif** — Visualisation immédiate du moteur actif et de son statut connecté (voyant vert `●`), avec accès direct aux Préférences en un clic.
+- **Badge Moteur Interactif & Statut Réel** — Visualisation immédiate du moteur actif, statut réel connecté (voyant vert `●` ou alerte orange `●`), et autorisation réseau en 1 clic.
 - **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**.
 - **Flux UX épuré** — Traduction in situ réversible sans élément résiduel obstruant la lecture.
 - **Raccourci clavier** — `Alt+Shift+T` par défaut (remappable).

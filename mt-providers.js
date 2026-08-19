@@ -672,6 +672,49 @@
           name: m.displayName || m.name.replace(/^models\//, ""),
           description: m.description || ""
         }));
+    },
+
+    /**
+     * Calcule le pattern d'origine WebExtension requis pour le fournisseur sélectionné.
+     * @param {string} provider
+     * @param {Object} [config={}]
+     * @returns {string}
+     */
+    obtenirPatternOrigine(provider, config = {}) {
+      if (provider === "deepl") {
+        const plan = config.deeplPlan || config.plan || "auto";
+        const key = config.deeplApiKey || config.apiKey || "";
+        if (plan === "free" || (plan === "auto" && key.endsWith(":fx"))) {
+          return "https://api-free.deepl.com/*";
+        }
+        return "https://api.deepl.com/*";
+      }
+      if (provider === "gemini") {
+        return "https://generativelanguage.googleapis.com/*";
+      }
+      if (provider === "llm") {
+        const preset = config.llmPreset || config.preset || "openai";
+        if (preset === "openai") return "https://api.openai.com/*";
+        if (preset === "groq") return "https://api.groq.com/*";
+        if (preset === "mistral") return "https://api.mistral.ai/*";
+        try {
+          const url = config.llmBaseUrl || config.url || "http://localhost:11434";
+          const u = new URL(url);
+          return `${u.origin}/*`;
+        } catch {
+          return "http://localhost:11434/*";
+        }
+      }
+      if (provider === "libretranslate") {
+        try {
+          const url = config.libretranslateUrl || config.url || "https://libretranslate.com";
+          const u = new URL(url);
+          return `${u.origin}/*`;
+        } catch {
+          return "https://libretranslate.com/*";
+        }
+      }
+      return "https://translate.googleapis.com/*";
     }
   };
 

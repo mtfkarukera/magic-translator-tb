@@ -9,6 +9,26 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.4] — 2026-08-19
+
+Détection proactive et autorisation 1-clic des permissions d'hôte WebExtension : élimination des échecs silencieux et synchronisation du statut de connexion réel.
+
+### Ajouté
+- **`mt-providers.js`** :
+  - Ajout de la fonction pure `obtenirPatternOrigine(provider, config)` calculant dynamiquement le pattern d'hôte requis pour chaque moteur (Google, DeepL Free/Pro, Gemini, LLMs Cloud/Locaux, LibreTranslate).
+- **`background.js` (Vérification et Demande Réelle de Permission)** :
+  - **`getConfig` enrichi** : Vérifie l'état réel de permission via `messenger.permissions.contains()` et renvoie `hasPermission` et `requiredOrigin`.
+  - **Action `requestPermission`** : Point d'entrée sécurisé pour déclencher `messenger.permissions.request()` sous geste utilisateur.
+  - **Protection `translate`** : Guard préventif renvoyant le code d'erreur `PERMISSION_REQUIRED` au lieu d'une erreur réseau générique si la permission est manquante.
+- **`translator-injected.js` (Bandeau de Lecture)** :
+  - **Voyant d'alerte orange (`●`)** : Passe le badge en `.is-warning` si la permission hôte n'est pas accordée par Thunderbird.
+  - **Autorisation 1-Clic Transparente** : Un simple clic sur le badge ou sur *Traduire* déclenche la demande native Thunderbird, repasse le statut au vert et poursuit la traduction sans rechargement.
+  - **Gestion i18n de `PERMISSION_REQUIRED`** : Message explicite dans les 7 langues supportées.
+- **`compose/compose.js` & `compose/compose.css` (Popup Rédaction)** :
+  - Intégration du voyant d'alerte `.provider-dot.is-warning` et de l'autorisation 1-clic préventive avant traduction.
+- **`_locales/`** :
+  - Ajout de la clé `composeStatusPermissionRequired` dans l'ensemble des 7 langues.
+
 ## [2.3.3] — 2026-08-18
 
 Harmonisation ergonomique : badge moteur interactif dans le bandeau de lecture avec statut de connexion et accès direct aux préférences.

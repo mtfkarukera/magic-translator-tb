@@ -265,5 +265,8 @@
   },
   "composeStatusRestorable": {
     "message": "Listo (restauración disponible)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "Permiso de red requerido"
   }
 }

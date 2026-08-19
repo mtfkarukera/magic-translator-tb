@@ -264,6 +264,9 @@
     "message": "Detetar auto"
   },
   "composeStatusRestorable": {
-    "message": "Pronto (restauração disponible)"
+    "message": "Pronto (restauração disponível)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "Permissão de rede necessária"
   }
 }

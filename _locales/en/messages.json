@@ -264,6 +264,9 @@
     "message": "Auto-detect"
   },
   "composeStatusRestorable": {
-    "message": "Ready (restore available)"
+    "message": "Ready (restoration available)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "Network permission required"
   }
 }

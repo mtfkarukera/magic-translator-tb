@@ -11,6 +11,7 @@ const {
   obtenirFournisseur,
   traduire,
   construireEndpointLLM,
+  obtenirPatternOrigine,
   FOURNISSEURS
 } = globalThis.MTProviders;
 
@@ -276,5 +277,49 @@ test("construireEndpointLLM : normalisation des suffixes /v1 et URLs", () => {
   assert.equal(
     construireEndpointLLM(""),
     "https://api.openai.com/v1/chat/completions"
+  );
+});
+
+test("obtenirPatternOrigine : patterns d'hôtes WebExtension par moteur", () => {
+  // Google Translate par défaut
+  assert.equal(obtenirPatternOrigine("google"), "https://translate.googleapis.com/*");
+  assert.equal(obtenirPatternOrigine("inconnu"), "https://translate.googleapis.com/*");
+
+  // DeepL Free vs Pro
+  assert.equal(
+    obtenirPatternOrigine("deepl", { deeplApiKey: "12345:fx" }),
+    "https://api-free.deepl.com/*"
+  );
+  assert.equal(
+    obtenirPatternOrigine("deepl", { deeplApiKey: "12345", deeplPlan: "free" }),
+    "https://api-free.deepl.com/*"
+  );
+  assert.equal(
+    obtenirPatternOrigine("deepl", { deeplApiKey: "12345", deeplPlan: "pro" }),
+    "https://api.deepl.com/*"
+  );
+
+  // Google Gemini
+  assert.equal(obtenirPatternOrigine("gemini"), "https://generativelanguage.googleapis.com/*");
+
+  // LLM Hub Presets
+  assert.equal(obtenirPatternOrigine("llm", { llmPreset: "openai" }), "https://api.openai.com/*");
+  assert.equal(obtenirPatternOrigine("llm", { llmPreset: "groq" }), "https://api.groq.com/*");
+  assert.equal(obtenirPatternOrigine("llm", { llmPreset: "mistral" }), "https://api.mistral.ai/*");
+
+  // LLM Hub Local & Custom URLs
+  assert.equal(
+    obtenirPatternOrigine("llm", { llmPreset: "ollama", llmBaseUrl: "http://localhost:11434/v1" }),
+    "http://localhost:11434/*"
+  );
+  assert.equal(
+    obtenirPatternOrigine("llm", { llmPreset: "custom", llmBaseUrl: "https://llm.corp.local:8443/v1/chat" }),
+    "https://llm.corp.local:8443/*"
+  );
+
+  // LibreTranslate
+  assert.equal(
+    obtenirPatternOrigine("libretranslate", { libretranslateUrl: "https://translate.mon-domaine.org/api" }),
+    "https://translate.mon-domaine.org/*"
   );
 });

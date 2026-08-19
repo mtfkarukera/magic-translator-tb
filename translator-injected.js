@@ -70,6 +70,7 @@
       errorServiceUnavailable: "Service de traduction indisponible. Réessayez plus tard.",
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
       errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
+      errorPermissionRequired: "Autorisation réseau requise. Cliquez sur le badge pour autoriser.",
       statusAlreadyIn:         "Déjà en {lang}"
     },
     en: {
@@ -94,6 +95,7 @@
       errorServiceUnavailable: "Translation service unavailable. Try again later.",
       errorTimeout:            "Request timed out. Check your connection.",
       errorNetwork:            "Network error. Check your connection.",
+      errorPermissionRequired: "Network permission required. Click the badge to allow.",
       statusAlreadyIn:         "Already in {lang}"
     },
     es: {
@@ -118,6 +120,7 @@
       errorServiceUnavailable: "Servicio de traducción no disponible. Inténtalo más tarde.",
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
       errorNetwork:            "Error de red. Comprueba tu conexión.",
+      errorPermissionRequired: "Permiso de red requerido. Haz clic en la insignia para autorizar.",
       statusAlreadyIn:         "Ya en {lang}"
     },
     de: {
@@ -142,6 +145,7 @@
       errorServiceUnavailable: "Übersetzungsdienst nicht verfügbar. Versuchen Sie es später.",
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
       errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
+      errorPermissionRequired: "Netzwerkberechtigung erforderlich. Klicken Sie auf das Badge, um sie zu erteilen.",
       statusAlreadyIn:         "Bereits auf {lang}"
     },
     vi: {
@@ -166,6 +170,7 @@
       errorServiceUnavailable: "Dịch vụ dịch không khả dụng. Hãy thử lại sau.",
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
       errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
+      errorPermissionRequired: "Cần có quyền truy cập mạng. Nhấp vào huy hiệu để cho phép.",
       statusAlreadyIn:         "Đã ở {lang}"
     },
     ja: {
@@ -190,6 +195,7 @@
       errorServiceUnavailable: "翻訳サービスを利用できません。後でもう一度お試しください。",
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
       errorNetwork:            "ネットワークエラー。接続を確認してください。",
+      errorPermissionRequired: "ネットワーク権限が必要です。バッジをクリックして許可してください。",
       statusAlreadyIn:         "すでに{lang}です"
     },
     pt: {
@@ -214,6 +220,7 @@
       errorServiceUnavailable: "Serviço de tradução indisponível. Tente mais tarde.",
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
       errorNetwork:            "Erro de rede. Verifique a sua ligação.",
+      errorPermissionRequired: "Permissão de rede necessária. Clique no selo para autorizar.",
       statusAlreadyIn:         "Já em {lang}"
     }
   };
@@ -431,6 +438,18 @@
   background: #22c55e;
   box-shadow: 0 0 5px #22c55e;
   flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mt-engine-dot.is-warning {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+  animation: mtPulseWarning 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes mtPulseWarning {
+  from { opacity: 0.6; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.25); }
 }
 
 .mt-engine-gear {
@@ -768,6 +787,7 @@
     SERVICE_UNAVAILABLE: "errorServiceUnavailable",
     TIMEOUT:             "errorTimeout",
     NETWORK:             "errorNetwork",
+    PERMISSION_REQUIRED: "errorPermissionRequired",
     // [M-A5] Ajout des codes retournés par le background après les corrections de sécurité.
     UNAUTHORIZED:        "errorServiceUnavailable",
     INVALID_PAYLOAD:     "errorServiceUnavailable"
@@ -885,16 +905,7 @@
     badgeGear.setAttribute("aria-hidden", "true");
     badgeMoteur.appendChild(badgeGear);
 
-    badgeMoteur.addEventListener("click", () => {
-      try {
-        browser.runtime.openOptionsPage();
-      } catch {
-        browser.runtime.sendMessage({ action: "openOptions" }).catch(() => {});
-      }
-    });
-
     logo.appendChild(badgeMoteur);
-
     bandeau.appendChild(logo);
 
     // Séparateur vertical
@@ -993,6 +1004,7 @@
       bandeau,
       logoIcone,
       badgeMoteur,
+      badgeDot,
       badgeMoteurLabel,
       selectSource,
       selectCible,
@@ -1034,6 +1046,43 @@
 
     const ui = construireUI();
 
+    let aPermissionMoteur = true;
+    let origineRequise = "";
+
+    // Fonction d'autorisation 1-clic sous geste utilisateur
+    const demanderAutorisation1Clic = async () => {
+      if (!origineRequise) return true;
+      try {
+        if (browser.permissions && browser.permissions.request) {
+          const accorde = await browser.permissions.request({ origins: [origineRequise] });
+          if (accorde) {
+            aPermissionMoteur = true;
+            origineRequise = "";
+            ui.badgeDot.classList.remove("is-warning");
+            const nomComplet = ui.badgeMoteurLabel.textContent;
+            ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
+            ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+            return true;
+          }
+        }
+      } catch (err) {
+        console.warn("[MagicTranslator] Demande de permission 1-clic :", err);
+      }
+      return false;
+    };
+
+    ui.badgeMoteur.addEventListener("click", async () => {
+      if (!aPermissionMoteur && origineRequise) {
+        const accorde = await demanderAutorisation1Clic();
+        if (accorde) return;
+      }
+      try {
+        browser.runtime.openOptionsPage();
+      } catch {
+        browser.runtime.sendMessage({ action: "openOptions" }).catch(() => {});
+      }
+    });
+
     // ── Insertion dans le DOM ────────────────────────────────────────────
     // On insère le conteneur en tout premier enfant du body pour que le
     // bandeau apparaisse au-dessus du contenu du message.
@@ -1057,8 +1106,19 @@
             if (ui.badgeMoteurLabel) {
               ui.badgeMoteurLabel.textContent = nomLabel;
             }
-            ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
-            ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+            if (res.hasPermission === false) {
+              aPermissionMoteur = false;
+              origineRequise = res.requiredOrigin;
+              ui.badgeDot.classList.add("is-warning");
+              ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Autorisation requise — Cliquez pour autoriser en 1 clic)`;
+              ui.badgeMoteur.setAttribute("aria-label", `Autorisation requise pour ${nomComplet}`);
+            } else {
+              aPermissionMoteur = true;
+              origineRequise = "";
+              ui.badgeDot.classList.remove("is-warning");
+              ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
+              ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+            }
           }
         })
         .catch(() => {});
@@ -1105,6 +1165,15 @@
       if (!document.body) {
         afficherStatut(ui.statut, t("errorNoText"), "error");
         return;
+      }
+
+      // Demande d'autorisation 1-clic préalable si la permission réseau manque
+      if (!aPermissionMoteur && origineRequise) {
+        const accorde = await demanderAutorisation1Clic();
+        if (!accorde) {
+          afficherStatut(ui.statut, t("errorPermissionRequired"), "error");
+          return;
+        }
       }
 
       const source = ui.selectSource.value;

@@ -265,5 +265,8 @@
   },
   "composeStatusRestorable": {
     "message": "Sẵn sàng (có thể khôi phục)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "Cần có quyền mạng"
   }
 }

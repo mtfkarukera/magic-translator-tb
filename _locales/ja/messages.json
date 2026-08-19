@@ -265,5 +265,8 @@
   },
   "composeStatusRestorable": {
     "message": "準備完了 (復元可能)"
+  },
+  "composeStatusPermissionRequired": {
+    "message": "ネットワーク権限が必要です"
   }
 }

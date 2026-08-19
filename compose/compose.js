@@ -23,6 +23,8 @@ let etatOriginal = {
   estTraduit: false
 };
 let texteSelectionne = "";
+let aPermissionMoteur = true;
+let origineRequise = "";
 
 // ── Utilitaires d'Internationalisation ────────────────────────────────────────
 function t(cle, repli = "") {
@@ -70,13 +72,64 @@ function definirStatut(type, cleI18n, texteRepli) {
   txt.textContent = t(cleI18n, texteRepli);
 }
 
+// ── Fonction d'Autorisation 1-Clic sous Geste Utilisateur ───────────────────
+async function demanderAutorisation1Clic() {
+  if (!origineRequise) return true;
+  try {
+    if (browser.permissions && browser.permissions.request) {
+      const accorde = await browser.permissions.request({ origins: [origineRequise] });
+      if (accorde) {
+        aPermissionMoteur = true;
+        origineRequise = "";
+        const dot = document.querySelector(".provider-dot");
+        if (dot) dot.classList.remove("is-warning");
+        const badge = document.getElementById("btn-provider-badge");
+        const badgeTxt = document.getElementById("txt-provider-label");
+        const nom = (badgeTxt && badgeTxt.textContent) || "Moteur";
+        if (badge) {
+          badge.title = `${nom} (Modifier dans les paramètres)`;
+          badge.setAttribute("aria-label", `Paramètres du moteur : ${nom}`);
+        }
+        definirStatut("ready", "composeStatusReady", "Prêt");
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn("[MagicTranslator:Compose] Demande permission 1-clic :", err);
+  }
+  return false;
+}
+
 // ── Chargement des Préférences et du Badge Moteur ─────────────────────────────
 async function chargerBadgeMoteur() {
   try {
     const res = await browser.runtime.sendMessage({ action: "getConfig" });
     const badgeTxt = document.getElementById("txt-provider-label");
-    if (badgeTxt && res && res.success && res.providerLabel) {
-      badgeTxt.textContent = res.providerLabel;
+    const badge = document.getElementById("btn-provider-badge");
+    const dot = document.querySelector(".provider-dot");
+
+    if (res && res.success) {
+      const nomLabel = res.providerLabel || "Google";
+      const nomComplet = res.providerNom || nomLabel;
+      if (badgeTxt) badgeTxt.textContent = nomLabel;
+
+      if (res.hasPermission === false) {
+        aPermissionMoteur = false;
+        origineRequise = res.requiredOrigin;
+        if (dot) dot.classList.add("is-warning");
+        if (badge) {
+          badge.title = `${nomComplet} (⚠️ Autorisation requise — Cliquez pour autoriser en 1 clic)`;
+          badge.setAttribute("aria-label", `Autorisation requise pour ${nomComplet}`);
+        }
+      } else {
+        aPermissionMoteur = true;
+        origineRequise = "";
+        if (dot) dot.classList.remove("is-warning");
+        if (badge) {
+          badge.title = `${nomComplet} (Modifier dans les paramètres)`;
+          badge.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+        }
+      }
     }
   } catch (err) {
     console.warn("[MagicTranslator:Compose] Erreur badge moteur :", err);
@@ -196,6 +249,15 @@ async function executerTraduction() {
   const chkSelection = document.getElementById("chk-selection");
   const selectSource = document.getElementById("select-source");
   const selectTarget = document.getElementById("select-target");
+
+  // Demande d'autorisation 1-clic préalable si la permission réseau manque
+  if (!aPermissionMoteur && origineRequise) {
+    const accorde = await demanderAutorisation1Clic();
+    if (!accorde) {
+      definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
+      return;
+    }
+  }
 
   const sourceLang = selectSource.value;
   const targetLang = selectTarget.value;
@@ -317,7 +379,11 @@ async function executerTraduction() {
     definirStatut("ready", "composeStatusSuccess", "Message traduit avec succès ✓");
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la traduction :", err);
-    definirStatut("error", "composeStatusError", "Erreur de traduction (" + (err.message || "réseau") + ")");
+    if (err.message === "PERMISSION_REQUIRED") {
+      definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
+    } else {
+      definirStatut("error", "composeStatusError", "Erreur de traduction (" + (err.message || "réseau") + ")");
+    }
   } finally {
     btnTranslate.disabled = false;
   }
@@ -337,64 +403,86 @@ async function executerRestauration() {
   try {
     const cleCoffre = `compose_orig_${ongletActifId}`;
 
-    if (etatOriginal.modeSelection) {
-      // Restauration de la sélection via undo natif
+    // 1. Restauration de la Sélection
+    if (etatOriginal.modeSelection && etatOriginal.selection) {
+      const texteOriginal = etatOriginal.selection;
       await browser.scripting.executeScript({
         target: { tabId: ongletActifId },
-        func: () => {
-          document.execCommand("undo");
-        }
+        func: (original) => {
+          const editor = document.querySelector("body[contenteditable='true']") || document.body;
+          if (editor && typeof editor.focus === "function") {
+            editor.focus();
+          }
+          const succes = document.execCommand("insertText", false, original);
+          if (!succes) {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+              const range = sel.getRangeAt(0);
+              range.deleteContents();
+              range.insertNode(document.createTextNode(original));
+            }
+          }
+        },
+        args: [texteOriginal]
       });
-    } else {
-      // Restauration de l'Objet
-      if (etatOriginal.sujet !== null) {
-        await browser.compose.setComposeDetails(ongletActifId, { subject: etatOriginal.sujet });
-      }
-      // Restauration du Corps via réinjection des nœuds textuels originaux
-      if (etatOriginal.extraitsCorps !== null && Array.isArray(etatOriginal.extraitsCorps)) {
-        await injecterTraductionsCorpsEditeur(ongletActifId, etatOriginal.extraitsCorps);
-      }
+
+      etatOriginal.estTraduit = false;
+      await browser.storage.local.remove(cleCoffre);
+      btnRestore.disabled = true;
+      definirStatut("ready", "composeStatusRestored", "Texte d'origine restauré ✓");
+      return;
     }
 
-    // Réinitialisation du coffre-fort
+    // 2. Restauration Globale (Objet + Corps)
+    const detailsRestauration = {};
+
+    if (etatOriginal.sujet !== null) {
+      detailsRestauration.subject = etatOriginal.sujet;
+    }
+
+    if (Object.keys(detailsRestauration).length > 0) {
+      await browser.compose.setComposeDetails(ongletActifId, detailsRestauration);
+    }
+
+    if (etatOriginal.extraitsCorps && Array.isArray(etatOriginal.extraitsCorps)) {
+      await injecterTraductionsCorpsEditeur(ongletActifId, etatOriginal.extraitsCorps);
+    }
+
+    etatOriginal.estTraduit = false;
     await browser.storage.local.remove(cleCoffre);
 
-    etatOriginal = {
-      sujet: null,
-      extraitsCorps: null,
-      selection: null,
-      modeSelection: false,
-      estTraduit: false
-    };
-
-    definirStatut("ready", "composeStatusRestored", "Original restauré ✓");
+    btnRestore.disabled = true;
+    definirStatut("ready", "composeStatusRestored", "Texte d'origine restauré ✓");
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la restauration :", err);
-    definirStatut("error", "composeStatusError", "Erreur lors de la restauration");
+    definirStatut("error", "composeStatusRestoreError", "Échec de la restauration (" + (err.message || "inconnu") + ")");
     btnRestore.disabled = false;
   }
 }
 
-// ── Initialisation ────────────────────────────────────────────────────────────
+// ── Initialisation au Chargement du Document ─────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   appliquerI18n();
-  await chargerBadgeMoteur();
 
+  // Identifier l'onglet de composition actif
   try {
-    const onglets = await browser.tabs.query({ active: true, currentWindow: true });
-    if (onglets && onglets.length > 0) {
-      ongletActifId = onglets[0].id;
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    if (tabs && tabs.length > 0) {
+      ongletActifId = tabs[0].id;
     }
-  } catch (e) {
-    console.warn("[MagicTranslator:Compose] Impossible d'obtenir l'onglet actif :", e);
+  } catch (err) {
+    console.warn("[MagicTranslator:Compose] Impossible d'identifier l'onglet actif :", err);
   }
 
   if (!ongletActifId) {
-    definirStatut("error", "composeStatusNoTab", "Aucun onglet de rédaction détecté");
+    definirStatut("error", "composeStatusErrorNoTab", "Impossible d'accéder au message.");
     return;
   }
 
-  // Vérifier si un état original est persisté dans le coffre-fort pour cet onglet
+  // Charger le badge moteur en direct
+  await chargerBadgeMoteur();
+
+  // Restaurer l'état de traduction si déjà effectué
   try {
     const cleCoffre = `compose_orig_${ongletActifId}`;
     const stockCoffre = await browser.storage.local.get(cleCoffre);
@@ -460,8 +548,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Clic sur le badge moteur pour ouvrir la page d'options
-  document.getElementById("btn-provider-badge").addEventListener("click", () => {
+  // Clic sur le badge moteur pour demander l'autorisation 1-clic ou ouvrir les options
+  document.getElementById("btn-provider-badge").addEventListener("click", async () => {
+    if (!aPermissionMoteur && origineRequise) {
+      const accorde = await demanderAutorisation1Clic();
+      if (accorde) return;
+    }
     browser.runtime.openOptionsPage();
   });
 });
