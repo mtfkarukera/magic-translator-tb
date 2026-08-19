@@ -383,51 +383,13 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @returns {Promise<boolean>}
    */
   async function assurerPermissionsHote(config) {
-    let pattern = "";
-    if (config.provider === "deepl") {
-      const plan = config.deeplPlan || "auto";
-      const key = config.deeplApiKey || "";
-      if (plan === "free" || (plan === "auto" && key.endsWith(":fx"))) {
-        pattern = "https://api-free.deepl.com/*";
-      } else {
-        pattern = "https://api.deepl.com/*";
-      }
-    } else if (config.provider === "gemini") {
-      pattern = "https://generativelanguage.googleapis.com/*";
-    } else if (config.provider === "llm") {
-      const preset = config.llmPreset || "openai";
-      if (preset === "openai") {
-        pattern = "https://api.openai.com/*";
-      } else if (preset === "groq") {
-        pattern = "https://api.groq.com/*";
-      } else if (preset === "mistral") {
-        pattern = "https://api.mistral.ai/*";
-      } else {
-        try {
-          const u = new URL(config.llmBaseUrl || "http://localhost:11434");
-          pattern = `${u.origin}/*`;
-        } catch {
-          return false;
-        }
-      }
-    } else if (config.provider === "libretranslate") {
-      try {
-        const u = new URL(config.libretranslateUrl || "https://libretranslate.com");
-        pattern = `${u.origin}/*`;
-      } catch {
-        return false;
-      }
-    } else {
-      pattern = "https://translate.googleapis.com/*";
-    }
-
+    const pattern = globalThis.MTProviders.obtenirPatternOrigine(config.provider, config);
     try {
-      if (browser.permissions && browser.permissions.contains) {
-        const aDeja = await browser.permissions.contains({ origins: [pattern] });
-        if (!aDeja && browser.permissions.request) {
-          const accorde = await browser.permissions.request({ origins: [pattern] });
-          return Boolean(accorde);
-        }
+      if (browser.permissions && browser.permissions.request) {
+        // Sous Gecko (Thunderbird), browser.permissions.request() doit être exécuté
+        // directement sur le premier tick du geste utilisateur pour préserver le token d'activation.
+        const accorde = await browser.permissions.request({ origins: [pattern] });
+        return Boolean(accorde);
       }
       return true;
     } catch (err) {
@@ -531,12 +493,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ── Enregistrement des préférences ─────────────────────────────────────────
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  const enregistrerPreferences = async (e) => {
+    if (e) e.preventDefault();
 
     const config = obtenirConfigFormulaire();
 
-    // Demande de permission à la volée sur le geste utilisateur
+    // Demande de permission à la volée sur le geste utilisateur direct
     await assurerPermissionsHote(config);
 
     btnSave.disabled = true;
@@ -553,5 +515,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       btnSave.disabled = false;
       btnTest.disabled = false;
     }
-  });
+  };
+
+  btnSave.addEventListener("click", enregistrerPreferences);
+  form.addEventListener("submit", enregistrerPreferences);
 });

@@ -9,6 +9,19 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.5] — 2026-08-19
+
+Correctifs de visibilité du statut dans le bandeau et fiabilisation de l'activation des permissions Gecko.
+
+### Corrigé
+- **`translator-injected.js` (Bandeau de Lecture)** :
+  - **Visibilité Immédiate du Statut** : Correction de `afficherStatut()` pour retirer la classe `.mt-hidden` (`display: none`) dès qu'un message d'erreur ou d'état est affiché, et la réappliquer lors du masquage.
+  - **Guidage Explicite** : Affichage instantané du message d'action en cas de permission désactivée : *« Accès réseau requis. Cliquez sur le badge ⚙️ pour ouvrir les réglages. »*.
+  - **Accès Direct aux Options** : Un clic sur le badge `[ ⚠️ DeepL ⚙️ ]` ouvre immédiatement la page de configuration.
+- **`options/options.js` (Page des Réglages)** :
+  - **Préservation du Geste Utilisateur Gecko** : Suppression de l'appel asynchrone intermédiaire `contains()` avant `request()`, permettant à `browser.permissions.request()` de s'exécuter sur le premier tick du clic sans lever l'erreur *« may only be called from a user input handler »*.
+  - **Enregistrement Direct** : Liaison de l'action de sauvegarde au clic direct du bouton `btnSave`.
+
 ## [2.3.4] — 2026-08-19
 
 Détection proactive et autorisation 1-clic des permissions d'hôte WebExtension : élimination des échecs silencieux et synchronisation du statut de connexion réel.
