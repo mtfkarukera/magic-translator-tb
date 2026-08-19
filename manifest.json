@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -68,5 +68,8 @@
     "https://libretranslate.com/*",
     "http://localhost/*",
     "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": [
+    "*://*/*"
   ]
 }

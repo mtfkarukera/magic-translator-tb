@@ -9,6 +9,16 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.9] — 2026-08-19
+
+Support universel des serveurs personnalisés via l'autorisation dynamique d'hôtes (optional_host_permissions).
+
+### Ajouté
+- **`manifest.json`** :
+  - **`optional_host_permissions: ["*://*/*"]`** : Rétablissement de la capacité d'autorisation dynamique à la demande pour tout endpoint LLM ou LibreTranslate personnalisé saisi par l'utilisateur (DeepSeek, OpenRouter, Claude proxies, VPS distants, proxies d'entreprise).
+- **`submission_kit.md`** :
+  - **Justification ATN / Mozilla** : Documentation formelle de l'usage strict à la demande d'`optional_host_permissions` pour les évaluateurs du store.
+
 ## [2.3.8] — 2026-08-19
 
 Normalisation des match patterns d'hôtes sans numéro de port et fiabilisation de l'actualisation des modèles Gemini.
