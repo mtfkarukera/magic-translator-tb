@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "Permiso de red requerido"
+  },
+  "permissionTitlePrefix": {
+    "message": "Permiso requerido para"
+  },
+  "permissionDescPrefix": {
+    "message": "Thunderbird necesita tu permiso para contactar"
+  },
+  "btnGrantPermission": {
+    "message": "Autorizar acceso en 1 clic"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ ¡Permiso concedido con éxito! El motor está listo."
   }
 }

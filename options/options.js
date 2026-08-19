@@ -86,6 +86,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputLibreTranslateKey = document.getElementById("libretranslate-api-key");
   const btnToggleLtKey = document.getElementById("btn-toggle-lt-key");
 
+  const warningBanner = document.getElementById("permission-warning-banner");
+  const btnGrantPermission = document.getElementById("btn-grant-permission");
+  const permissionProviderName = document.getElementById("permission-provider-name");
+  const permissionDomainCode = document.getElementById("permission-domain-code");
+
   const statusContainer = document.getElementById("status-container");
   const statusIcon = document.getElementById("status-icon");
   const statusText = document.getElementById("status-text");
@@ -302,6 +307,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     actualiserAffichageFournisseur();
 
+    // Vérification dynamique et conditionnelle de la permission pour le moteur actif
+    await verifierPermissionMoteur();
+
     // Actualisation silencieuse des modèles si clé déjà configurée
     if (config.geminiApiKey) {
       actualiserModelesGemini(config.geminiApiKey, true);
@@ -315,6 +323,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   selectProvider.addEventListener("change", () => {
     actualiserAffichageFournisseur();
     statusContainer.classList.add("mt-hidden");
+    verifierPermissionMoteur();
+  });
+
+  selectDeeplPlan.addEventListener("change", () => {
+    verifierPermissionMoteur();
+  });
+
+  inputLibreTranslateUrl.addEventListener("input", () => {
+    verifierPermissionMoteur();
   });
 
   // ── Événements Gemini ───────────────────────────────────────────────────────
@@ -328,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (inputGeminiKey.value.trim()) {
       actualiserModelesGemini(inputGeminiKey.value.trim(), true);
     }
+    verifierPermissionMoteur();
   });
 
   // ── Changement de preset LLM ────────────────────────────────────────────────
@@ -340,7 +358,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       inputLlmApiKey.placeholder = info.keyPlaceholder;
     }
     statusContainer.classList.add("mt-hidden");
+    verifierPermissionMoteur();
   });
+
+  inputLlmBaseUrl.addEventListener("input", () => {
+    verifierPermissionMoteur();
+  });
+
+  // ── Bouton 1-Clic d'Autorisation de Permission ──────────────────────────────
+  if (btnGrantPermission) {
+    btnGrantPermission.addEventListener("click", async () => {
+      const config = obtenirConfigFormulaire();
+      const pattern = globalThis.MTProviders ? globalThis.MTProviders.obtenirPatternOrigine(config.provider, config) : "";
+      if (!pattern) return;
+
+      try {
+        if (browser.permissions && browser.permissions.request) {
+          const accorde = await browser.permissions.request({ origins: [pattern] });
+          if (accorde) {
+            warningBanner.classList.add("mt-hidden");
+            afficherStatut(t("statusPermissionGranted", "✓ Autorisation accordée avec succès ! Le moteur est prêt."), "success");
+          }
+        }
+      } catch (err) {
+        console.error("[MagicTranslator Options] Erreur autorisation 1-clic :", err);
+        afficherStatut(`${t("errorGeneric", "Erreur :")} ${err.message}`, "error");
+      }
+    });
+  }
 
   // ── Bascules Afficher / Masquer Mot de passe ────────────────────────────────
   function configurerBasculeMotDePasse(btn, input) {
@@ -356,6 +401,58 @@ document.addEventListener("DOMContentLoaded", async () => {
   configurerBasculeMotDePasse(btnToggleGeminiKey, inputGeminiKey);
   configurerBasculeMotDePasse(btnToggleLlmKey, inputLlmApiKey);
   configurerBasculeMotDePasse(btnToggleLtKey, inputLibreTranslateKey);
+
+  /**
+   * Vérifie dynamiquement l'état de permission du moteur sélectionné.
+   * N'affiche le bandeau que si et seulement si la permission d'hôte est manquante.
+   */
+  async function verifierPermissionMoteur() {
+    if (!warningBanner) return;
+
+    const config = obtenirConfigFormulaire();
+    const provider = config.provider;
+
+    // Google Translate est déclaré dans le manifest et ne nécessite aucun prompt
+    if (provider === "google") {
+      warningBanner.classList.add("mt-hidden");
+      return;
+    }
+
+    try {
+      const pattern = globalThis.MTProviders ? globalThis.MTProviders.obtenirPatternOrigine(provider, config) : "";
+      if (!pattern) {
+        warningBanner.classList.add("mt-hidden");
+        return;
+      }
+
+      if (browser.permissions && browser.permissions.contains) {
+        const hasPermission = await browser.permissions.contains({ origins: [pattern] });
+        if (hasPermission) {
+          warningBanner.classList.add("mt-hidden");
+          return;
+        }
+
+        // La permission manque : on personnalise et affiche le bandeau
+        const labelMap = {
+          deepl: "DeepL",
+          gemini: "Google Gemini",
+          llm: "Hub LLM",
+          libretranslate: "LibreTranslate"
+        };
+        const nomMoteur = labelMap[provider] || provider;
+        if (permissionProviderName) permissionProviderName.textContent = nomMoteur;
+
+        // Extraction propre du domaine pour l'affichage
+        const domaine = pattern.replace(/^\*:\/\//, "").replace(/^https?:\/\//, "").replace(/\/\*$/, "");
+        if (permissionDomainCode) permissionDomainCode.textContent = domaine;
+
+        warningBanner.classList.remove("mt-hidden");
+      }
+    } catch (err) {
+      console.warn("[MagicTranslator Options] Erreur vérification permission :", err);
+      warningBanner.classList.add("mt-hidden");
+    }
+  }
 
   /**
    * Construit l'objet de configuration actuel depuis le formulaire.

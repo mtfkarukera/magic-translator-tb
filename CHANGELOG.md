@@ -9,6 +9,22 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.6] — 2026-08-19
+
+Intégration du bandeau d'alerte 1-clic conditionnel dans les préférences et inclusion des providers pour les options.
+
+### Ajouté
+- **`options/options.html` & `options/options.css` (Page des Préférences)** :
+  - **Bandeau d'Alerte 1-Clic Conditionnel** : Affichage dynamique d'un bandeau d'alerte Glassmorphism ambré `#permission-warning-banner` avec bouton d'action direct `[ 🛡️ Autoriser l'accès en 1 clic ]` si et seulement si la permission réseau du moteur actif n'est pas encore accordée.
+  - **Inclusion de `mt-providers.js`** : Résolution de l'erreur `MTProviders is undefined` dans la page des options.
+- **`options/options.js`** :
+  - **Vérification Dynamique Conditionnelle** : `verifierPermissionMoteur()` évalue en temps réel `browser.permissions.contains()` au chargement et lors de tout changement de moteur ou d'URL.
+  - **Autorisation Instantanée** : Un clic sur `btnGrantPermission` déclenche `browser.permissions.request()` sous le geste utilisateur, masque le bandeau et confirme le succès par un statut vert.
+- **`translator-injected.js` (Bandeau de Lecture)** :
+  - **Message Contextuel Limpide** : Mention explicite du moteur sélectionné dans l'alerte : *« ⚠️ Permission requise pour {provider} : Cliquez sur le badge ⚙️ pour ouvrir les réglages. »*.
+- **`_locales/`** :
+  - Ajout des chaînes i18n du bandeau de permissions (`permissionTitlePrefix`, `permissionDescPrefix`, `btnGrantPermission`, `statusPermissionGranted`) dans les 7 langues.
+
 ## [2.3.5] — 2026-08-19
 
 Correctifs de visibilité du statut dans le bandeau et fiabilisation de l'activation des permissions Gecko.

@@ -390,6 +390,107 @@ form {
   outline-offset: 2px;
 }
 
+/* ── Bandeau d'Alerte de Permission 1-Clic ───────────────────────────────── */
+.mt-permission-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: var(--mt-radius-md);
+  margin-bottom: 20px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@media (min-width: 540px) {
+  .mt-permission-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.mt-permission-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mt-permission-icon {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.mt-permission-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mt-permission-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mt-permission-title {
+    color: #fbbf24;
+  }
+}
+
+.mt-permission-desc {
+  font-size: 0.85rem;
+  color: var(--mt-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mt-code-domain {
+  font-family: monospace;
+  background: var(--mt-code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: var(--mt-text-primary);
+}
+
+.mt-btn-permission {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: var(--mt-radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mt-btn-permission:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+  opacity: 0.95;
+}
+
+.mt-btn-permission:active {
+  transform: translateY(0);
+}
+
+.mt-btn-permission:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }

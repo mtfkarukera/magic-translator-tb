@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "Permissão de rede necessária"
+  },
+  "permissionTitlePrefix": {
+    "message": "Permissão necessária para"
+  },
+  "permissionDescPrefix": {
+    "message": "O Thunderbird precisa da sua permissão para contactar"
+  },
+  "btnGrantPermission": {
+    "message": "Conceder acesso em 1 clique"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ Permissão concedida com sucesso! O motor está pronto."
   }
 }

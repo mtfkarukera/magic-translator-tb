@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "ネットワーク権限が必要です"
+  },
+  "permissionTitlePrefix": {
+    "message": "必要な権限："
+  },
+  "permissionDescPrefix": {
+    "message": "Thunderbirdが接続するために許可が必要です："
+  },
+  "btnGrantPermission": {
+    "message": "1クリックでアクセスを許可"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ 権限が正常に付与されました！エンジンの準備が整いました。"
   }
 }

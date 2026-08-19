@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "Autorisation réseau requise"
+  },
+  "permissionTitlePrefix": {
+    "message": "Autorisation requise pour"
+  },
+  "permissionDescPrefix": {
+    "message": "Thunderbird nécessite votre accord pour contacter"
+  },
+  "btnGrantPermission": {
+    "message": "Autoriser l'accès en 1 clic"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ Autorisation accordée avec succès ! Le moteur est prêt."
   }
 }

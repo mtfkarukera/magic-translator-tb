@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "Cần có quyền mạng"
+  },
+  "permissionTitlePrefix": {
+    "message": "Cần quyền cho"
+  },
+  "permissionDescPrefix": {
+    "message": "Thunderbird cần sự cho phép của bạn để liên hệ"
+  },
+  "btnGrantPermission": {
+    "message": "Cấp quyền truy cập trong 1 cú nhấp chuột"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ Đã cấp quyền thành công! Động cơ đã sẵn sàng."
   }
 }

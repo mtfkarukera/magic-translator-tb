@@ -20,6 +20,24 @@
 
     <main class="mt-card">
       <form id="form-options" novalidate>
+        <!-- Bandeau d'Alerte de Permission 1-Clic (Conditionnel) -->
+        <div id="permission-warning-banner" class="mt-permission-banner mt-hidden" role="alert">
+          <div class="mt-permission-banner-content">
+            <span class="mt-permission-icon" aria-hidden="true">⚠️</span>
+            <div class="mt-permission-text-wrapper">
+              <strong class="mt-permission-title">
+                <span data-i18n="permissionTitlePrefix">Autorisation requise pour</span> <span id="permission-provider-name">DeepL</span>
+              </strong>
+              <p class="mt-permission-desc">
+                <span data-i18n="permissionDescPrefix">Thunderbird nécessite votre accord pour contacter</span> <code id="permission-domain-code" class="mt-code-domain">api-free.deepl.com</code>.
+              </p>
+            </div>
+          </div>
+          <button type="button" id="btn-grant-permission" class="mt-btn-permission">
+            <span aria-hidden="true">🛡️</span> <span data-i18n="btnGrantPermission">Autoriser l'accès en 1 clic</span>
+          </button>
+        </div>
+
         <!-- Sélection du Fournisseur -->
         <div class="mt-field-group">
           <label for="select-provider" class="mt-label">
@@ -174,6 +192,7 @@
     </footer>
   </div>
 
+  <script src="../mt-providers.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

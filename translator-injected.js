@@ -70,7 +70,7 @@
       errorServiceUnavailable: "Service de traduction indisponible. Réessayez plus tard.",
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
       errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
-      errorPermissionRequired: "Accès réseau requis. Cliquez sur le badge ⚙️ pour ouvrir les réglages.",
+      errorPermissionRequired: "Permission requise pour {provider} : Cliquez sur le badge ⚙️ pour ouvrir les réglages.",
       statusAlreadyIn:         "Déjà en {lang}"
     },
     en: {
@@ -95,7 +95,7 @@
       errorServiceUnavailable: "Translation service unavailable. Try again later.",
       errorTimeout:            "Request timed out. Check your connection.",
       errorNetwork:            "Network error. Check your connection.",
-      errorPermissionRequired: "Network access required. Click the ⚙️ badge to open settings.",
+      errorPermissionRequired: "Permission required for {provider}: Click the ⚙️ badge to open settings.",
       statusAlreadyIn:         "Already in {lang}"
     },
     es: {
@@ -120,7 +120,7 @@
       errorServiceUnavailable: "Servicio de traducción no disponible. Inténtalo más tarde.",
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
       errorNetwork:            "Error de red. Comprueba tu conexión.",
-      errorPermissionRequired: "Acceso de red requerido. Haz clic en la insignia ⚙️ para abrir los ajustes.",
+      errorPermissionRequired: "Permiso requerido para {provider}: Haz clic en la insignia ⚙️ para abrir los ajustes.",
       statusAlreadyIn:         "Ya en {lang}"
     },
     de: {
@@ -145,7 +145,7 @@
       errorServiceUnavailable: "Übersetzungsdienst nicht verfügbar. Versuchen Sie es später.",
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
       errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
-      errorPermissionRequired: "Netzwerkzugriff erforderlich. Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu öffnen.",
+      errorPermissionRequired: "Berechtigung für {provider} erforderlich: Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu öffnen.",
       statusAlreadyIn:         "Bereits auf {lang}"
     },
     vi: {
@@ -170,7 +170,7 @@
       errorServiceUnavailable: "Dịch vụ dịch không khả dụng. Hãy thử lại sau.",
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
       errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
-      errorPermissionRequired: "Cần quyền truy cập mạng. Nhấp vào huy hiệu ⚙️ để mở cài đặt.",
+      errorPermissionRequired: "Cần quyền cho {provider}: Nhấp vào huy hiệu ⚙️ để mở cài đặt.",
       statusAlreadyIn:         "Đã ở {lang}"
     },
     ja: {
@@ -195,7 +195,7 @@
       errorServiceUnavailable: "翻訳サービスを利用できません。後でもう一度お試しください。",
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
       errorNetwork:            "ネットワークエラー。接続を確認してください。",
-      errorPermissionRequired: "ネットワーク権限が必要です。⚙️バッジをクリックして設定を開いてください。",
+      errorPermissionRequired: "{provider}の権限が必要です：⚙️バッジをクリックして設定を開いてください。",
       statusAlreadyIn:         "すでに{lang}です"
     },
     pt: {
@@ -220,7 +220,7 @@
       errorServiceUnavailable: "Serviço de tradução indisponível. Tente mais tarde.",
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
       errorNetwork:            "Erro de rede. Verifique a sua ligação.",
-      errorPermissionRequired: "Acesso de rede necessário. Clique no selo ⚙️ para abrir as definições.",
+      errorPermissionRequired: "Permissão necessária para {provider}: Clique no selo ⚙️ para abrir as definições.",
       statusAlreadyIn:         "Já em {lang}"
     }
   };
@@ -1143,7 +1143,8 @@
 
       // Signalement explicite si la permission réseau manque
       if (!aPermissionMoteur && origineRequise) {
-        afficherStatut(ui.statut, t("errorPermissionRequired"), "error");
+        const nomMoteur = (ui.badgeMoteurLabel && ui.badgeMoteurLabel.textContent) || "le moteur actif";
+        afficherStatut(ui.statut, t("errorPermissionRequired", { provider: nomMoteur }), "error");
         return;
       }
 

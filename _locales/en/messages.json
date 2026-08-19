@@ -268,5 +268,17 @@
   },
   "composeStatusPermissionRequired": {
     "message": "Network permission required"
+  },
+  "permissionTitlePrefix": {
+    "message": "Permission required for"
+  },
+  "permissionDescPrefix": {
+    "message": "Thunderbird needs your permission to contact"
+  },
+  "btnGrantPermission": {
+    "message": "Grant access in 1 click"
+  },
+  "statusPermissionGranted": {
+    "message": "✓ Permission granted successfully! The engine is ready."
   }
 }
