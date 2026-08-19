@@ -272,20 +272,6 @@ async function traiterMessage(message, expediteur) {
     }
   }
 
-  // ── Action 2d : Demande d'autorisation d'hôte 1-clic ─────────────────────
-  if (message.action === "requestPermission") {
-    const origin = message.origin || "https://translate.googleapis.com/*";
-    try {
-      if (messenger.permissions && messenger.permissions.request) {
-        const granted = await messenger.permissions.request({ origins: [origin] });
-        return { success: true, granted: Boolean(granted) };
-      }
-      return { success: true, granted: true };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
-  }
-
   // ── Action 3 : Requête de traduction ─────────────────────────────────────
   if (message.action === "translate") {
     // Validation du payload : type strict pour éviter toute injection.

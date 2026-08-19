@@ -9,6 +9,17 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.7] — 2026-08-19
+
+Élimination de la permission globale « Tous les sites web » et nettoyage des résidus de code.
+
+### Sécurité & Permissions
+- **`manifest.json`** :
+  - **Suppression du wildcard `*://*/*`** : Élimination définitive de l'avertissement anxiogène de Thunderbird *« Accéder à vos données pour tous les sites web »*.
+  - **Permissions d'hôtes ciblées et explicites** : Déclaration directe de l'ensemble des domaines réels supportés (`https://translate.googleapis.com/*`, `https://api-free.deepl.com/*`, `https://api.deepl.com/*`, `https://generativelanguage.googleapis.com/*`, `https://api.openai.com/*`, `https://api.groq.com/*`, `https://api.mistral.ai/*`, `https://libretranslate.com/*`, `http://localhost/*`, `http://127.0.0.1/*`).
+- **`background.js`** :
+  - **Nettoyage de code mort** : Suppression du gestionnaire orphelin `requestPermission`.
+
 ## [2.3.6] — 2026-08-19
 
 Intégration du bandeau d'alerte 1-clic conditionnel dans les préférences et inclusion des providers pour les options.
