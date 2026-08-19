@@ -700,16 +700,17 @@
         try {
           const url = config.llmBaseUrl || config.url || "http://localhost:11434";
           const u = new URL(url);
-          return `${u.origin}/*`;
+          // Les match patterns WebExtension ne supportent pas de numéro de port
+          return `${u.protocol}//${u.hostname}/*`;
         } catch {
-          return "http://localhost:11434/*";
+          return "http://localhost/*";
         }
       }
       if (provider === "libretranslate") {
         try {
           const url = config.libretranslateUrl || config.url || "https://libretranslate.com";
           const u = new URL(url);
-          return `${u.origin}/*`;
+          return `${u.protocol}//${u.hostname}/*`;
         } catch {
           return "https://libretranslate.com/*";
         }

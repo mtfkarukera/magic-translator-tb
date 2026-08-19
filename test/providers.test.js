@@ -307,19 +307,23 @@ test("obtenirPatternOrigine : patterns d'hôtes WebExtension par moteur", () => 
   assert.equal(obtenirPatternOrigine("llm", { llmPreset: "groq" }), "https://api.groq.com/*");
   assert.equal(obtenirPatternOrigine("llm", { llmPreset: "mistral" }), "https://api.mistral.ai/*");
 
-  // LLM Hub Local & Custom URLs
+  // LLM Hub Local & Custom URLs (match patterns normalisés sans numéro de port)
   assert.equal(
     obtenirPatternOrigine("llm", { llmPreset: "ollama", llmBaseUrl: "http://localhost:11434/v1" }),
-    "http://localhost:11434/*"
+    "http://localhost/*"
   );
   assert.equal(
     obtenirPatternOrigine("llm", { llmPreset: "custom", llmBaseUrl: "https://llm.corp.local:8443/v1/chat" }),
-    "https://llm.corp.local:8443/*"
+    "https://llm.corp.local/*"
+  );
+  assert.equal(
+    obtenirPatternOrigine("llm", { llmPreset: "lmstudio", llmBaseUrl: "http://127.0.0.1:1234/v1" }),
+    "http://127.0.0.1/*"
   );
 
   // LibreTranslate
   assert.equal(
-    obtenirPatternOrigine("libretranslate", { libretranslateUrl: "https://translate.mon-domaine.org/api" }),
+    obtenirPatternOrigine("libretranslate", { libretranslateUrl: "https://translate.mon-domaine.org:8080/api" }),
     "https://translate.mon-domaine.org/*"
   );
 });

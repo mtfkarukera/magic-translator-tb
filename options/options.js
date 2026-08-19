@@ -226,8 +226,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       btnRefreshGeminiModels.textContent = "⏳ Chargement…";
     }
 
-    // Demande de permission si nécessaire
-    await assurerPermissionsHote({ provider: "gemini", geminiApiKey: apiKey });
+    // Demande de permission sous geste utilisateur uniquement (clic explicite)
+    if (!silencieux) {
+      await assurerPermissionsHote({ provider: "gemini", geminiApiKey: apiKey });
+    }
 
     try {
       const reponse = await browser.runtime.sendMessage({

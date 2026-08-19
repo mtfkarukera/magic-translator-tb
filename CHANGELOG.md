@@ -9,6 +9,16 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.8] — 2026-08-19
+
+Normalisation des match patterns d'hôtes sans numéro de port et fiabilisation de l'actualisation des modèles Gemini.
+
+### Corrigé
+- **`mt-providers.js`** :
+  - **Normalisation Match Patterns (Spécification Mozilla)** : Remplacement de `u.origin/*` par `${u.protocol}//${u.hostname}/*` dans `obtenirPatternOrigine()`. Les patterns d'hôtes ne contiennent plus de numéro de port (ex: `http://localhost/*` au lieu de `http://localhost:11434/*`), permettant l'autorisation 1-clic immédiate pour Ollama et LM Studio.
+- **`options/options.js`** :
+  - **Garde-fou Gemini** : Restriction de la demande d'hôte dans `actualiserModelesGemini` aux clics explicites de l'utilisateur (`!silencieux`), éliminant l'avertissement de console au chargement des options.
+
 ## [2.3.7] — 2026-08-19
 
 Élimination de la permission globale « Tous les sites web » et nettoyage des résidus de code.
