@@ -9,6 +9,28 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.3.10] — 2026-09-14
+
+Résilience accrue du moteur Google Translate, intégration de MyMemory avec bascule automatique de secours et correctifs critiques en Mode Rédaction.
+
+### Ajouté
+- **`mt-providers.js` & `background.js` (Résilience & MyMemory)** :
+  - **Migration vers l'Endpoint Officiel Google Translate-PA** : Remplacement de l'ancien endpoint `translate_a/single` (sujet aux blocages 429 sur IP résidentielles et origines d'extension) par `https://translate-pa.googleapis.com/v1/translate` (`client=gtx`), autorisant formellement les extensions Mozilla et éliminant les blocages Captcha.
+  - **Bascule Automatique de Secours (*Fallback*)** : En cas de quota dépassé (`RATE_LIMITED` 429) ou d'indisponibilité momentanée de Google, bascule automatique et transparente vers **MyMemory** pour assurer la traduction sans interruption.
+  - **Nouveau Moteur MyMemory (`mymemory`)** : Fournisseur gratuit complet via `api.mymemory.translated.net`, sans clé d'API requise (quota par défaut de 5 000 caractères/jour par IP).
+  - **Quota Étendu MyMemory** : Prise en charge d'une adresse e-mail optionnelle dans les réglages permettant de porter le quota gratuit de 5 000 à 50 000 caractères/jour sans carte bancaire (`&de=email`).
+- **`options/` (Page des Préférences)** :
+  - Ajout de l'option `MyMemory` dans le sélecteur de fournisseur.
+  - Section dédiée avec champ de saisie d'e-mail optionnel (`#mymemory-email`) et aide contextuelle.
+- **`_locales/` (Internationalisation)** :
+  - Ajout des 5 nouvelles clés de libellés et d'erreurs (`optProviderMyMemory`, `helpProviderMyMemory`, `labelMyMemoryEmail`, `helpMyMemoryEmail`, `composeStatusNoScopeSelected`) dans l'ensemble des 7 langues supportées (`fr`, `en`, `de`, `es`, `ja`, `pt`, `vi`).
+
+### Corrigé
+- **`compose/compose.js` (Mode Rédaction)** :
+  - **Élimination du Faux Succès** : Détection immédiate si ni l'Objet ni le Corps ne sont cochés, avec affichage d'un statut d'alerte clair (`Veuillez cocher au moins l'Objet ou le Corps`) et interruption propre sans notification trompeuse.
+  - **Élimination de la Réinjection Masquée du Texte Initial** : Si la traduction d'un segment échoue, l'erreur réelle est propagée et signalée au lieu de réinjecter discrètement le texte source français en prétendant un succès.
+  - **Transparence du Statut d'Erreur** : La méthode `definirStatut` affiche désormais le motif précis de l'erreur (ex: `RATE_LIMITED`, `SERVICE_UNAVAILABLE`) au lieu d'un message générique masquant la cause réelle.
+
 ## [2.3.9] — 2026-08-19
 
 Support universel des serveurs personnalisés via l'autorisation dynamique d'hôtes (optional_host_permissions).

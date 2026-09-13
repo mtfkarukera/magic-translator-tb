@@ -23,7 +23,10 @@ d'aucune dépendance runtime (pas de bundler, pas de framework, pas d'Experiment
 │   │  • bouton + menu      │  passing   │  • UI Shadow DOM         │   │
 │   │  • mt-providers.js    │            │  • badge moteur          │   │
 │   │    ├─ Google (défaut) │            │  • collecte/réinjection  │   │
-│   │    ├─ DeepL API       │            └──────────────────────────┘   │
+│   │    │  └─ Fallback auto│            └──────────────────────────┘   │
+│   │    │     MyMemory     │                                           │
+│   │    ├─ MyMemory (libre)│                                           │
+│   │    ├─ DeepL API       │                                           │
 │   │    ├─ Google Gemini   │                                           │
 │   │    ├─ LLM Hub OpenAI  │                                           │
 │   │    └─ LibreTranslate  │                                           │
@@ -32,7 +35,7 @@ d'aucune dépendance runtime (pas de bundler, pas de framework, pas d'Experiment
 └───────────────┼───────────────────────────────────────────────────────┘
                 ▼
    Endpoints de Traduction / IA
-   (Google Translate, DeepL, Google AI Studio, OpenAI, Groq, Mistral, Ollama, LM Studio...)
+   (Google Translate-PA, MyMemory, DeepL, Google AI Studio, OpenAI, Groq, Mistral, Ollama, LM Studio...)
 ```
 
 ---
@@ -132,7 +135,8 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
 ### 3.1 Hub Multi-Fournisseurs (`mt-providers.js`)
 
 Le module `mt-providers.js` encapsule la communication avec les différents services de traduction :
-- **Google Translate (`google`)** : `POST https://translate.googleapis.com/translate_a/single?client=gtx&sl=<src>&tl=<tgt>&dt=t` avec corps `q=<texte>`.
+- **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA&params.client=gtx&sl=<src>&tl=<tgt>&q=<texte>`. Fournisseur par défaut, gratuit et sans configuration. Si Google renvoie une erreur (quota `RATE_LIMITED` 429, indisponibilité serveur ou coupure réseau), une bascule automatique de secours (*fallback*) s'effectue instantanément et de façon transparente vers **MyMemory**.
+- **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get?q=<texte>&langpair=<src>|<tgt>[&de=<email>]`. Service gratuit sans clé d'API (quota de base de 5 000 car./jour par IP, étendu à 50 000 car./jour en renseignant un e-mail dans les options). Gère automatiquement en interne le sous-découpage en tranches de ≤ 450 caractères (respect des sauts de ligne, de la ponctuation et des sentinelles `\nMTSEP...\n`) pour respecter la limite stricte de 500 caractères par requête, avec nettoyage des balises XLIFF MateCat et entités HTML. Utilisable en moteur principal ou en relais de secours.
 - **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
 - **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent?key=<apiKey>` avec prompt système étanche.
 - **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut.

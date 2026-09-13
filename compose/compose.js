@@ -63,13 +63,14 @@ function appliquerI18n() {
 }
 
 // ── Gestion de l'Interface et du Statut ──────────────────────────────────────
-function definirStatut(type, cleI18n, texteRepli) {
+function definirStatut(type, cleI18n, texteRepli, detail = "") {
   const barre = document.getElementById("status-bar");
   const txt = document.getElementById("status-text");
   if (!barre || !txt) return;
 
   barre.className = `status-bar status-${type}`;
-  txt.textContent = t(cleI18n, texteRepli);
+  const base = t(cleI18n, texteRepli);
+  txt.textContent = detail ? `${base} (${detail})` : base;
 }
 
 // ── Fonction d'Autorisation 1-Clic sous Geste Utilisateur ───────────────────
@@ -320,8 +321,16 @@ async function executerTraduction() {
     }
 
     // 2. Traduction Globale (Objet et/ou Corps)
+    const veutObjet = Boolean(chkSubject && chkSubject.checked);
+    const veutCorps = Boolean(chkBody && chkBody.checked);
+
+    if (!veutObjet && !veutCorps) {
+      definirStatut("error", "composeStatusNoScopeSelected", "Veuillez cocher au moins l'Objet ou le Corps.");
+      return;
+    }
+
     // 2.a Traduction de l'Objet (Sujet) via setComposeDetails
-    if (chkSubject && chkSubject.checked && details.subject && details.subject.trim()) {
+    if (veutObjet && details.subject && details.subject.trim()) {
       if (etatOriginal.sujet === null) {
         etatOriginal.sujet = details.subject;
       }
@@ -333,13 +342,15 @@ async function executerTraduction() {
         target: targetLang
       });
 
-      if (repSubject && repSubject.success) {
-        await browser.compose.setComposeDetails(ongletActifId, { subject: repSubject.text });
+      if (!repSubject || !repSubject.success) {
+        throw new Error(repSubject ? repSubject.error : "SERVICE_UNAVAILABLE");
       }
+
+      await browser.compose.setComposeDetails(ongletActifId, { subject: repSubject.text });
     }
 
     // 2.b Traduction du Corps in situ via injection directe dans le DOM de l'éditeur
-    if (chkBody && chkBody.checked) {
+    if (veutCorps) {
       const extraits = await extraireNoeudsCorpsEditeur(ongletActifId);
 
       if (extraits && extraits.length > 0) {
@@ -349,20 +360,26 @@ async function executerTraduction() {
 
         const traductions = [];
         for (const ext of extraits) {
+          const texteSegment = ext.trim();
+          if (!texteSegment) {
+            traductions.push(ext);
+            continue;
+          }
+
           const rep = await browser.runtime.sendMessage({
             action: "translate",
-            text: ext.trim(),
+            text: texteSegment,
             source: sourceLang,
             target: targetLang
           });
 
-          if (rep && rep.success && rep.text) {
-            const lead = ext.match(/^\s*/)[0];
-            const trail = ext.match(/\s*$/)[0];
-            traductions.push(lead + rep.text + trail);
-          } else {
-            traductions.push(ext);
+          if (!rep || !rep.success || !rep.text) {
+            throw new Error(rep ? rep.error : "SERVICE_UNAVAILABLE");
           }
+
+          const lead = ext.match(/^\s*/)[0];
+          const trail = ext.match(/\s*$/)[0];
+          traductions.push(lead + rep.text + trail);
         }
 
         await injecterTraductionsCorpsEditeur(ongletActifId, traductions);
@@ -382,7 +399,7 @@ async function executerTraduction() {
     if (err.message === "PERMISSION_REQUIRED") {
       definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
     } else {
-      definirStatut("error", "composeStatusError", "Erreur de traduction (" + (err.message || "réseau") + ")");
+      definirStatut("error", "composeStatusError", "Erreur de traduction", err.message || "réseau");
     }
   } finally {
     btnTranslate.disabled = false;

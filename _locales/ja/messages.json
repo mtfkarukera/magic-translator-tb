@@ -80,6 +80,18 @@
   "optProviderGoogle": {
     "message": "Google Translate (デフォルト — 無料・設定不要)"
   },
+  "optProviderMyMemory": {
+    "message": "MyMemory (無料 — キー不要、1日5千〜5万文字)"
+  },
+  "helpProviderMyMemory": {
+    "message": "MyMemory (Translated.net) を使用した無料翻訳。APIキーは不要です。"
+  },
+  "labelMyMemoryEmail": {
+    "message": "メールアドレス (任意 — クォータ拡張)"
+  },
+  "helpMyMemoryEmail": {
+    "message": "メールアドレスを登録すると、クレジットカード不要で無料の1日制限が5,000文字から50,000文字に拡張されます。"
+  },
   "optProviderDeepl": {
     "message": "DeepL API (高精度プロ翻訳)"
   },
@@ -259,6 +271,9 @@
   },
   "composeStatusError": {
     "message": "翻訳エラー"
+  },
+  "composeStatusNoScopeSelected": {
+    "message": "件名または本文のいずれかにチェックを入れてください"
   },
   "langAuto": {
     "message": "自動検出"

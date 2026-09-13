@@ -168,6 +168,7 @@ messenger.tabs.onRemoved.addListener((tabId) => {
 
 const CONFIG_DEFAUT = {
   provider: "google",
+  mymemoryEmail: "",
   deeplApiKey: "",
   deeplPlan: "auto",
   libretranslateUrl: "https://libretranslate.com",

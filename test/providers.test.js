@@ -282,8 +282,11 @@ test("construireEndpointLLM : normalisation des suffixes /v1 et URLs", () => {
 
 test("obtenirPatternOrigine : patterns d'hôtes WebExtension par moteur", () => {
   // Google Translate par défaut
-  assert.equal(obtenirPatternOrigine("google"), "https://translate.googleapis.com/*");
-  assert.equal(obtenirPatternOrigine("inconnu"), "https://translate.googleapis.com/*");
+  assert.equal(obtenirPatternOrigine("google"), "https://translate-pa.googleapis.com/*");
+  assert.equal(obtenirPatternOrigine("inconnu"), "https://translate-pa.googleapis.com/*");
+
+  // MyMemory API
+  assert.equal(obtenirPatternOrigine("mymemory"), "https://api.mymemory.translated.net/*");
 
   // DeepL Free vs Pro
   assert.equal(
@@ -327,3 +330,129 @@ test("obtenirPatternOrigine : patterns d'hôtes WebExtension par moteur", () => 
     "https://translate.mon-domaine.org/*"
   );
 });
+
+test("FournisseurGoogle (Translate-PA) : succès sur mock JSON", async () => {
+  const fetchOriginal = globalThis.fetch;
+  let urlAppelee = "";
+
+  globalThis.fetch = async (url) => {
+    urlAppelee = url;
+    return {
+      ok: true,
+      json: async () => ({ translation: "Good morning", sourceLanguage: "fr" })
+    };
+  };
+
+  try {
+    const res = await FOURNISSEURS.google.traduire("Bonjour", "fr", "en");
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Good morning");
+    assert.equal(res.detectedLang, "fr");
+    assert.ok(urlAppelee.includes("translate-pa.googleapis.com/v1/translate"));
+    assert.ok(urlAppelee.includes("params.client=gtx"));
+    assert.ok(urlAppelee.includes("key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA"));
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurMyMemory : succès et construction URL", async () => {
+  const fetchOriginal = globalThis.fetch;
+  let urlAppelee = "";
+
+  globalThis.fetch = async (url) => {
+    urlAppelee = url;
+    return {
+      ok: true,
+      json: async () => ({
+        responseData: { translatedText: "Hello world" },
+        matches: [{ source: "fr-FR", target: "en-GB" }]
+      })
+    };
+  };
+
+  try {
+    const res = await FOURNISSEURS.mymemory.traduire("Bonjour le monde", "fr", "en", {
+      mymemoryEmail: "test@mtfk.fr"
+    });
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Hello world");
+    assert.equal(res.detectedLang, "fr");
+    assert.ok(urlAppelee.includes("api.mymemory.translated.net/get"));
+    assert.ok(urlAppelee.includes("langpair=fr%7Cen"));
+    assert.ok(urlAppelee.includes("de=test%40mtfk.fr"));
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurGoogle : bascule automatique sur MyMemory si erreur 429", async () => {
+  const fetchOriginal = globalThis.fetch;
+  const appels = [];
+
+  globalThis.fetch = async (url) => {
+    appels.push(url);
+    if (url.includes("translate-pa.googleapis.com")) {
+      return { ok: false, status: 429 };
+    }
+    return {
+      ok: true,
+      json: async () => ({
+        responseData: { translatedText: "Hello from MyMemory" },
+        matches: [{ source: "fr-FR" }]
+      })
+    };
+  };
+
+  try {
+    const res = await FOURNISSEURS.google.traduire("Bonjour", "fr", "en");
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Hello from MyMemory");
+    assert.equal(appels.length, 2);
+    assert.ok(appels[0].includes("translate-pa.googleapis.com"));
+    assert.ok(appels[1].includes("api.mymemory.translated.net"));
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurMyMemory : sous-découpage automatique des textes longs (> 450 car.) et nettoyage", async () => {
+  const fetchOriginal = globalThis.fetch;
+  const appels = [];
+
+  globalThis.fetch = async (url) => {
+    appels.push(url);
+    const parsedUrl = new URL(url);
+    const q = parsedUrl.searchParams.get("q") || "";
+    // Vérifier qu'aucune sous-requête ne dépasse la limite stricte de 450 caractères
+    assert.ok(q.length <= 450, `Le paramètre q (${q.length} car) dépasse la limite de 450`);
+    return {
+      ok: true,
+      json: async () => ({
+        responseData: {
+          translatedText: `<g id="1">${q.toUpperCase()}</g> &quot;ok&quot;`
+        },
+        matches: [{ source: "fr-FR" }]
+      })
+    };
+  };
+
+  try {
+    // Texte de 1 000 caractères avec plusieurs phrases
+    const phrase = "Ceci est une phrase de test pour valider le découpage interne de MyMemory. ";
+    const texteLong = phrase.repeat(14); // ~1 050 caractères
+
+    const res = await FOURNISSEURS.mymemory.traduire(texteLong, "fr", "en");
+    assert.equal(res.success, true);
+    // Doit avoir nécessité au moins 3 sous-requêtes
+    assert.ok(appels.length >= 3, `Nombre d'appels attendu >= 3, reçu : ${appels.length}`);
+    // Vérifier le nettoyage des balises <g> et des entités &quot;
+    assert.ok(!res.text.includes("<g"), "Les balises <g> doivent être nettoyées");
+    assert.ok(!res.text.includes("&quot;"), "Les entités &quot; doivent être décodées");
+    assert.ok(res.text.includes('"ok"'), 'Les guillemets décodés "ok" doivent être présents');
+    assert.equal(res.detectedLang, "fr");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+

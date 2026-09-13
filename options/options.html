@@ -46,6 +46,7 @@
           </label>
           <select id="select-provider" class="mt-select">
             <option value="google" data-i18n="optProviderGoogle">Google Translate (Par défaut — Gratuit, zéro config)</option>
+            <option value="mymemory" data-i18n="optProviderMyMemory">MyMemory (Gratuit — Sans clé, 5 000 à 50 000 car./jour)</option>
             <option value="deepl" data-i18n="optProviderDeepl">DeepL API (Qualité linguistique pro)</option>
             <option value="gemini" data-i18n="optProviderGemini">Google Gemini API (Cloud — Rapide &amp; Intelligent)</option>
             <option value="llm" data-i18n="optProviderLlm">Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)</option>
@@ -166,6 +167,17 @@
               <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" data-i18n-placeholder="placeholderLtKey" autocomplete="off" spellcheck="false">
               <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
             </div>
+          </div>
+        </div>
+
+        <!-- Section MyMemory -->
+        <div id="section-mymemory" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <label for="mymemory-email" class="mt-label" data-i18n="labelMyMemoryEmail">Adresse e-mail (Optionnel — Quota étendu)</label>
+            <input type="email" id="mymemory-email" class="mt-input" placeholder="Ex: vous@domaine.com" spellcheck="false">
+            <p class="mt-help-text" data-i18n="helpMyMemoryEmail">
+              Renseigner une adresse e-mail permet de porter gratuitement votre quota de 5 000 à 50 000 caractères par jour, sans carte bancaire.
+            </p>
           </div>
         </div>
 

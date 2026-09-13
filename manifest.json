@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -58,7 +58,9 @@
     "storage"
   ],
   "host_permissions": [
+    "https://translate-pa.googleapis.com/*",
     "https://translate.googleapis.com/*",
+    "https://api.mymemory.translated.net/*",
     "https://api-free.deepl.com/*",
     "https://api.deepl.com/*",
     "https://generativelanguage.googleapis.com/*",

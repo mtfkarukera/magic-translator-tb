@@ -80,6 +80,18 @@
   "optProviderGoogle": {
     "message": "Google Translate (Mặc định — Miễn phí, không cần cấu hình)"
   },
+  "optProviderMyMemory": {
+    "message": "MyMemory (Miễn phí — Không cần khóa, 5.000 đến 50.000 ký tự/ngày)"
+  },
+  "helpProviderMyMemory": {
+    "message": "Dịch miễn phí qua MyMemory (Translated.net) mà không cần khóa API."
+  },
+  "labelMyMemoryEmail": {
+    "message": "Địa chỉ email (Tùy chọn — Tăng hạn mức)"
+  },
+  "helpMyMemoryEmail": {
+    "message": "Nhập email giúp tăng hạn mức miễn phí mỗi ngày từ 5.000 lên 50.000 ký tự mà không cần thẻ tín dụng."
+  },
   "optProviderDeepl": {
     "message": "DeepL API (Chất lượng dịch chuyên nghiệp)"
   },
@@ -259,6 +271,9 @@
   },
   "composeStatusError": {
     "message": "Lỗi dịch thuật"
+  },
+  "composeStatusNoScopeSelected": {
+    "message": "Vui lòng chọn ít nhất Tiêu đề hoặc Nội dung"
   },
   "langAuto": {
     "message": "Tự động phát hiện"

@@ -60,34 +60,169 @@
   }
 
   // ── 1. FOURNISSEUR GOOGLE TRANSLATE (DÉFAUT) ───────────────────────────────
+  const GOOGLE_PA_KEY = "AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA";
+
   const FournisseurGoogle = {
     id: "google",
     label: "Google",
     nomComplet: "Google Translate",
 
     /**
-     * Traduit un texte via Google Translate (client gtx).
+     * Traduit un texte via Google Translate (API Translate-PA WebExtensions).
+     * En cas d'indisponibilité ou blocage, bascule automatiquement sur MyMemory en secours.
      * @param {string} texte - Texte brut à traduire
      * @param {string} source - Langue source ("auto" ou code)
      * @param {string} cible - Langue cible
-     * @param {Object} [_config] - Configuration optionnelle
+     * @param {Object} [config] - Configuration optionnelle
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
-    async traduire(texte, source, cible, _config = {}) {
-      const url =
-        "https://translate.googleapis.com/translate_a/single" +
-        "?client=gtx" +
-        "&sl=" + encodeURIComponent(source) +
-        "&tl=" + encodeURIComponent(cible) +
-        "&dt=t";
+    async traduire(texte, source, cible, config = {}) {
+      const params = new URLSearchParams();
+      params.append("params.client", "gtx");
+      params.append("query.source_language", source || "auto");
+      params.append("query.target_language", cible);
+      params.append("query.display_language", cible);
+      params.append("query.text", texte);
+      params.append("key", GOOGLE_PA_KEY);
+      params.append("data_types", "TRANSLATION");
+
+      const url = `https://translate-pa.googleapis.com/v1/translate?${params.toString()}`;
 
       let reponse;
       try {
         reponse = await fetch(url, {
-          method: "POST",
-          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "q=" + encodeURIComponent(texte)
+          method: "GET",
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS)
+        });
+      } catch (erreur) {
+        // En cas de timeout ou erreur réseau, repli automatique sur MyMemory
+        try {
+          return await FournisseurMyMemory.traduire(texte, source, cible, config);
+        } catch {
+          if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+            throw new Error("TIMEOUT");
+          }
+          throw new Error("NETWORK");
+        }
+      }
+
+      if (!reponse.ok) {
+        // En cas d'erreur HTTP (ex: 429 ou 500), repli automatique sur MyMemory
+        try {
+          return await FournisseurMyMemory.traduire(texte, source, cible, config);
+        } catch {
+          if (reponse.status === 429) throw new Error("RATE_LIMITED");
+          throw new Error("SERVICE_UNAVAILABLE");
+        }
+      }
+
+      let donnees;
+      try {
+        donnees = await reponse.json();
+      } catch {
+        try {
+          return await FournisseurMyMemory.traduire(texte, source, cible, config);
+        } catch {
+          throw new Error("SERVICE_UNAVAILABLE");
+        }
+      }
+
+      if (donnees && typeof donnees.translation === "string") {
+        return {
+          success: true,
+          text: donnees.translation,
+          detectedLang: donnees.sourceLanguage || null
+        };
+      }
+
+      // Format inattendu : tentative de secours sur MyMemory
+      return await FournisseurMyMemory.traduire(texte, source, cible, config);
+    }
+  };
+
+  // ── 1b. FOURNISSEUR MYMEMORY API (SECOURS & AUTONOME) ──────────────────────
+
+  /**
+   * Extrait les espaces de tête et de queue pour ne pas les envoyer à MyMemory
+   * et les réattacher fidèlement à la reconstitution.
+   * @param {string} txt - Texte source
+   * @returns {{lead: string, coeur: string, trail: string}}
+   */
+  function extraireEspacesTexte(txt) {
+    const lead = txt.match(/^\s*/)[0];
+    const trail = txt.match(/\s*$/)[0];
+    const coeur = txt.slice(lead.length, txt.length - trail.length);
+    return { lead, coeur, trail };
+  }
+
+  /**
+   * Nettoie les balises XLIFF (ex: <g id="1">...</g>) et entités HTML renvoyées par MyMemory.
+   * @param {string} txt - Texte renvoyé par l'API MyMemory
+   * @returns {string} Texte nettoyé
+   */
+  function nettoyerTraductionMyMemory(txt) {
+    if (!txt) return "";
+    return txt
+      .replace(/<\/?g[^>]*>/gi, "")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+  }
+
+  /**
+   * Découpe un texte trop long en tranches de taille maximale (par défaut 450 car.)
+   * pour respecter la limite stricte de 500 caractères par requête de l'API MyMemory.
+   * Privilégie les coupures naturelles (\n, . , , , espace) pour préserver le sens.
+   * @param {string} texte - Texte à découper
+   * @param {number} [maxLen=450] - Taille maximale par tranche
+   * @returns {string[]} Tranches dont la concaténation reconstitue exactement le texte
+   */
+  function decouperPourMyMemory(texte, maxLen = 450) {
+    if (!texte || texte.length <= maxLen) return [texte];
+    const tranches = [];
+    let reste = texte;
+    while (reste.length > maxLen) {
+      let coupe = reste.lastIndexOf("\n", maxLen);
+      if (coupe < maxLen * 0.3) coupe = reste.lastIndexOf(". ", maxLen);
+      if (coupe >= maxLen * 0.3 && reste[coupe] === ".") coupe += 1;
+      if (coupe < maxLen * 0.3) coupe = reste.lastIndexOf(", ", maxLen);
+      if (coupe >= maxLen * 0.3 && reste[coupe] === ",") coupe += 1;
+      if (coupe < maxLen * 0.3) coupe = reste.lastIndexOf(" ", maxLen);
+      if (coupe < maxLen * 0.3) coupe = maxLen; // Coupe franche si aucun délimiteur
+
+      tranches.push(reste.slice(0, coupe));
+      reste = reste.slice(coupe);
+    }
+    if (reste) tranches.push(reste);
+    return tranches;
+  }
+
+  const FournisseurMyMemory = {
+    id: "mymemory",
+    label: "MyMemory",
+    nomComplet: "MyMemory API",
+
+    /**
+     * Exécute une requête unitaire vers MyMemory pour un segment de <= 450 caractères.
+     * @param {string} segment - Segment de texte (sans espaces superflus)
+     * @param {string} langpair - Paire de langues (ex: "fr|en")
+     * @param {Object} config - Configuration optionnelle (mymemoryEmail)
+     * @returns {Promise<{text: string, detectedLang: string|null}>}
+     */
+    async _traduireRequete(segment, langpair, config) {
+      let url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(segment)}&langpair=${encodeURIComponent(langpair)}`;
+      const email = (config.mymemoryEmail || config.email || "").trim();
+      if (email) {
+        url += `&de=${encodeURIComponent(email)}`;
+      }
+
+      let reponse;
+      try {
+        reponse = await fetch(url, {
+          method: "GET",
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS)
         });
       } catch (erreur) {
         if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
@@ -98,7 +233,6 @@
 
       if (!reponse.ok) {
         if (reponse.status === 429) throw new Error("RATE_LIMITED");
-        if (reponse.status >= 500) throw new Error("SERVICE_UNAVAILABLE");
         throw new Error("SERVICE_UNAVAILABLE");
       }
 
@@ -109,22 +243,95 @@
         throw new Error("SERVICE_UNAVAILABLE");
       }
 
-      if (donnees && donnees[0] && Array.isArray(donnees[0])) {
-        const traduction = donnees[0]
-          .filter((segment) => segment && segment[0])
-          .map((segment) => segment[0])
-          .join("");
+      if (!donnees) {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
 
-        if (!traduction.trim()) throw new Error("SERVICE_UNAVAILABLE");
+      if (donnees.quotaFinished) {
+        throw new Error("RATE_LIMITED");
+      }
+
+      if (donnees.responseData && typeof donnees.responseData.translatedText === "string") {
+        const traduit = donnees.responseData.translatedText;
+        // Détection d'avertissement de quota ou de limite dépassée
+        if (traduit.includes("MYMEMORY WARNING") || traduit.includes("QUERY LENGTH LIMIT")) {
+          throw new Error("RATE_LIMITED");
+        }
+
+        let detectedLang = null;
+        if (Array.isArray(donnees.matches) && donnees.matches.length > 0) {
+          const premierMatch = donnees.matches[0];
+          if (premierMatch && premierMatch.source) {
+            detectedLang = premierMatch.source.split("-")[0].toLowerCase();
+          }
+        }
 
         return {
-          success: true,
-          text: traduction,
-          detectedLang: donnees[2] || null
+          text: nettoyerTraductionMyMemory(traduit),
+          detectedLang
         };
       }
 
       throw new Error("SERVICE_UNAVAILABLE");
+    },
+
+    /**
+     * Traduit un texte via MyMemory (Translated.net) en gérant automatiquement
+     * le sous-découpage pour les textes de plus de 450 caractères.
+     * @param {string} texte - Texte brut à traduire
+     * @param {string} source - Langue source ("auto" ou code)
+     * @param {string} cible - Langue cible
+     * @param {Object} [config] - Configuration optionnelle (mymemoryEmail)
+     * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
+     */
+    async traduire(texte, source, cible, config = {}) {
+      const src = (source === "auto" || !source) ? "autodetect" : source.toLowerCase();
+      const tgt = cible.toLowerCase();
+      const langpair = `${src}|${tgt}`;
+
+      // Si le texte est vide ou ne contient que des espaces, le renvoyer tel quel
+      if (!texte || !texte.trim()) {
+        return { success: true, text: texte, detectedLang: null };
+      }
+
+      // Si le texte est court (<= 450 caractères), traitement direct
+      if (texte.length <= 450) {
+        const { lead, coeur, trail } = extraireEspacesTexte(texte);
+        if (!coeur.trim()) {
+          return { success: true, text: texte, detectedLang: null };
+        }
+        const resultat = await this._traduireRequete(coeur, langpair, config);
+        return {
+          success: true,
+          text: lead + resultat.text + trail,
+          detectedLang: resultat.detectedLang
+        };
+      }
+
+      // Si le texte dépasse 450 caractères, découpage en sous-tranches sécurisées
+      const tranches = decouperPourMyMemory(texte, 450);
+      const morceauxTraduits = [];
+      let detectedLang = null;
+
+      for (const tranche of tranches) {
+        const { lead, coeur, trail } = extraireEspacesTexte(tranche);
+        // Si la tranche est vide ou ne contient que des espaces, la préserver sans appel réseau
+        if (!coeur.trim()) {
+          morceauxTraduits.push(tranche);
+          continue;
+        }
+        const res = await this._traduireRequete(coeur, langpair, config);
+        morceauxTraduits.push(lead + res.text + trail);
+        if (!detectedLang && res.detectedLang) {
+          detectedLang = res.detectedLang;
+        }
+      }
+
+      return {
+        success: true,
+        text: morceauxTraduits.join(""),
+        detectedLang
+      };
     }
   };
 
@@ -558,6 +765,7 @@
   // ── REGISTRE & GESTIONNAIRE GLOBAL ─────────────────────────────────────────
   const FOURNISSEURS = {
     google: FournisseurGoogle,
+    mymemory: FournisseurMyMemory,
     deepl: FournisseurDeepL,
     libretranslate: FournisseurLibreTranslate,
     gemini: FournisseurGemini,
@@ -715,7 +923,10 @@
           return "https://libretranslate.com/*";
         }
       }
-      return "https://translate.googleapis.com/*";
+      if (provider === "mymemory") {
+        return "https://api.mymemory.translated.net/*";
+      }
+      return "https://translate-pa.googleapis.com/*";
     }
   };
 

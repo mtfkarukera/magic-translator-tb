@@ -80,6 +80,18 @@
   "optProviderGoogle": {
     "message": "Google Translate (Por defecto — Gratis, sin config)"
   },
+  "optProviderMyMemory": {
+    "message": "MyMemory (Gratis — Sin clave, 5.000 a 50.000 caracteres/día)"
+  },
+  "helpProviderMyMemory": {
+    "message": "Traducción gratuita mediante MyMemory (Translated.net) sin necesidad de clave API."
+  },
+  "labelMyMemoryEmail": {
+    "message": "Dirección de correo (Opcional — Cuota ampliada)"
+  },
+  "helpMyMemoryEmail": {
+    "message": "Introducir un correo amplía su cuota diaria gratuita de 5.000 a 50.000 caracteres, sin tarjeta de crédito."
+  },
   "optProviderDeepl": {
     "message": "DeepL API (Calidad lingüística pro)"
   },
@@ -259,6 +271,9 @@
   },
   "composeStatusError": {
     "message": "Error de traducción"
+  },
+  "composeStatusNoScopeSelected": {
+    "message": "Por favor, marque al menos Asunto o Cuerpo"
   },
   "langAuto": {
     "message": "Detectar auto"

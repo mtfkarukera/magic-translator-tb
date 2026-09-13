@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.3.9-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.3.10-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le **panneau de lecture** et dans la **fenêtre de rédaction (Compose Mode)** avec une interface Glassmorphism élégante et discrète.
@@ -17,12 +17,13 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ### ✍️ 2. Mode Rédaction (Fenêtre de Composition)
 - **Bouton MT dédié** dans la barre d'outils de rédaction (aux côtés de LanguageTool, Envoyer, etc.).
 - **Popup Glassmorphism adaptatif** — Interface fluide s'ajustant automatiquement au thème clair ou sombre de Thunderbird.
-- **Traduction de l'Objet et/ou du Corps** — Choix du périmètre de traduction avec cases à cocher dédiées.
+- **Traduction de l'Objet et/ou du Corps** — Choix du périmètre de traduction avec cases à cocher dédiées et détection d'erreurs sécurisée.
 - **Traduction de la Sélection active** — Détection automatique du texte surligné dans l'éditeur pour un remplacement chirurgical in situ.
 - **Réversibilité totale** — Bouton **Restaurer l'original** pour retrouver l'état initial en un clic.
 
 ### 🌐 3. Hub Multi-Fournisseurs & LLMs
-- **Google Translate** (*par défaut*, gratuit, zéro configuration)
+- **Google Translate** (*par défaut*, gratuit, zéro configuration — avec bascule automatique transparente sur MyMemory en cas de quota ou indisponibilité)
+- **MyMemory** (*Gratuit*, sans clé d'API, 5 000 à 50 000 car./jour via e-mail optionnel)
 - **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
 - **Google Gemini API** (*Cloud IA*, `gemini-3.5-flash-lite`, ultra-rapide et intelligent)
 - **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
@@ -96,7 +97,7 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 magic-translator-tb/
 ├── manifest.json              # Manifest V3 Thunderbird (permissions, options_ui, host_permissions)
 ├── background.js              # Script d'arrière-plan (enregistrement + bouton barre + routage traduction)
-├── mt-providers.js            # Adaptateurs de traduction (Google, DeepL API, LibreTranslate)
+├── mt-providers.js            # Hub de traduction (Google PA + fallback, MyMemory, DeepL, Gemini, LLMs, LibreTranslate)
 ├── translator-injected.js     # Script injecté dans le panneau de message (UI Shadow DOM + badge moteur)
 ├── mt-text.js                 # Helpers de texte purs (testables ; injecté avant l'UI)
 ├── options/                   # Page de configuration des options

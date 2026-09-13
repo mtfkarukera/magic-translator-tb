@@ -86,6 +86,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputLibreTranslateKey = document.getElementById("libretranslate-api-key");
   const btnToggleLtKey = document.getElementById("btn-toggle-lt-key");
 
+  const sectionMyMemory = document.getElementById("section-mymemory");
+  const inputMyMemoryEmail = document.getElementById("mymemory-email");
+
   const warningBanner = document.getElementById("permission-warning-banner");
   const btnGrantPermission = document.getElementById("btn-grant-permission");
   const permissionProviderName = document.getElementById("permission-provider-name");
@@ -101,6 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ── Valeurs par défaut & Presets LLM ───────────────────────────────────────
   const DEFAUTS = {
     provider: "google",
+    mymemoryEmail: "",
     deeplApiKey: "",
     deeplPlan: "auto",
     libretranslateUrl: "https://libretranslate.com",
@@ -182,11 +186,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     sectionGemini.classList.add("mt-hidden");
     sectionLlm.classList.add("mt-hidden");
     sectionLibreTranslate.classList.add("mt-hidden");
+    sectionMyMemory.classList.add("mt-hidden");
 
     if (provider === "google") {
       providerBadge.textContent = t("badgeDefault", "Par défaut");
       providerBadge.style.display = "inline-block";
       helpProvider.textContent = t("helpProviderGoogle", "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.");
+    } else if (provider === "mymemory") {
+      sectionMyMemory.classList.remove("mt-hidden");
+      providerBadge.textContent = "MyMemory";
+      providerBadge.style.display = "inline-block";
+      helpProvider.textContent = t("helpProviderMyMemory", "Traduction gratuite via MyMemory (Translated.net) sans clé requise.");
     } else if (provider === "deepl") {
       sectionDeepl.classList.remove("mt-hidden");
       providerBadge.textContent = "DeepL";
@@ -306,6 +316,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     inputLibreTranslateUrl.value = config.libretranslateUrl || "https://libretranslate.com";
     inputLibreTranslateKey.value = config.libretranslateApiKey;
+    inputMyMemoryEmail.value = config.mymemoryEmail || "";
 
     actualiserAffichageFournisseur();
 
@@ -472,7 +483,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       llmApiKey: inputLlmApiKey.value.trim(),
       llmModel: inputLlmModel.value.trim() || "gpt-4o-mini",
       libretranslateUrl: inputLibreTranslateUrl.value.trim() || "https://libretranslate.com",
-      libretranslateApiKey: inputLibreTranslateKey.value.trim()
+      libretranslateApiKey: inputLibreTranslateKey.value.trim(),
+      mymemoryEmail: inputMyMemoryEmail.value.trim()
     };
   }
 
