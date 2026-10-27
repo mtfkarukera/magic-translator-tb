@@ -157,7 +157,7 @@
             <label for="libretranslate-url" class="mt-label" data-i18n="labelLibreTranslateUrl">URL de l'instance LibreTranslate</label>
             <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false">
             <p class="mt-help-text" data-i18n="helpLibreTranslateUrl">
-              Indiquez l'URL de votre serveur auto-hébergé (ex: <code>http://localhost:5000</code>) ou d'une instance publique.
+              Indiquez l'URL de votre serveur auto-hébergé (ex: <code>http://localhost:5000</code> ou <code>http://192.168.1.50:5000</code>) ou d'une instance publique. Les connexions HTTP locales/LAN et HTTPS sont prises en charge.
             </p>
           </div>
 
@@ -179,6 +179,125 @@
               Renseigner une adresse e-mail permet de porter gratuitement votre quota de 5 000 à 50 000 caractères par jour, sans carte bancaire.
             </p>
           </div>
+        </div>
+
+        <!-- Section Ergonomie & Préférences de Traduction -->
+        <div class="mt-section-divider">
+          <h2 class="mt-section-title" data-i18n="sectionErgonomicsTitle">Ergonomie &amp; Comportement</h2>
+        </div>
+
+        <div class="mt-field-group">
+          <div class="mt-toggle-row">
+            <div class="mt-toggle-info">
+              <label for="auto-translate-on-click" class="mt-toggle-title" data-i18n="labelAutoTranslateOnClick">Traduction automatique en 1 clic</label>
+              <p class="mt-help-text" data-i18n="helpAutoTranslateOnClick">
+                Traduit immédiatement l'e-mail au clic sur le bouton de la barre d'outils ou via le raccourci Alt+Shift+T, sans nécessiter de second clic dans le bandeau.
+              </p>
+            </div>
+            <label class="mt-toggle-switch" for="auto-translate-on-click">
+              <input type="checkbox" id="auto-translate-on-click" role="switch" class="mt-toggle-input">
+              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-field-group">
+          <div class="mt-toggle-row">
+            <div class="mt-toggle-info">
+              <label for="auto-translate-on-open" class="mt-toggle-title" data-i18n="labelAutoTranslateOnOpen">Traduction automatique à l'ouverture (Mode Zéro-Clic)</label>
+              <p class="mt-help-text" data-i18n="helpAutoTranslateOnOpen">
+                Traduit automatiquement les e-mails reçus dès leur ouverture sans aucun clic, et replie l'interface dans la pilule d'accès direct.
+              </p>
+            </div>
+            <label class="mt-toggle-switch" for="auto-translate-on-open">
+              <input type="checkbox" id="auto-translate-on-open" role="switch" class="mt-toggle-input">
+              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
+            </label>
+          </div>
+
+          <!-- Sous-options Zéro-Clic (conditionnelles) -->
+          <div id="zero-click-suboptions" class="mt-suboptions-box mt-hidden">
+            <div class="mt-radio-group">
+              <label class="mt-radio-label">
+                <input type="radio" name="auto-translate-mode" value="all_foreign" id="mode-all-foreign" checked>
+                <span data-i18n="optModeAllForeign">Tous les e-mails qui ne sont pas dans ma langue cible</span>
+              </label>
+              <label class="mt-radio-label">
+                <input type="radio" name="auto-translate-mode" value="selected" id="mode-selected">
+                <span data-i18n="optModeSelected">Uniquement depuis les langues sélectionnées ci-dessous :</span>
+              </label>
+            </div>
+
+            <div id="zero-click-langs-grid" class="mt-langs-grid mt-hidden">
+              <label class="mt-lang-chip"><input type="checkbox" value="en" class="mt-lang-chk"> English</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="de" class="mt-lang-chk"> Deutsch</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="es" class="mt-lang-chk"> Español</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="it" class="mt-lang-chk"> Italiano</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="pt" class="mt-lang-chk"> Português</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="nl" class="mt-lang-chk"> Nederlands</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ru" class="mt-lang-chk"> Русский</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ja" class="mt-lang-chk"> 日本語</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="zh-CN" class="mt-lang-chk"> 中文</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ar" class="mt-lang-chk"> العربية</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="vi" class="mt-lang-chk"> Tiếng Việt</label>
+              <label class="mt-lang-chip"><input type="checkbox" value="pl" class="mt-lang-chk"> Polski</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-field-group">
+          <div class="mt-toggle-row">
+            <div class="mt-toggle-info">
+              <label for="prefer-local-detection" class="mt-toggle-title" data-i18n="labelPreferLocalDetection">Préférer la détection linguistique locale (moteur intégré Thunderbird)</label>
+              <p class="mt-help-text" data-i18n="helpPreferLocalDetection">
+                Analyse la langue source en local sur votre ordinateur avant tout appel réseau (100% hors-ligne). Idéal pour LibreTranslate ou les modèles locaux (Ollama/LLMs) dépourvus de module d'auto-détection.
+              </p>
+            </div>
+            <label class="mt-toggle-switch" for="prefer-local-detection">
+              <input type="checkbox" id="prefer-local-detection" role="switch" class="mt-toggle-input">
+              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-field-group">
+          <label for="select-alternate-target" class="mt-label" data-i18n="labelAlternateTarget">Langue cible d'alternance (Double traduction)</label>
+          <select id="select-alternate-target" class="mt-select">
+            <option value="none" data-i18n="optAlternateNone">Aucune (Désactivé par défaut)</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ja">日本語</option>
+            <option value="zh-CN">中文 (简体)</option>
+            <option value="zh-TW">中文 (繁體)</option>
+            <option value="ar">العربية</option>
+            <option value="ru">Русский</option>
+            <option value="nl">Nederlands</option>
+            <option value="pl">Polski</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ko">한국어</option>
+            <option value="tr">Türkçe</option>
+            <option value="el">Ελληνικά</option>
+            <option value="he">עברית</option>
+            <option value="sv">Svenska</option>
+            <option value="da">Dansk</option>
+            <option value="fi">Suomi</option>
+            <option value="no">Norsk</option>
+            <option value="cs">Čeština</option>
+            <option value="ro">Română</option>
+            <option value="hu">Magyar</option>
+            <option value="uk">Українська</option>
+            <option value="hi">हिन्दी</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="ms">Bahasa Melayu</option>
+            <option value="th">ไทย</option>
+          </select>
+          <p class="mt-help-text" data-i18n="helpAlternateTarget">
+            Optionnel. Si l'e-mail reçu est déjà rédigé dans la langue cible principale (ex: déjà en français), bascule automatiquement vers cette langue d'alternance.
+          </p>
         </div>
 
         <!-- Zone de Statut & Feedback -->

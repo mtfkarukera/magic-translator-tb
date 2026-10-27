@@ -34,7 +34,8 @@
 (async function enregistrerScript() {
   const definition = {
     id: "magic-translator-v2",
-    js: ["mt-text.js", "translator-injected.js"]
+    js: ["mt-text.js", "translator-injected.js"],
+    runAt: "document_idle"
   };
   // On désenregistre d'abord : garantit que la définition À JOUR (ordre + liste de
   // fichiers) remplace une éventuelle version persistée d'un chargement précédent —
@@ -71,8 +72,14 @@
  * @param {number} tabId — Identifiant de l'onglet Thunderbird
  */
 async function envoyerToggleBanner(tabId) {
+  const config = await chargerConfiguration();
+  const payload = {
+    action: "toggleBanner",
+    autoTranslate: Boolean(config.autoTranslateOnClick),
+    alternateTarget: config.alternateTarget || "none"
+  };
   try {
-    await messenger.tabs.sendMessage(tabId, { action: "toggleBanner" });
+    await messenger.tabs.sendMessage(tabId, payload);
   } catch {
     console.log("[MagicTranslator] Le script de contenu ne répond pas. Injection manuelle de secours...");
     try {
@@ -82,7 +89,7 @@ async function envoyerToggleBanner(tabId) {
       });
       // Petit délai pour laisser le temps au script de s'initialiser et de s'enregistrer
       await new Promise((resolve) => setTimeout(resolve, 60));
-      await messenger.tabs.sendMessage(tabId, { action: "toggleBanner" });
+      await messenger.tabs.sendMessage(tabId, payload);
     } catch (errSecours) {
       console.error("[MagicTranslator] Échec de l'injection ou de l'envoi de secours :", errSecours.message || errSecours);
     }
@@ -178,7 +185,13 @@ const CONFIG_DEFAUT = {
   llmPreset: "openai",
   llmBaseUrl: "https://api.openai.com",
   llmApiKey: "",
-  llmModel: "gpt-4o-mini"
+  llmModel: "gpt-4o-mini",
+  autoTranslateOnClick: false,
+  alternateTarget: "none",
+  preferLocalDetection: false,
+  autoTranslateOnOpen: false,
+  autoTranslateMode: "all_foreign",
+  autoTranslateLangs: []
 };
 
 /**
@@ -210,6 +223,40 @@ const CODES_ERREURS_CONNUS = new Set([
   "UNAUTHORIZED",
   "PERMISSION_REQUIRED"
 ]);
+
+/**
+ * Détecte la langue d'un texte en local via le moteur C++ CLD2 intégré à Thunderbird.
+ * 100% hors-ligne, zéro appel réseau, zéro permission additionnelle.
+ * @param {string} texte
+ * @returns {Promise<{lang: string|null, isReliable: boolean, percentage: number, languages: Array<{lang: string, percentage: number}>}>}
+ */
+async function detecterLangueLocale(texte) {
+  if (!texte || typeof texte !== "string" || !texte.trim()) {
+    return { lang: null, isReliable: false, percentage: 0, languages: [] };
+  }
+  try {
+    if (messenger.i18n && messenger.i18n.detectLanguage) {
+      const res = await messenger.i18n.detectLanguage(texte.slice(0, 1500));
+      if (res && Array.isArray(res.languages) && res.languages.length > 0) {
+        const premier = res.languages[0];
+        const code = (premier.language || "").split("-")[0].toLowerCase();
+        const toutes = res.languages.map((l) => ({
+          lang: (l.language || "").split("-")[0].toLowerCase(),
+          percentage: l.percentage || 0
+        }));
+        return {
+          lang: code || null,
+          isReliable: Boolean(res.isReliable),
+          percentage: premier.percentage || 0,
+          languages: toutes
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("[MagicTranslator] Échec detectLanguage local :", err);
+  }
+  return { lang: null, isReliable: false, percentage: 0, languages: [] };
+}
 
 /**
  * Traite les requêtes de messages internes de façon asynchrone.
@@ -244,7 +291,14 @@ async function traiterMessage(message, expediteur) {
       providerLabel: fournisseur.label,
       providerNom: fournisseur.nomComplet,
       hasPermission: Boolean(hasPermission),
-      requiredOrigin
+      requiredOrigin,
+      autoTranslateOnClick: Boolean(config.autoTranslateOnClick),
+      alternateTarget: config.alternateTarget || "none",
+      preferLocalDetection: Boolean(config.preferLocalDetection),
+      autoTranslateOnOpen: Boolean(config.autoTranslateOnOpen),
+      autoTranslateMode: config.autoTranslateMode || "all_foreign",
+      autoTranslateLangs: Array.isArray(config.autoTranslateLangs) ? config.autoTranslateLangs : [],
+      uiLanguage: (messenger.i18n && messenger.i18n.getUILanguage) ? messenger.i18n.getUILanguage() : "fr"
     };
   }
 
@@ -271,6 +325,12 @@ async function traiterMessage(message, expediteur) {
     } catch (err) {
       return { success: false, error: err.message };
     }
+  }
+
+  // ── Action 2d : Détection locale de la langue (CLD2 hors-ligne) ───────────
+  if (message.action === "detectLanguage") {
+    const res = await detecterLangueLocale(message.text || "");
+    return { success: true, ...res };
   }
 
   // ── Action 3 : Requête de traduction ─────────────────────────────────────
@@ -332,13 +392,42 @@ async function traiterMessage(message, expediteur) {
       // Ignore si non supporté
     }
 
+    // Détection locale préalable si source === "auto"
+    let langueLocaleDetectee = null;
+    if (message.source === "auto") {
+      const detLocale = await detecterLangueLocale(message.text);
+      if (detLocale && detLocale.lang && detLocale.isReliable) {
+        langueLocaleDetectee = detLocale.lang;
+      }
+    }
+
+    let sourceEffective = message.source;
+    // Si l'utilisateur a configuré la détection linguistique locale prioritaire
+    if (config.preferLocalDetection && message.source === "auto" && langueLocaleDetectee) {
+      sourceEffective = langueLocaleDetectee;
+    }
+
     try {
-      const res = await globalThis.MTProviders.traduire(configProvider, message.text, message.source, message.target);
+      let res;
+      try {
+        res = await globalThis.MTProviders.traduire(configProvider, message.text, sourceEffective, message.target);
+      } catch (errMoteur) {
+        // Secours pour LibreTranslate si source: "auto" n'est pas supporté par le serveur
+        if (config.provider === "libretranslate" && sourceEffective === "auto" && langueLocaleDetectee) {
+          console.log("[MagicTranslator] Secours LibreTranslate : relance avec langue locale", langueLocaleDetectee);
+          res = await globalThis.MTProviders.traduire(configProvider, message.text, langueLocaleDetectee, message.target);
+        } else {
+          throw errMoteur;
+        }
+      }
+
       const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
+      const detectedLangFinal = res.detectedLang || langueLocaleDetectee || null;
+
       return {
         success: true,
         text: res.text,
-        detectedLang: res.detectedLang,
+        detectedLang: detectedLangFinal,
         provider: config.provider,
         providerLabel: fournisseur.label
       };

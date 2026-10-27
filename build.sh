@@ -39,7 +39,7 @@ FILES=(
 )
 
 # ── Garde-fou : interdire DEBUG = true dans le code packagé ────────────────
-if grep -nE 'const[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true' background.js translator-injected.js mt-text.js mt-providers.js; then
+if grep -nE '(const|let|var)[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true' background.js translator-injected.js mt-text.js mt-providers.js options/options.js compose/compose.js; then
   echo "❌ ABANDON : DEBUG = true détecté. Repasser à false avant de packager." >&2
   exit 1
 fi

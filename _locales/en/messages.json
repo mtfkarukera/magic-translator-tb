@@ -168,7 +168,7 @@
     "message": "LibreTranslate Instance URL"
   },
   "helpLibreTranslateUrl": {
-    "message": "Enter your self-hosted server URL (e.g. http://localhost:5000) or a public instance."
+    "message": "Enter your self-hosted server URL (e.g. http://localhost:5000) or a public instance. Local/LAN HTTP and remote HTTPS connections are natively supported without any proxy."
   },
   "labelLibreTranslateKey": {
     "message": "LibreTranslate API Key (Optional)"
@@ -295,5 +295,41 @@
   },
   "statusPermissionGranted": {
     "message": "✓ Permission granted successfully! The engine is ready."
+  },
+  "sectionErgonomicsTitle": {
+    "message": "Ergonomics & Behavior"
+  },
+  "labelAutoTranslateOnClick": {
+    "message": "Automatic 1-click translation"
+  },
+  "helpAutoTranslateOnClick": {
+    "message": "Immediately translates the email when clicking the toolbar button or pressing Alt+Shift+T, without requiring a second click in the banner."
+  },
+  "labelAlternateTarget": {
+    "message": "Alternate target language (Dual translation)"
+  },
+  "optAlternateNone": {
+    "message": "None (Disabled by default)"
+  },
+  "helpAlternateTarget": {
+    "message": "Optional. If the received email is already written in the primary target language (e.g. already in English), automatically switches to this alternate language."
+  },
+  "labelAutoTranslateOnOpen": {
+    "message": "Automatic translation on open (Zero-Click Mode)"
+  },
+  "helpAutoTranslateOnOpen": {
+    "message": "Automatically translates incoming emails as soon as they are opened without requiring any click, and collapses into the quick access pill."
+  },
+  "optModeAllForeign": {
+    "message": "All emails not written in my target language"
+  },
+  "optModeSelected": {
+    "message": "Only from the specific languages selected below:"
+  },
+  "labelPreferLocalDetection": {
+    "message": "Prefer local language detection (Thunderbird built-in engine)"
+  },
+  "helpPreferLocalDetection": {
+    "message": "Analyzes the source language locally on your computer before any network call (100% offline). Ideal for LibreTranslate or local models (Ollama/LLMs) without built-in auto-detection."
   }
 }

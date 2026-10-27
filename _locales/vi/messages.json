@@ -168,7 +168,7 @@
     "message": "URL phiên bản LibreTranslate"
   },
   "helpLibreTranslateUrl": {
-    "message": "Nhập URL máy chủ tự lưu trữ của bạn (ví dụ: http://localhost:5000) hoặc máy chủ công khai."
+    "message": "Nhập URL máy chủ tự lưu trữ của bạn (ví dụ: http://localhost:5000) hoặc phiên bản công khai. Kết nối HTTP cục bộ/LAN và HTTPS từ xa được hỗ trợ nguyên bản mà không cần proxy."
   },
   "labelLibreTranslateKey": {
     "message": "Khóa API LibreTranslate (Tùy chọn)"
@@ -295,5 +295,41 @@
   },
   "statusPermissionGranted": {
     "message": "✓ Đã cấp quyền thành công! Động cơ đã sẵn sàng."
+  },
+  "sectionErgonomicsTitle": {
+    "message": "Tiện dụng & Hành vi"
+  },
+  "labelAutoTranslateOnClick": {
+    "message": "Dịch tự động 1 cú nhấp"
+  },
+  "helpAutoTranslateOnClick": {
+    "message": "Dịch email ngay lập tức khi nhấp vào nút thanh công cụ hoặc qua phím tắt Alt+Shift+T mà không cần nhấp lần hai trên biểu ngữ."
+  },
+  "labelAlternateTarget": {
+    "message": "Ngôn ngữ đích thay thế (Dịch kép)"
+  },
+  "optAlternateNone": {
+    "message": "Không (Mặc định tắt)"
+  },
+  "helpAlternateTarget": {
+    "message": "Tùy chọn. Nếu email nhận được đã bằng ngôn ngữ đích chính, tự động chuyển sang ngôn ngữ thay thế này."
+  },
+  "labelAutoTranslateOnOpen": {
+    "message": "Tự động dịch khi mở thư (Chế độ Không cần nhấp)"
+  },
+  "helpAutoTranslateOnOpen": {
+    "message": "Tự động dịch email đến ngay khi mở mà không cần nhấp chuột, và thu gọn vào thanh truy cập nhanh."
+  },
+  "optModeAllForeign": {
+    "message": "Tất cả email không phải bằng ngôn ngữ đích của tôi"
+  },
+  "optModeSelected": {
+    "message": "Chỉ từ các ngôn ngữ được chọn bên dưới:"
+  },
+  "labelPreferLocalDetection": {
+    "message": "Ưu tiên phát hiện ngôn ngữ cục bộ (công cụ tích hợp của Thunderbird)"
+  },
+  "helpPreferLocalDetection": {
+    "message": "Phân tích ngôn ngữ nguồn cục bộ trên máy tính của bạn trước bất kỳ kết nối mạng nào (100% ngoại tuyến). Lý tưởng cho LibreTranslate hoặc các mô hình cục bộ (Ollama/LLMs) không có tự động phát hiện tích hợp."
   }
 }

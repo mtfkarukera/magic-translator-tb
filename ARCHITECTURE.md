@@ -91,7 +91,8 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
 
 ```
 1. [Activation]  bouton barre / menu / raccourci (Alt+Shift+T, commands → background)
-       → toggleBanner → le bandeau s'ouvre
+       → toggleBanner (avec autoTranslate si mode 1-clic actif) → le bandeau s'ouvre
+       → si mode 1-clic actif : déclenchement immédiat de lancerTraduction()
 
 2. [Collecte]    collecterNoeudsTexte(document.body)
        TreeWalker SHOW_TEXT, ignore SCRIPT/STYLE/CODE/… et les nœuds vides
@@ -100,13 +101,15 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
 3. [Sauvegarde]  contenusOriginaux : Map<Text, string>
        (uniquement à la 1re traduction, pour la restauration)
 
-4. [Découpage]   lots de ≤ 4000 caractères
+4. [Découpage & Alternance] lots de ≤ 4000 caractères
        nœuds joints par un SÉPARATEUR unique "\n<SENTINEL>\n"
        SENTINEL = jeton alphanumérique long et aléatoire (vérifié absent du corps)
+       • Si source === cible ou si langue détectée === cible et alternateTarget !== "none" :
+         bascule automatique vers la cible d'alternance (Dual Translation).
 
 5. [Traduction]  pour chaque lot (statut « Traduction… (i/N) » si plusieurs lots) :
        runtime.sendMessage({action:"translate", text, source, target})
-       → background fetch Google → texte traduit
+       → background fetch Google / LibreTranslate / etc. → texte traduit
        • nœud unique > 4000 car. : sous-découpé en segments, traduits puis recollés
 
 6. [Réinjection ATOMIQUE]
@@ -117,8 +120,8 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
        • lot multi-nœuds: split sur SEPARATEUR_RE, réassignation 1:1
        • si #segments ≠ #nœuds : FALLBACK nœud-par-nœud (1 requête par nœud)
 
-7. [Statut]      "✓ Traduit depuis <langue>" (ou "⚠ Traduit partiellement")
-       → fermeture automatique après 1,5 s (sauf échec partiel)
+7. [Statut]      "✓ Traduit depuis <langue>" ou "✓ Traduit vers <langue> (alternance)"
+       (ou "⚠ Traduit partiellement")
 
 8. [Restauration] bouton « Original » : restaure chaque nœud depuis contenusOriginaux
 ```
@@ -127,22 +130,38 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
 
 | Sens | Message | Réponse |
 |------|---------|---------|
-| background → injected | `{ action: "toggleBanner" }` | — (ouvre/ferme l'UI) |
-| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom }` |
+| background → injected | `{ action: "toggleBanner", autoTranslate?: boolean }` | — (ouvre/ferme l'UI et traduit si 1-clic) |
+| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom, autoTranslateOnClick, alternateTarget, autoTranslateOnOpen, autoTranslateMode, autoTranslateLangs, preferLocalDetection }` |
+| injected → background | `{ action: "detectLanguage", text }` | `{ success: true, language: string }` (CLD2 local hors-ligne) |
 | options → background | `{ action: "testProvider", config }` | `{ success: boolean, message: string }` |
 | injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel }` ou `{ success: false, error }` |
 
 ### 3.1 Hub Multi-Fournisseurs (`mt-providers.js`)
 
-Le module `mt-providers.js` encapsule la communication avec les différents services de traduction :
+Le module `mt-providers.js` encapsule la communication avec les différents services de traduction avec des **timeouts différenciés** :
+- `TIMEOUT_CLOUD_MS = 10000` (10 secondes) pour les services Cloud ultra-rapides (Google, DeepL, MyMemory, Gemini, OpenAI, Groq, Mistral).
+- `TIMEOUT_LOCAL_MS = 60000` (60 secondes) pour LibreTranslate et les moteurs locaux (Ollama, LM Studio, serveurs personnalisés sur CPU/Docker).
+
+Détail des fournisseurs :
 - **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA&params.client=gtx&sl=<src>&tl=<tgt>&q=<texte>`. Fournisseur par défaut, gratuit et sans configuration. Si Google renvoie une erreur (quota `RATE_LIMITED` 429, indisponibilité serveur ou coupure réseau), une bascule automatique de secours (*fallback*) s'effectue instantanément et de façon transparente vers **MyMemory**.
 - **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get?q=<texte>&langpair=<src>|<tgt>[&de=<email>]`. Service gratuit sans clé d'API (quota de base de 5 000 car./jour par IP, étendu à 50 000 car./jour en renseignant un e-mail dans les options). Gère automatiquement en interne le sous-découpage en tranches de ≤ 450 caractères (respect des sauts de ligne, de la ponctuation et des sentinelles `\nMTSEP...\n`) pour respecter la limite stricte de 500 caractères par requête, avec nettoyage des balises XLIFF MateCat et entités HTML. Utilisable en moteur principal ou en relais de secours.
 - **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
 - **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent?key=<apiKey>` avec prompt système étanche.
-- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut.
-- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text", api_key }`.
+- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut. Timeout local à 60s pour Ollama/LM Studio.
+- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text", api_key }`. Normalisation automatique de l'URL (nettoyage de tout suffixe `/translate` ou `/translate/` accidentellement saisi). Timeout étendu à 60s pour les calculs neuronaux CPU. Les connexions en clair HTTP vers localhost, 127.0.0.1 ou le réseau local (LAN) ainsi que distantes en HTTPS sont nativement prises en charge sans reverse proxy grâce à l'exemption explicite de CSP dans `manifest.json`.
 
-Les erreurs sont normalisées en codes fiables (`UNAUTHORIZED`, `RATE_LIMITED`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `NETWORK`, `INVALID_PAYLOAD`).
+### 3.2 Détection Linguistique Locale & Mode Zéro-Clic
+
+Thunderbird intègre nativement l'API `messenger.i18n.detectLanguage(text)` (moteur Compact Language Detector v2 / CLD2 en C++).
+- **100% Hors-ligne & Zéro Latence** : L'analyse des 1 500 premiers caractères du message s'exécute en local en moins d'une milliseconde, sans envoyer le moindre octet sur le réseau.
+- **Mode Zéro-Clic (`autoTranslateOnOpen`)** : Dès l'ouverture de l'e-mail dans le panneau de lecture, la détection locale analyse le message. S'il est rédigé dans une langue étrangère (ou dans l'une des langues configurées par l'utilisateur), la traduction est déclenchée automatiquement. Le bandeau s'affiche au sommet du message avec l'indication claire du statut (« ✓ Traduit depuis [Langue] ») et le bouton « Original » immédiatement disponible en 1 clic direct pour restaurer le message natif.
+- **Protection Budgétaire & Filtrage NLP Anti-Faux Positifs** :
+  - **Échantillonnage épuré** : L'analyse CLD2 est précédée par `extraireTextePourDetection()` et `MTText.nettoyerTextePourDetection()` qui ignorent les balises techniques (`STYLE`, `SCRIPT`), les blocs de citation (`BLOCKQUOTE`, `.moz-cite-prefix`) et éliminent par regex les URLs et adresses e-mails. L'analyse s'effectue exclusivement sur la prose humaine rédigée.
+  - **Seuil de confiance asymétrique** : Exige `isReliable: true` ET `percentage >= 80%`.
+  - **Veto anti-faux positif** : Si la langue maternelle de l'utilisateur figure à $\ge 15\%$ dans les langues détectées, le système s'abstient immédiatement (0 requête réseau et 0 consommation de quota/token).
+  - **Désactivation du Reverse Translate en Automatique** : La double traduction / langue d'alternance (`alternateTarget`) est strictement neutralisée lors de l'ouverture automatique pour prévenir toute traduction non désirée de messages français vers l'anglais.
+  - **Repli silencieux** : Si le moteur de traduction distant détecte en cours de traitement que le message est en réalité `Déjà en [Langue Cible]`, le bandeau est immédiatement masqué sans trace résiduelle.
+- **Résolution pour LibreTranslate et LLMs Locaux** : Lorsque l'option `preferLocalDetection` est cochée (ou en mode automatique avec LibreTranslate), la langue source est résolue localement via CLD2 au lieu d'envoyer `source: "auto"`, évitant les erreurs 400 sur les serveurs ne supportant pas l'auto-détection distante.
 
 ---
 
@@ -214,6 +233,11 @@ Voir **`SECURITY.md`** pour le détail. Points structurants :
   code via l'extension.
 - **Frontière de privilège** : seul `background.js` accède au réseau ; le script injecté passe par
   message-passing.
+- **Politique CSP Manifest V3 (Compatibilité HTTP)** : La clé `content_security_policy: { extension_pages: "script-src 'self'" }`
+  est déclarée dans `manifest.json`. Cela désactive la directive par défaut de Gecko `upgrade-insecure-requests` qui
+  forçait la réécriture silencieuse des requêtes `http://` en `https://`, autorisant les connexions directes en clair
+  vers les serveurs privés auto-hébergés (LibreTranslate, Ollama, LM Studio sur localhost ou réseau local LAN) tout en
+  maintenant une isolation stricte d'exécution de scripts (`script-src 'self'`).
 - **Donnée transmise à un tiers** : le corps des e-mails traduits est envoyé à Google. Aucune autre
   exfiltration : le harnais de débogage `remoteLog`/`DEBUG` a été **retiré en v2.0.9**.
 - **Aucune persistance** : rien n'est stocké en `storage` ni mis en cache.

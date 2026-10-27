@@ -168,7 +168,7 @@
     "message": "URL da instância LibreTranslate"
   },
   "helpLibreTranslateUrl": {
-    "message": "Indique a URL do seu servidor auto-hospedado (ex: http://localhost:5000) ou de uma instância pública."
+    "message": "Insira o URL do seu servidor auto-hospedado (ex: http://localhost:5000) ou de uma instância pública. Conexões HTTP locais/LAN e HTTPS remotas são suportadas nativamente sem proxy."
   },
   "labelLibreTranslateKey": {
     "message": "Chave de API LibreTranslate (Opcional)"
@@ -295,5 +295,41 @@
   },
   "statusPermissionGranted": {
     "message": "✓ Permissão concedida com sucesso! O motor está pronto."
+  },
+  "sectionErgonomicsTitle": {
+    "message": "Ergonomia e comportamento"
+  },
+  "labelAutoTranslateOnClick": {
+    "message": "Tradução automática em 1 clique"
+  },
+  "helpAutoTranslateOnClick": {
+    "message": "Traduz imediatamente o e-mail ao clicar no botão da barra de ferramentas ou através do atalho Alt+Shift+T, sem necessitar de um segundo clique no banner."
+  },
+  "labelAlternateTarget": {
+    "message": "Idioma de destino alternativo (Tradução dupla)"
+  },
+  "optAlternateNone": {
+    "message": "Nenhum (Desativado por padrão)"
+  },
+  "helpAlternateTarget": {
+    "message": "Opcional. Se o e-mail recebido já estiver no idioma de destino principal, muda automaticamente para este idioma alternativo."
+  },
+  "labelAutoTranslateOnOpen": {
+    "message": "Tradução automática ao abrir (Modo Zero Cliques)"
+  },
+  "helpAutoTranslateOnOpen": {
+    "message": "Traduz automaticamente os e-mails recebidos assim que são abertos sem necessidade de cliques e recolhe para a pílula de acesso rápido."
+  },
+  "optModeAllForeign": {
+    "message": "Todos os e-mails que não estejam no meu idioma de destino"
+  },
+  "optModeSelected": {
+    "message": "Apenas dos idiomas selecionados abaixo:"
+  },
+  "labelPreferLocalDetection": {
+    "message": "Preferir detecção de idioma local (motor integrado do Thunderbird)"
+  },
+  "helpPreferLocalDetection": {
+    "message": "Analisa o idioma de origem localmente no seu computador antes de qualquer chamada de rede (100% offline). Ideal para LibreTranslate ou modelos locais (Ollama/LLMs) sem detecção automática integrada."
   }
 }

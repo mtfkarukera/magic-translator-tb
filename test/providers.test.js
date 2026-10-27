@@ -12,8 +12,15 @@ const {
   traduire,
   construireEndpointLLM,
   obtenirPatternOrigine,
+  TIMEOUT_CLOUD_MS,
+  TIMEOUT_LOCAL_MS,
   FOURNISSEURS
 } = globalThis.MTProviders;
+
+test("Timeouts différenciés : Cloud 10s vs Moteurs Locaux/Lourds 60s", () => {
+  assert.equal(TIMEOUT_CLOUD_MS, 10000);
+  assert.equal(TIMEOUT_LOCAL_MS, 60000);
+});
 
 test("normaliserCodeDeepL : codes cibles spécifiques DeepL", () => {
   assert.equal(normaliserCodeDeepL("en"), "EN-US");
@@ -99,6 +106,15 @@ test("LibreTranslate : URL personnalisée avec nettoyage du slash final", async 
     assert.equal(urlAppelee, "http://localhost:5000/translate");
     assert.equal(res.success, true);
     assert.equal(res.text, "Hello");
+
+    // Test de normalisation avec /translate déjà présent
+    await traduire(
+      { provider: "libretranslate", url: "http://192.168.1.50:5000/translate/" },
+      "Bonjour",
+      "fr",
+      "en"
+    );
+    assert.equal(urlAppelee, "http://192.168.1.50:5000/translate");
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -451,6 +467,61 @@ test("FournisseurMyMemory : sous-découpage automatique des textes longs (> 450 
     assert.ok(!res.text.includes("&quot;"), "Les entités &quot; doivent être décodées");
     assert.ok(res.text.includes('"ok"'), 'Les guillemets décodés "ok" doivent être présents');
     assert.equal(res.detectedLang, "fr");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurMyMemory : rejet si responseStatus non 200 (403/400)", async () => {
+  const fetchOriginal = globalThis.fetch;
+
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      responseStatus: 403,
+      responseData: { translatedText: "PLEASE SELECT TWO DISTINCT LANGUAGES" }
+    })
+  });
+
+  try {
+    await assert.rejects(
+      async () => {
+        await FOURNISSEURS.mymemory.traduire("Bonjour", "fr", "fr");
+      },
+      { message: "RATE_LIMITED" }
+    );
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurGemini : utilisation du header x-goog-api-key et systemInstruction", async () => {
+  const fetchOriginal = globalThis.fetch;
+  let headersRecus = null;
+  let bodyRecu = null;
+
+  globalThis.fetch = async (url, options) => {
+    headersRecus = options.headers;
+    bodyRecu = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: "Bonjour monde" }] } }]
+      })
+    };
+  };
+
+  try {
+    const res = await FOURNISSEURS.gemini.traduire("Hello world", "en", "fr", {
+      apiKey: "AIzaSyTest123",
+      model: "gemini-3.5-flash-lite"
+    });
+    assert.equal(res.success, true);
+    assert.equal(res.text, "Bonjour monde");
+    assert.equal(headersRecus["x-goog-api-key"], "AIzaSyTest123");
+    assert.ok(bodyRecu.systemInstruction, "systemInstruction doit être présent");
+    assert.ok(bodyRecu.systemInstruction.parts[0].text.includes("French"));
+    assert.equal(bodyRecu.contents[0].parts[0].text, "Hello world");
   } finally {
     globalThis.fetch = fetchOriginal;
   }

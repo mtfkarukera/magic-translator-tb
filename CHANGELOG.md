@@ -9,6 +9,55 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
+## [2.4.1] — 2026-10-27
+
+Compatibilité HTTP native sous Manifest V3 pour LibreTranslate et LLMs locaux, Mode Zéro-Clic à l'ouverture via détection linguistique hors-ligne native (CLD2), détection locale optionnelle, normalisation des URLs LibreTranslate, mode de traduction automatique en 1 clic, double traduction et inversion intelligente, timeouts différenciés jusqu'à 60s, et section Ergonomie dans les préférences.
+
+### Ajouté
+- **Compatibilité HTTP Native sous Manifest V3 (`manifest.json`)** :
+  - Déclaration explicite de la politique CSP (`content_security_policy: { extension_pages: "script-src 'self'" }`).
+  - Désactive l'auto-upgrade `upgrade-insecure-requests` imposé par défaut par Gecko en MV3, permettant les connexions HTTP natives sans chiffrement vers les serveurs privés auto-hébergés (LibreTranslate, Ollama, LM Studio sur `localhost`, `127.0.0.1` ou sur réseau local d'entreprise LAN) sans exiger de reverse proxy SSL, tout en maintenant une isolation stricte d'exécution de scripts.
+- **Mode Traduction Zéro-Clic à l'Ouverture (Back-Office & Runtime)** :
+  - Nouvelle option `autoTranslateOnOpen` dans la section Ergonomie : traduit automatiquement les e-mails reçus en langue étrangère dès leur ouverture dans le panneau de lecture sans aucun clic, avec affichage informatif transparent du bandeau (statut « ✓ Traduit depuis [Langue] » et bouton « Original » immédiatement accessible en 1 clic pour restaurer le message natif).
+  - Choix du périmètre : tous les e-mails reçus en langue étrangère (recommandé) ou uniquement depuis une sélection personnalisée de langues ciblées (`autoTranslateMode`, `autoTranslateLangs`).
+  - Propulsé à 100% hors-ligne par le moteur natif de Thunderbird (CLD2 via `messenger.i18n.detectLanguage()`) sur les 1 500 premiers caractères : zéro latence et zéro fuite de métadonnées sur le réseau.
+- **Protection Budgétaire & Filtrage NLP Anti-Faux Positifs (`mt-text.js`, `background.js`, `translator-injected.js`)** :
+  - Pré-traitement chirurgical du texte analysé par CLD2 : extraction directe des nœuds textuels hors balises techniques (`STYLE`, `SCRIPT`) et hors conteneurs de citations (`BLOCKQUOTE`, `.moz-cite-prefix`), et suppression par regex des URLs et adresses e-mails pour éliminer tout faux positif anglophone.
+  - Seuil de confiance strict (`isReliable: true` ET `percentage >= 80%`) et veto immédiat si la langue de l'utilisateur figure à $\ge 15\%$ dans les langues détectées (zéro octet réseau et zéro consommation de quota API sur les e-mails en français ou bilingues).
+  - Désactivation automatique du *reverse translate* (langue d'alternance) en mode 0 clic pour réserver la double traduction au mode manuel et éliminer tout risque de traduire involontairement un message français en anglais.
+  - Repli silencieux immédiat du bandeau si le moteur de traduction confirme qu'un message était en réalité déjà dans la langue cible (`derniereLangDetectee === cible`).
+- **Détection Linguistique Locale Optionnelle** :
+  - Nouvelle option `preferLocalDetection` permettant d'analyser la langue source en local sur la machine de l'utilisateur avant tout appel réseau.
+  - Résout le code de langue source en amont pour les moteurs comme LibreTranslate et les modèles LLMs qui ne disposent pas d'un module d'auto-détection intégré côté serveur, évitant les erreurs 400 ou l'échec de détection.
+- **Normalisation d'URL LibreTranslate** :
+  - Détection et suppression automatique du suffixe `/translate` ou `/translate/` accidentellement saisi dans l'URL de base de LibreTranslate dans les options, garantissant le ciblage exact de l'endpoint d'API.
+- **Mode Traduction en 1 Clic (Back-Office)** :
+  - Option `autoTranslateOnClick` dans la section « Ergonomie & Comportement » de la page des options.
+  - Lorsqu'elle est activée, un clic sur le bouton **Traduire** de la barre de message ou le raccourci `Alt+Shift+T` déploie le bandeau et lance directement la traduction sans exiger de second clic dans l'interface.
+- **Double Traduction & Inversion Intelligente** :
+  - Sélecteur `alternateTarget` dans les préférences permettant de définir une langue cible de repli bilingue (désactivé par défaut sur "Aucune").
+  - Si l'e-mail reçu est détecté comme étant déjà rédigé dans la langue cible principale (ex: déjà en français), Magic Translator bascule automatiquement vers la langue cible d'alternance au lieu d'interrompre l'action.
+  - Inversion automatique complète `source ↔ target` lorsque la langue source explicite correspond à la cible.
+  - Nouveau statut localisé `✓ Traduit vers {lang} (cible d'alternance)` dans le bandeau de lecture.
+- **`options/` (Page des Préférences)** :
+  - Transformation complète de la section « Ergonomie & Comportement » avec de véritables **interrupteurs à bascule (*toggle switches*) accessibles WAI-ARIA `role="switch"`** dotés d'animations fluides en remplacement des anciennes cases à cocher.
+  - **Exclusion mutuelle intelligente** entre le Mode 1-Clic et le Mode Zéro-Clic : activer l'un éteint automatiquement l'autre et replie dynamiquement les sous-panneaux associés.
+  - Sous-options Zéro-Clic interactives, choix de mode et sélection fine des langues cibles avec pré-cochage sécurisé.
+  - Interrupteur dédié pour la détection linguistique locale via Thunderbird CLD2.
+  - Mise à jour de la note d'aide LibreTranslate confirmant le support natif HTTP (local/LAN) et HTTPS sans proxy obligatoire.
+- **`_locales/` (Internationalisation)** :
+  - Ajout des nouvelles clés de libellés et d'aides contextuelles (`labelAutoTranslateOnOpen`, `helpAutoTranslateOnOpen`, `optModeAllForeign`, `optModeSelected`, `labelPreferLocalDetection`, `helpPreferLocalDetection`, `sectionErgonomicsTitle`, `labelAutoTranslateOnClick`, `helpAutoTranslateOnClick`, `labelAlternateTarget`, `optAlternateNone`, `helpAlternateTarget`) et enrichissement de `helpLibreTranslateUrl` dans les 7 langues officielles (`fr`, `en`, `de`, `es`, `ja`, `pt`, `vi`).
+
+### Modifié
+- **`mt-providers.js` (Résilience & Timeouts différenciés)** :
+  - Différenciation des délais réseau : maintien du timeout à 10s pour les services Cloud ultra-rapides (`TIMEOUT_CLOUD_MS = 10000` pour Google, DeepL, MyMemory, Gemini, OpenAI), et rehaussement à **60 secondes** pour les moteurs locaux et lourds (`TIMEOUT_LOCAL_MS = 60000` pour LibreTranslate, Ollama, LM Studio et serveurs personnalisés sur CPU/Docker), éliminant les erreurs `TIMEOUT` prématurées.
+
+### Corrigé
+- **Revue de code complète & Durcissement (Audit v2.4.1)** :
+  - **Résilience MyMemory & Gemini** : Vérification stricte de `responseStatus` dans MyMemory évitant l'injection de messages d'erreur HTTP 200 dans le corps de l'e-mail, normalisation des codes d'erreur `UNAUTHORIZED` et `RATE_LIMITED` de Gemini, et isolation des consignes système via `systemInstruction` avec en-tête sécurisé `x-goog-api-key`.
+  - **Robustesse du Mode 1-Clic, Zéro-Clic et de l'Alternance** : Prévention de toute retraduction involontaire à la réouverture du bandeau pour un message déjà traduit, support des correspondances linguistiques régionales (`pt` ↔ `pt-PT`, `zh` ↔ `zh-CN`), et rétablissement de la langue cible originale au clic sur « Original ».
+  - **Accessibilité WCAG 2.1 AA & Design Thème Clair** : Correction des contrastes du bandeau en mode clair (`.mt-btn-original`, logo et badges), restitution du focus clavier après traduction (garantissant la fermeture par `Escape`), ajout des styles `:disabled` dans les options, ajout du chevron SVG sur les sélecteurs de rédaction et synchronisation dynamique de `document.documentElement.lang`.
+
 ## [2.3.10] — 2026-09-14
 
 Résilience accrue du moteur Google Translate, intégration de MyMemory avec bascule automatique de secours et correctifs critiques en Mode Rédaction.

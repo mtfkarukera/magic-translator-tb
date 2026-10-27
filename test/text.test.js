@@ -8,7 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import "../mt-text.js";
 
-const { extraireEspaces, decouperLong } = globalThis.MTText;
+const { extraireEspaces, decouperLong, nettoyerTextePourDetection } = globalThis.MTText;
 
 test("extraireEspaces : sépare lead / coeur / trail", () => {
   assert.deepEqual(extraireEspaces("  salut  "), { lead: "  ", coeur: "salut", trail: "  " });
@@ -55,4 +55,28 @@ test("decouperLong : coupe dure si aucun séparateur proche", () => {
   const segs = decouperLong(txt, 4000);
   assert.ok(segs.every((s) => s.length <= 4000));
   assert.equal(segs.join(""), txt);
+});
+
+test("nettoyerTextePourDetection : élimine les URLs et e-mails", () => {
+  const source = "Consultez https://www.qobuz.com/fr-fr/shop pour commander ou écrivez à support-help@qobuz.com merci.";
+  const nettoye = nettoyerTextePourDetection(source);
+  assert.equal(nettoye, "Consultez pour commander ou écrivez à merci.");
+});
+
+test("nettoyerTextePourDetection : élimine les citations '>' et amorces de thread", () => {
+  const source = `Bonjour Fred,
+
+Voici les informations demandées.
+
+> On Wed, Oct 21, 2026 at 14:55 PM, "Frédéric MOUTOU" <mtfredo@gmail.com> wrote:
+> Bonjour, pouvez-vous m'aider ?
+`;
+  const nettoye = nettoyerTextePourDetection(source);
+  assert.equal(nettoye, "Bonjour Fred, Voici les informations demandées.");
+});
+
+test("nettoyerTextePourDetection : gère les chaînes vides ou invalides", () => {
+  assert.equal(nettoyerTextePourDetection(""), "");
+  assert.equal(nettoyerTextePourDetection(null), "");
+  assert.equal(nettoyerTextePourDetection(undefined), "");
 });

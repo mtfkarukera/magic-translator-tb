@@ -30,6 +30,10 @@ function t(cle, repli = "") {
  * Parcourt le DOM et applique les traductions sur tous les éléments data-i18n*.
  */
 function appliquerI18n() {
+  const uiLang = browser.i18n ? browser.i18n.getUILanguage() : "en";
+  if (uiLang) {
+    document.documentElement.lang = uiLang.split("-")[0];
+  }
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const cle = el.getAttribute("data-i18n");
     const msg = t(cle);
@@ -89,6 +93,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sectionMyMemory = document.getElementById("section-mymemory");
   const inputMyMemoryEmail = document.getElementById("mymemory-email");
 
+  const chkAutoTranslateOnClick = document.getElementById("auto-translate-on-click");
+  const selectAlternateTarget = document.getElementById("select-alternate-target");
+
+  const chkAutoTranslateOnOpen = document.getElementById("auto-translate-on-open");
+  const zeroClickSuboptions = document.getElementById("zero-click-suboptions");
+  const modeAllForeign = document.getElementById("mode-all-foreign");
+  const modeSelected = document.getElementById("mode-selected");
+  const zeroClickLangsGrid = document.getElementById("zero-click-langs-grid");
+  const chkPreferLocalDetection = document.getElementById("prefer-local-detection");
+
   const warningBanner = document.getElementById("permission-warning-banner");
   const btnGrantPermission = document.getElementById("btn-grant-permission");
   const permissionProviderName = document.getElementById("permission-provider-name");
@@ -114,7 +128,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     llmPreset: "openai",
     llmBaseUrl: "https://api.openai.com",
     llmApiKey: "",
-    llmModel: "gpt-4o-mini"
+    llmModel: "gpt-4o-mini",
+    autoTranslateOnClick: false,
+    alternateTarget: "none",
+    autoTranslateOnOpen: false,
+    autoTranslateMode: "all_foreign",
+    autoTranslateLangs: [],
+    preferLocalDetection: false
   };
 
   const LLM_PRESETS = {
@@ -318,6 +338,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     inputLibreTranslateKey.value = config.libretranslateApiKey;
     inputMyMemoryEmail.value = config.mymemoryEmail || "";
 
+    chkAutoTranslateOnOpen.checked = Boolean(config.autoTranslateOnOpen);
+    // Exclusion mutuelle au chargement : si Zéro-Clic est actif, désactive le 1-Clic
+    if (chkAutoTranslateOnOpen.checked) {
+      chkAutoTranslateOnClick.checked = false;
+      zeroClickSuboptions.classList.remove("mt-hidden");
+    } else {
+      chkAutoTranslateOnClick.checked = Boolean(config.autoTranslateOnClick);
+      zeroClickSuboptions.classList.add("mt-hidden");
+    }
+    selectAlternateTarget.value = config.alternateTarget || "none";
+
+    if (config.autoTranslateMode === "selected") {
+      modeSelected.checked = true;
+      zeroClickLangsGrid.classList.remove("mt-hidden");
+    } else {
+      modeAllForeign.checked = true;
+      zeroClickLangsGrid.classList.add("mt-hidden");
+    }
+
+    const langsSelectionnees = new Set(Array.isArray(config.autoTranslateLangs) ? config.autoTranslateLangs : []);
+    document.querySelectorAll(".mt-lang-chk").forEach((chk) => {
+      chk.checked = langsSelectionnees.has(chk.value);
+    });
+
+    chkPreferLocalDetection.checked = Boolean(config.preferLocalDetection);
+
     actualiserAffichageFournisseur();
 
     // Vérification dynamique et conditionnelle de la permission pour le moteur actif
@@ -377,6 +423,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   inputLlmBaseUrl.addEventListener("input", () => {
     verifierPermissionMoteur();
   });
+
+  // ── Événements Ergonomie : Bascule Mutuelle & Sous-options Zéro-Clic ────────
+  if (chkAutoTranslateOnOpen) {
+    chkAutoTranslateOnOpen.addEventListener("change", () => {
+      if (chkAutoTranslateOnOpen.checked) {
+        // Exclusion mutuelle intelligente : éteint l'interrupteur 1-clic
+        if (chkAutoTranslateOnClick) chkAutoTranslateOnClick.checked = false;
+        zeroClickSuboptions.classList.remove("mt-hidden");
+      } else {
+        zeroClickSuboptions.classList.add("mt-hidden");
+      }
+    });
+  }
+
+  if (chkAutoTranslateOnClick) {
+    chkAutoTranslateOnClick.addEventListener("change", () => {
+      if (chkAutoTranslateOnClick.checked) {
+        // Exclusion mutuelle intelligente : éteint l'interrupteur zéro-clic et replie ses sous-options
+        if (chkAutoTranslateOnOpen) chkAutoTranslateOnOpen.checked = false;
+        zeroClickSuboptions.classList.add("mt-hidden");
+      }
+    });
+  }
+
+  if (modeAllForeign) {
+    modeAllForeign.addEventListener("change", () => {
+      if (modeAllForeign.checked) {
+        zeroClickLangsGrid.classList.add("mt-hidden");
+      }
+    });
+  }
+
+  if (modeSelected) {
+    modeSelected.addEventListener("change", () => {
+      if (modeSelected.checked) {
+        zeroClickLangsGrid.classList.remove("mt-hidden");
+        // Pré-cocher par défaut pour éviter le piège d'une liste vide
+        const checked = zeroClickLangsGrid.querySelectorAll(".mt-lang-chk:checked");
+        if (checked.length === 0) {
+          ["en", "de", "es"].forEach((code) => {
+            const chk = zeroClickLangsGrid.querySelector(`.mt-lang-chk[value="${code}"]`);
+            if (chk) chk.checked = true;
+          });
+        }
+      }
+    });
+  }
 
   // ── Bouton 1-Clic d'Autorisation de Permission ──────────────────────────────
   if (btnGrantPermission) {
@@ -472,6 +565,11 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @returns {Object}
    */
   function obtenirConfigFormulaire() {
+    const langsSelectionnees = [];
+    document.querySelectorAll(".mt-lang-chk:checked").forEach((chk) => {
+      langsSelectionnees.push(chk.value);
+    });
+
     return {
       provider: selectProvider.value,
       deeplApiKey: inputDeeplKey.value.trim(),
@@ -484,7 +582,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       llmModel: inputLlmModel.value.trim() || "gpt-4o-mini",
       libretranslateUrl: inputLibreTranslateUrl.value.trim() || "https://libretranslate.com",
       libretranslateApiKey: inputLibreTranslateKey.value.trim(),
-      mymemoryEmail: inputMyMemoryEmail.value.trim()
+      mymemoryEmail: inputMyMemoryEmail.value.trim(),
+      autoTranslateOnClick: chkAutoTranslateOnClick.checked,
+      alternateTarget: selectAlternateTarget.value,
+      autoTranslateOnOpen: chkAutoTranslateOnOpen.checked,
+      autoTranslateMode: modeSelected.checked ? "selected" : "all_foreign",
+      autoTranslateLangs: langsSelectionnees,
+      preferLocalDetection: chkPreferLocalDetection.checked
     };
   }
 
@@ -550,6 +654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Demande de permission à la volée sur le geste utilisateur
     await assurerPermissionsHote(config);
+    await verifierPermissionMoteur();
 
     const nomFournisseur = selectProvider.selectedOptions[0] ? selectProvider.selectedOptions[0].text.split("(")[0].trim() : provider;
     afficherStatut(t("btnTesting", `Test de connexion en cours avec ${nomFournisseur}…`), "loading");
@@ -611,6 +716,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Demande de permission à la volée sur le geste utilisateur direct
     await assurerPermissionsHote(config);
+    await verifierPermissionMoteur();
 
     btnSave.disabled = true;
     btnTest.disabled = true;

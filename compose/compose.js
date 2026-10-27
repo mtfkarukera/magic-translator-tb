@@ -37,6 +37,11 @@ function t(cle, repli = "") {
 }
 
 function appliquerI18n() {
+  const uiLang = browser.i18n ? browser.i18n.getUILanguage() : "en";
+  if (uiLang) {
+    document.documentElement.lang = uiLang.split("-")[0];
+  }
+
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const cle = el.getAttribute("data-i18n");
     const traduction = t(cle);
@@ -261,7 +266,18 @@ async function executerTraduction() {
   }
 
   const sourceLang = selectSource.value;
-  const targetLang = selectTarget.value;
+  let targetLang = selectTarget.value;
+
+  if (sourceLang === targetLang) {
+    const prefs = await browser.storage.local.get({ alternateTarget: "none" });
+    if (prefs.alternateTarget && prefs.alternateTarget !== "none" && prefs.alternateTarget !== sourceLang) {
+      targetLang = prefs.alternateTarget;
+      selectTarget.value = targetLang;
+    } else {
+      definirStatut("error", "errorSameLanguage", "Les langues source et cible sont identiques.");
+      return;
+    }
+  }
 
   browser.storage.local.set({ composeLastTargetLang: targetLang }).catch(() => {});
 
@@ -470,6 +486,10 @@ async function executerRestauration() {
 
     btnRestore.disabled = true;
     definirStatut("ready", "composeStatusRestored", "Texte d'origine restauré ✓");
+    const btnTranslate = document.getElementById("btn-translate");
+    if (btnTranslate) {
+      btnTranslate.focus();
+    }
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la restauration :", err);
     definirStatut("error", "composeStatusRestoreError", "Échec de la restauration (" + (err.message || "inconnu") + ")");
@@ -492,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (!ongletActifId) {
-    definirStatut("error", "composeStatusErrorNoTab", "Impossible d'accéder au message.");
+    definirStatut("error", "composeStatusNoTab", "Impossible d'accéder au message.");
     return;
   }
 
@@ -539,14 +559,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const nbMots = texteSelectionne.split(/\s+/).filter(Boolean).length;
     txtSelectionCount.textContent = `${t("composeSelectionActive", "Sélection active")} (${nbMots} ${nbMots > 1 ? "mots" : "mot"})`;
 
-    chkSelection.addEventListener("change", () => {
-      if (chkSelection.checked) {
-        globalOptions.style.opacity = "0.5";
-      } else {
-        globalOptions.style.opacity = "1";
-      }
-    });
-    globalOptions.style.opacity = "0.5";
+    const chkSubject = document.getElementById("chk-subject");
+    const chkBody = document.getElementById("chk-body");
+    const majOptionsSelection = () => {
+      const active = chkSelection.checked;
+      globalOptions.style.opacity = active ? "0.5" : "1";
+      globalOptions.style.pointerEvents = active ? "none" : "auto";
+      if (chkSubject) chkSubject.disabled = active;
+      if (chkBody) chkBody.disabled = active;
+    };
+    chkSelection.addEventListener("change", majOptionsSelection);
+    majOptionsSelection();
   }
 
   // Écouteurs d'événements
@@ -554,9 +577,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("btn-restore").addEventListener("click", executerRestauration);
 
   // Inverser les langues
-  document.getElementById("btn-swap-lang").addEventListener("click", () => {
-    const selectSource = document.getElementById("select-source");
-    const selectTarget = document.getElementById("select-target");
+  const btnSwapLang = document.getElementById("btn-swap-lang");
+  const selectSource = document.getElementById("select-source");
+  const selectTarget = document.getElementById("select-target");
+
+  const majBoutonSwap = () => {
+    const desactive = selectSource.value === "auto";
+    btnSwapLang.disabled = desactive;
+    btnSwapLang.style.opacity = desactive ? "0.4" : "1";
+    btnSwapLang.style.cursor = desactive ? "not-allowed" : "pointer";
+  };
+  selectSource.addEventListener("change", majBoutonSwap);
+  majBoutonSwap();
+
+  btnSwapLang.addEventListener("click", () => {
     const srcVal = selectSource.value;
     const tgtVal = selectTarget.value;
     if (srcVal !== "auto") {

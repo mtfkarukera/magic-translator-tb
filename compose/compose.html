@@ -17,7 +17,7 @@
       <button type="button" id="btn-provider-badge" class="provider-badge" title="Modifier le moteur de traduction" data-i18n-title="composeOpenSettingsTooltip" aria-label="Paramètres du moteur">
         <span class="provider-dot"></span>
         <span id="txt-provider-label">Google</span>
-        <span class="provider-gear">⚙️</span>
+        <span class="provider-gear" aria-hidden="true">⚙️</span>
       </button>
     </header>
 
@@ -26,7 +26,7 @@
       <div class="lang-field">
         <label for="select-source" class="field-label" data-i18n="composeSourceLangLabel">Source</label>
         <div class="select-wrapper">
-          <select id="select-source" class="lang-select" aria-label="Langue source">
+          <select id="select-source" class="lang-select">
             <option value="auto" data-i18n="langAuto" selected>Détecter auto</option>
             <option value="fr">Français</option>
             <option value="en">English</option>
@@ -73,7 +73,7 @@
       <div class="lang-field">
         <label for="select-target" class="field-label" data-i18n="composeTargetLangLabel">Cible</label>
         <div class="select-wrapper">
-          <select id="select-target" class="lang-select" aria-label="Langue cible">
+          <select id="select-target" class="lang-select">
             <option value="en" selected>English</option>
             <option value="fr">Français</option>
             <option value="de">Deutsch</option>
@@ -118,7 +118,7 @@
       <!-- Bannière de Sélection Détectée (visible uniquement si sélection) -->
       <div id="selection-banner" class="selection-banner is-hidden">
         <div class="selection-badge">
-          <span class="selection-icon">🎯</span>
+          <span class="selection-icon" aria-hidden="true">🎯</span>
           <span id="txt-selection-count" class="selection-label" data-i18n="composeSelectionActive">Sélection active</span>
         </div>
         <label class="toggle-control toggle-highlight">
@@ -146,11 +146,11 @@
     <!-- Actions Principales -->
     <section class="actions-section">
       <button type="button" id="btn-translate" class="btn-primary">
-        <span class="btn-icon">✨</span>
+        <span class="btn-icon" aria-hidden="true">✨</span>
         <span id="txt-btn-translate" data-i18n="composeBtnTranslate">Traduire</span>
       </button>
       <button type="button" id="btn-restore" class="btn-secondary" disabled>
-        <span class="btn-icon">↩️</span>
+        <span class="btn-icon" aria-hidden="true">↩️</span>
         <span data-i18n="composeBtnRestore">Restaurer l'original</span>
       </button>
     </section>

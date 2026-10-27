@@ -59,5 +59,46 @@
     return segments;
   };
 
-  global.MTText = { extraireEspaces, decouperLong };
+  /**
+   * Nettoie un texte d'e-mail de ses bruits techniques et citations pour optimiser
+   * la détection de langue par CLD2 (évite les faux positifs dus aux URLs, e-mails et citations).
+   *
+   * @param   {string} texte
+   * @returns {string} Texte épuré
+   */
+  const nettoyerTextePourDetection = (texte) => {
+    if (!texte || typeof texte !== "string") return "";
+
+    // 1. Tronquer à la première amorce de fil de citation classique
+    // Ex: "On Wed, Oct 21... wrote:", "Le 21 oct... a écrit :", "----- Original Message -----"
+    const motifsCitationsEntete = [
+      /^-{3,}\s*(?:Original Message|Message d'origine)\s*-{3,}/im,
+      /^(?:On|Le)\s+[\w\s,.:\/-]+(?:wrote|a écrit)\s*:/im,
+      /^From:\s*.*$/im
+    ];
+    let textePropre = texte;
+    for (const motif of motifsCitationsEntete) {
+      const parts = textePropre.split(motif);
+      if (parts.length > 1 && parts[0].trim().length >= 30) {
+        textePropre = parts[0];
+      }
+    }
+
+    // 2. Retirer les lignes commençant par '>' (citations imbriquées)
+    textePropre = textePropre
+      .split("\n")
+      .filter((ligne) => !/^\s*>/.test(ligne))
+      .join("\n");
+
+    // 3. Supprimer les URLs web complètes
+    textePropre = textePropre.replace(/https?:\/\/\S+|www\.\S+/gi, " ");
+
+    // 4. Supprimer les adresses e-mails techniques
+    textePropre = textePropre.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, " ");
+
+    // 5. Normaliser les espaces et retours chariots
+    return textePropre.replace(/\s+/g, " ").trim();
+  };
+
+  global.MTText = { extraireEspaces, decouperLong, nettoyerTextePourDetection };
 })(typeof globalThis !== "undefined" ? globalThis : this);

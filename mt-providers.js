@@ -14,7 +14,9 @@
 "use strict";
 
 (() => {
-  const TIMEOUT_TRADUCTION_MS = 10000; // 10 secondes
+  const TIMEOUT_CLOUD_MS = 10000; // 10 secondes pour les services Cloud rapides (Google, DeepL, MyMemory)
+  const TIMEOUT_LOCAL_MS = 60000; // 60 secondes pour les moteurs locaux ou lourds (LibreTranslate, Ollama, LM Studio)
+  const TIMEOUT_TRADUCTION_MS = TIMEOUT_CLOUD_MS; // Rétrocompatibilité interne
 
   // ── MAPPING DES LANGUES POUR DEEPL ─────────────────────────────────────────
   // DeepL exige des codes cibles spécifiques en majuscules (ex: EN-US, PT-PT).
@@ -166,9 +168,9 @@
       .replace(/<\/?g[^>]*>/gi, "")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
-      .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">");
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
   }
 
   /**
@@ -244,6 +246,13 @@
       }
 
       if (!donnees) {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      if (donnees.responseStatus && Number(donnees.responseStatus) !== 200) {
+        if (Number(donnees.responseStatus) === 429 || Number(donnees.responseStatus) === 403) {
+          throw new Error("RATE_LIMITED");
+        }
         throw new Error("SERVICE_UNAVAILABLE");
       }
 
@@ -430,7 +439,16 @@
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
     async traduire(texte, source, cible, config = {}) {
-      const baseUrl = (config.url && config.url.trim()) ? config.url.trim().replace(/\/+$/, "") : "https://libretranslate.com";
+      let baseUrl = (config.url && config.url.trim()) ? config.url.trim() : "https://libretranslate.com";
+      baseUrl = baseUrl.replace(/\/translate\/?$/i, "").replace(/\/+$/, "");
+      try {
+        const u = new URL(baseUrl);
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          baseUrl = "https://libretranslate.com";
+        }
+      } catch {
+        baseUrl = "https://libretranslate.com";
+      }
       const endpoint = `${baseUrl}/translate`;
 
       const payload = {
@@ -448,7 +466,7 @@
       try {
         reponse = await fetch(endpoint, {
           method: "POST",
-          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
+          signal: AbortSignal.timeout(TIMEOUT_LOCAL_MS),
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
@@ -556,17 +574,18 @@
 
       const modele = (config.model || config.geminiModel || "gemini-3.5-flash-lite").replace(/^models\//, "").trim();
       const cibleNom = obtenirNomLangue(cible);
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent`;
 
-      const promptSysteme = `You are a professional translator. Translate the following text into ${cibleNom}. Output ONLY the raw translated text with NO explanations, NO quotes, NO markdown formatting.`;
+      const promptSysteme = `You are a professional translator. Translate the text into ${cibleNom}. Output ONLY the raw translated text with NO explanations, NO quotes, NO markdown formatting. Preserve any line breaks, formatting tokens, and unique sentinel identifiers (such as MTSEP...) exactly as they appear.`;
 
       const payload = {
+        systemInstruction: {
+          parts: [{ text: promptSysteme }]
+        },
         contents: [
           {
             parts: [
-              {
-                text: `${promptSysteme}\n\nText to translate:\n${texte}`
-              }
+              { text: texte }
             ]
           }
         ],
@@ -580,7 +599,10 @@
         reponse = await fetch(url, {
           method: "POST",
           signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey
+          },
           body: JSON.stringify(payload)
         });
       } catch (erreur) {
@@ -602,15 +624,15 @@
         }
 
         if (reponse.status === 400 || reponse.status === 401 || reponse.status === 403) {
-          throw new Error(errMessage || "UNAUTHORIZED");
+          throw new Error("UNAUTHORIZED");
         }
         if (reponse.status === 404) {
           throw new Error(errMessage || `Modèle Gemini "${modele}" introuvable (404).`);
         }
         if (reponse.status === 429) {
-          throw new Error(errMessage || "RATE_LIMITED");
+          throw new Error("RATE_LIMITED");
         }
-        throw new Error(errMessage || "SERVICE_UNAVAILABLE");
+        throw new Error("SERVICE_UNAVAILABLE");
       }
 
       let donnees;
@@ -681,10 +703,26 @@
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
     async traduire(texte, _source, cible, config = {}) {
-      const baseUrl = (config.url || config.llmBaseUrl || "https://api.openai.com").trim();
+      let baseUrl = (config.url || config.llmBaseUrl || "").trim();
       const apiKey = config.apiKey ? config.apiKey.trim() : (config.llmApiKey ? config.llmApiKey.trim() : "");
       const modele = (config.model || config.llmModel || "gpt-4o-mini").trim();
       const preset = config.preset || config.llmPreset || "openai";
+
+      if (preset === "openai") baseUrl = "https://api.openai.com";
+      else if (preset === "groq") baseUrl = "https://api.groq.com/openai";
+      else if (preset === "mistral") baseUrl = "https://api.mistral.ai";
+      else if (!baseUrl) {
+        baseUrl = preset === "lmstudio" ? "http://localhost:1234" : "http://localhost:11434";
+      }
+
+      try {
+        const u = new URL(baseUrl);
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          baseUrl = "http://localhost:11434";
+        }
+      } catch {
+        baseUrl = "http://localhost:11434";
+      }
 
       // Rejet immédiat si clé manquante pour les fournisseurs Cloud
       const exigeCle = preset === "openai" || preset === "groq" || preset === "mistral";
@@ -700,7 +738,7 @@
         messages: [
           {
             role: "system",
-            content: `You are a professional translator. Translate the user text accurately into ${cibleNom}. Output ONLY the raw translated text, with no markdown code blocks, quotes, preamble, or comments.`
+            content: `You are a professional translator. Translate the user text accurately into ${cibleNom}. Output ONLY the raw translated text, with no markdown code blocks, quotes, preamble, or comments. Preserve any line breaks, formatting tokens, and unique sentinel identifiers (such as MTSEP...) exactly as they appear.`
           },
           {
             role: "user",
@@ -717,11 +755,14 @@
         headers["Authorization"] = `Bearer ${apiKey}`;
       }
 
+      const estLocalOuLourd = preset === "ollama" || preset === "lmstudio" || preset === "custom";
+      const timeoutMs = estLocalOuLourd ? TIMEOUT_LOCAL_MS : TIMEOUT_CLOUD_MS;
+
       let reponse;
       try {
         reponse = await fetch(endpoint, {
           method: "POST",
-          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
+          signal: AbortSignal.timeout(timeoutMs),
           headers,
           body: JSON.stringify(payload)
         });
@@ -774,6 +815,8 @@
 
   const MTProviders = {
     FOURNISSEURS,
+    TIMEOUT_CLOUD_MS,
+    TIMEOUT_LOCAL_MS,
     normaliserCodeDeepL,
     obtenirEndpointDeepL,
     obtenirNomLangue,
@@ -838,11 +881,14 @@
      */
     async listerModelesGemini(apiKey) {
       if (!apiKey || !apiKey.trim()) return [];
-      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey.trim())}`;
+      const url = "https://generativelanguage.googleapis.com/v1beta/models";
       let reponse;
       try {
         reponse = await fetch(url, {
-          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS)
+          signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS),
+          headers: {
+            "x-goog-api-key": apiKey.trim()
+          }
         });
       } catch (erreur) {
         if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
@@ -906,8 +952,11 @@
         if (preset === "groq") return "https://api.groq.com/*";
         if (preset === "mistral") return "https://api.mistral.ai/*";
         try {
-          const url = config.llmBaseUrl || config.url || "http://localhost:11434";
+          const url = config.llmBaseUrl || config.url || (preset === "lmstudio" ? "http://localhost:1234" : "http://localhost:11434");
           const u = new URL(url);
+          if (u.protocol !== "http:" && u.protocol !== "https:") {
+            return "http://localhost/*";
+          }
           // Les match patterns WebExtension ne supportent pas de numéro de port
           return `${u.protocol}//${u.hostname}/*`;
         } catch {
@@ -918,6 +967,9 @@
         try {
           const url = config.libretranslateUrl || config.url || "https://libretranslate.com";
           const u = new URL(url);
+          if (u.protocol !== "http:" && u.protocol !== "https:") {
+            return "https://libretranslate.com/*";
+          }
           return `${u.protocol}//${u.hostname}/*`;
         } catch {
           return "https://libretranslate.com/*";

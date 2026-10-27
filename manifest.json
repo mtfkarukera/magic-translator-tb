@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.3.10",
+  "version": "2.4.1",
   "description": "__MSG_extDescription__",
   "author": "MTF Karukera",
   "default_locale": "en",
@@ -13,6 +13,9 @@
         "required": ["personalCommunications"]
       }
     }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'"
   },
   "icons": {
     "128": "icon.png"

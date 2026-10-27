@@ -71,7 +71,8 @@
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
       errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
       errorPermissionRequired: "Permission requise pour {provider} : Cliquez sur le badge ⚙️ pour ouvrir les réglages.",
-      statusAlreadyIn:         "Déjà en {lang}"
+      statusAlreadyIn:         "Déjà en {lang}",
+      statusTranslatedAlternate: "Traduit vers {lang} (cible d'alternance)"
     },
     en: {
       autoDetect:         "Auto-detect",
@@ -96,7 +97,8 @@
       errorTimeout:            "Request timed out. Check your connection.",
       errorNetwork:            "Network error. Check your connection.",
       errorPermissionRequired: "Permission required for {provider}: Click the ⚙️ badge to open settings.",
-      statusAlreadyIn:         "Already in {lang}"
+      statusAlreadyIn:         "Already in {lang}",
+      statusTranslatedAlternate: "Translated to {lang} (alternate target)"
     },
     es: {
       autoDetect:         "Auto-detectar",
@@ -121,7 +123,8 @@
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
       errorNetwork:            "Error de red. Comprueba tu conexión.",
       errorPermissionRequired: "Permiso requerido para {provider}: Haz clic en la insignia ⚙️ para abrir los ajustes.",
-      statusAlreadyIn:         "Ya en {lang}"
+      statusAlreadyIn:         "Ya en {lang}",
+      statusTranslatedAlternate: "Traducido al {lang} (destino alternativo)"
     },
     de: {
       autoDetect:         "Automatische Erkennung",
@@ -146,7 +149,8 @@
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
       errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
       errorPermissionRequired: "Berechtigung für {provider} erforderlich: Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu öffnen.",
-      statusAlreadyIn:         "Bereits auf {lang}"
+      statusAlreadyIn:         "Bereits auf {lang}",
+      statusTranslatedAlternate: "Übersetzt nach {lang} (Alternative)"
     },
     vi: {
       autoDetect:         "Tự động phát hiện",
@@ -171,7 +175,8 @@
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
       errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
       errorPermissionRequired: "Cần quyền cho {provider}: Nhấp vào huy hiệu ⚙️ để mở cài đặt.",
-      statusAlreadyIn:         "Đã ở {lang}"
+      statusAlreadyIn:         "Đã ở {lang}",
+      statusTranslatedAlternate: "Đã dịch sang {lang} (ngôn ngữ thay thế)"
     },
     ja: {
       autoDetect:         "自動検出",
@@ -196,7 +201,8 @@
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
       errorNetwork:            "ネットワークエラー。接続を確認してください。",
       errorPermissionRequired: "{provider}の権限が必要です：⚙️バッジをクリックして設定を開いてください。",
-      statusAlreadyIn:         "すでに{lang}です"
+      statusAlreadyIn:         "すでに{lang}です",
+      statusTranslatedAlternate: "{lang}へ翻訳（代替）"
     },
     pt: {
       autoDetect:         "Auto-detecção",
@@ -209,7 +215,7 @@
       statusTranslating:  "A traduzir…",
       statusTranslated:   "Traduzido",
       statusTranslatedFrom: "Traduzido de {lang}",
-      errorSameLanguage:  "Os idiomas de origem e destino sont iguais.",
+      errorSameLanguage:  "Os idiomas de origem e destino são iguais.",
       errorNoText:        "Nenhum texto para traduzir.",
       errorGeneric:       "Erro: {msg}",
       tooltipExpand:      "Traduzir esta mensagem",
@@ -221,7 +227,8 @@
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
       errorNetwork:            "Erro de rede. Verifique a sua ligação.",
       errorPermissionRequired: "Permissão necessária para {provider}: Clique no selo ⚙️ para abrir as definições.",
-      statusAlreadyIn:         "Já em {lang}"
+      statusAlreadyIn:         "Já em {lang}",
+      statusTranslatedAlternate: "Traduzido para {lang} (destino alternativo)"
     }
   };
 
@@ -351,8 +358,11 @@
     --mt-text-secondary: #475569;
     --mt-border-glass: rgba(0, 0, 0, 0.10);
     --mt-divider: rgba(0, 0, 0, 0.08);
+    --mt-accent-purple-hover: #4f46e5;
+    --mt-success: #047857;
+    --mt-error: #be123c;
     --mt-btn-secondary-bg: rgba(0, 0, 0, 0.05);
-    --mt-btn-secondary-border: rgba(0, 0, 0, 0.10);
+    --mt-btn-secondary-border: rgba(0, 0, 0, 0.12);
     --mt-bg-input: rgba(255, 255, 255, 0.85);
     --mt-bg-input-hover: #ffffff;
     --mt-bg-input-focus: #ffffff;
@@ -598,14 +608,14 @@
 }
 
 .mt-btn-original {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mt-btn-secondary-bg);
   color: var(--mt-text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mt-btn-secondary-border);
 }
 
 .mt-btn-original:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.15);
+  filter: brightness(1.15);
+  border-color: var(--mt-border-glass);
 }
 
 .mt-btn-original:active {
@@ -723,6 +733,7 @@
   .mt-banner  { animation: none; opacity: 1; }
   /* Le spinner devient un indicateur statique (tiret) plutot qu'une animation continue */
   .mt-spinner { animation: none; border-style: dashed; border-top-color: var(--mt-accent-purple-hover); }
+  .mt-engine-dot.is-warning { animation: none; }
   .mt-pill, .mt-btn, .mt-logo-icon, .mt-select {
     transition: none;
   }
@@ -837,6 +848,54 @@
       noeuds.push(walker.currentNode);
     }
     return noeuds;
+  };
+
+  /**
+   * Extrait un échantillon de texte propre (sans balises techniques ni citations de threads)
+   * pour la détection de langue par CLD2.
+   *
+   * @param   {Element} racine
+   * @returns {string}
+   */
+  const extraireTextePourDetection = (racine) => {
+    if (!racine) return "";
+    const extraits = [];
+    const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
+      acceptNode: (noeud) => {
+        if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
+        if (!noeud.parentElement) return NodeFilter.FILTER_REJECT;
+        // Ignorer les balises non-textuelles
+        if (BALISES_IGNOREES.has(noeud.parentElement.tagName)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        // Ignorer les conteneurs de citations (blockquotes de réponse / fil de discussion)
+        let parent = noeud.parentElement;
+        while (parent && parent !== racine) {
+          const nomBalise = parent.tagName;
+          const classe = parent.className || "";
+          if (
+            nomBalise === "BLOCKQUOTE" ||
+            (typeof classe === "string" && (classe.includes("moz-cite-prefix") || classe.includes("gmail_quote")))
+          ) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          parent = parent.parentElement;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    while (walker.nextNode()) {
+      extraits.push(walker.currentNode.textContent);
+      // Échantillon suffisant pour CLD2 : inutile de parcourir tout un message géant
+      if (extraits.length >= 60) break;
+    }
+
+    const texteBrut = extraits.join(" ");
+    const nettoyer = (globalThis.MTText && globalThis.MTText.nettoyerTextePourDetection)
+      ? globalThis.MTText.nettoyerTextePourDetection
+      : (txt) => txt.replace(/\s+/g, " ").trim();
+    return nettoyer(texteBrut);
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -1048,6 +1107,21 @@
 
     let aPermissionMoteur = true;
     let origineRequise = "";
+    let autoTraduire1Clic = false;
+    let autoTranslateOnOpen = false;
+    let autoTranslateMode = "all_foreign";
+    let autoTranslateLangs = [];
+    let langueAlternance = "none";
+    let cibleAvantAlternance = null;
+    let sourceAvantAlternance = null;
+
+    const languesSontEquivalentes = (l1, l2) => {
+      if (!l1 || !l2) return false;
+      const n1 = l1.toLowerCase();
+      const n2 = l2.toLowerCase();
+      if (n1 === n2) return true;
+      return n1.split("-")[0] === n2.split("-")[0];
+    };
 
     ui.badgeMoteur.addEventListener("click", () => {
       try {
@@ -1069,34 +1143,6 @@
     } else {
       document.documentElement.insertBefore(ui.conteneur, document.documentElement.firstChild);
     }
-
-    // ── Actualisation du badge moteur actif ───────────────────────────────
-    try {
-      browser.runtime.sendMessage({ action: "getConfig" })
-        .then((res) => {
-          if (res && res.success && ui.badgeMoteur) {
-            const nomLabel = res.providerLabel || "Google";
-            const nomComplet = res.providerNom || nomLabel;
-            if (ui.badgeMoteurLabel) {
-              ui.badgeMoteurLabel.textContent = nomLabel;
-            }
-            if (res.hasPermission === false) {
-              aPermissionMoteur = false;
-              origineRequise = res.requiredOrigin;
-              ui.badgeDot.classList.add("is-warning");
-              ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Accès réseau requis — Cliquez pour ouvrir les réglages)`;
-              ui.badgeMoteur.setAttribute("aria-label", `Accès réseau requis pour ${nomComplet}`);
-            } else {
-              aPermissionMoteur = true;
-              origineRequise = "";
-              ui.badgeDot.classList.remove("is-warning");
-              ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
-              ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
-            }
-          }
-        })
-        .catch(() => {});
-    } catch { /* contexte non disponible */ }
 
     // ── Déplier / replier (Contrôle Manuel Exclusif) ─────────────────────
     const deplier = () => {
@@ -1130,10 +1176,12 @@
 
     let traductionEnCours = false;
 
-    const lancerTraduction = async () => {
+    const lancerTraduction = async (options = {}) => {
       if (traductionEnCours) return;
+      const replierApres = Boolean(options && options.replierApres);
+      const isAutoOnOpen = Boolean(options && options.isAutoOnOpen);
 
-      if (!estDeplie) deplier();
+      if (!estDeplie && !replierApres) deplier();
 
       // [Mi-R2] Guard : document.body peut être null si Thunderbird n'a pas fini de charger.
       if (!document.body) {
@@ -1149,12 +1197,22 @@
       }
 
       const source = ui.selectSource.value;
-      const cible  = ui.selectCible.value;
+      let cible  = ui.selectCible.value;
+      let utiliseAlternance = false;
+      let traductionsAppliquees = false;
 
-      // ── Validation ────────────────────────────────────────────────────
-      if (source === cible) {
-        afficherStatut(ui.statut, t("errorSameLanguage"), "error");
-        return;
+      // ── Validation & Alternance directe si source explicite == cible ──────
+      // [Sécurité Zéro-Clic] L'alternance vers alternateTarget est strictement désactivée en automatique
+      if (!isAutoOnOpen && languesSontEquivalentes(source, cible)) {
+        if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, source)) {
+          if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
+          cible = langueAlternance;
+          utiliseAlternance = true;
+          ui.selectCible.value = cible;
+        } else {
+          afficherStatut(ui.statut, t("errorSameLanguage"), "error");
+          return;
+        }
       }
 
       const noeudsTexte = collecterNoeudsTexte(document.body);
@@ -1206,7 +1264,11 @@
         let lotCourant = { noeuds: [], texte: "" };
 
         noeudsTexte.forEach((noeud) => {
-          const txt = contenusOriginaux.get(noeud);
+          let txt = contenusOriginaux.get(noeud);
+          if (txt === undefined) {
+            txt = noeud.textContent || "";
+            contenusOriginaux.set(noeud, txt);
+          }
           const { lead, coeur, trail } = extraireEspaces(txt);
           const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
 
@@ -1245,11 +1307,34 @@
           if (lot.noeuds.length === 1 && lot.texte.length > TAILLE_MAX_LOT) {
             const entree = lot.noeuds[0];
             const morceaux = [];
-            for (const seg of decouperLong(lot.texte, TAILLE_MAX_LOT)) {
+            const segments = decouperLong(lot.texte, TAILLE_MAX_LOT);
+            for (let sIdx = 0; sIdx < segments.length; sIdx++) {
+              const seg = segments[sIdx];
               // [M-R2] Guard intra-lot : vérification à chaque segment du sous-découpage.
               if (document.documentElement._mtActiveInstanceId !== instanceId) break;
-              const r = await demanderTraduction(seg, source, cible);
+              let r = await demanderTraduction(seg, source, cible);
               if (r.detectedLang) derniereLangDetectee = r.detectedLang;
+
+              // Détection d'inversion ou d'alternance sur le premier segment du premier lot (mode manuel uniquement)
+              if (!isAutoOnOpen && i === 0 && sIdx === 0 && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
+                if (source !== "auto" && !languesSontEquivalentes(source, cible)) {
+                  if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
+                  if (!sourceAvantAlternance) sourceAvantAlternance = ui.selectSource.value;
+                  cible = source;
+                  utiliseAlternance = true;
+                  ui.selectCible.value = cible;
+                  ui.selectSource.value = derniereLangDetectee;
+                  r = await demanderTraduction(seg, derniereLangDetectee, cible);
+                  if (r.detectedLang) derniereLangDetectee = r.detectedLang;
+                } else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
+                  if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
+                  cible = langueAlternance;
+                  utiliseAlternance = true;
+                  ui.selectCible.value = cible;
+                  r = await demanderTraduction(seg, derniereLangDetectee, cible);
+                  if (r.detectedLang) derniereLangDetectee = r.detectedLang;
+                }
+              }
               morceaux.push(r.text);
             }
             // [M-R5] Suppression du .trim() final : préserve les \n de tête/fin des e-mails
@@ -1258,10 +1343,34 @@
             continue;
           }
 
-          const resultat = await demanderTraduction(lot.texte, source, cible);
+          let resultat = await demanderTraduction(lot.texte, source, cible);
 
           if (resultat.detectedLang) {
             derniereLangDetectee = resultat.detectedLang;
+          }
+
+          // Inversion de sens ou bascule d'alternance si le texte est déjà dans la langue cible (mode manuel uniquement)
+          if (!isAutoOnOpen && i === 0 && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
+            // Cas 1 : source explicite différente de la cible -> inversion directe vers la source !
+            if (source !== "auto" && !languesSontEquivalentes(source, cible)) {
+              if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
+              if (!sourceAvantAlternance) sourceAvantAlternance = ui.selectSource.value;
+              cible = source;
+              utiliseAlternance = true;
+              ui.selectCible.value = cible;
+              ui.selectSource.value = derniereLangDetectee;
+              resultat = await demanderTraduction(lot.texte, derniereLangDetectee, cible);
+              if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
+            }
+            // Cas 2 : source était "auto" -> repli sur alternateTarget si configuré
+            else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
+              if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
+              cible = langueAlternance;
+              utiliseAlternance = true;
+              ui.selectCible.value = cible;
+              resultat = await demanderTraduction(lot.texte, derniereLangDetectee, cible);
+              if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
+            }
           }
           if (resultat.providerLabel && ui.badgeMoteur) {
             if (ui.badgeMoteurLabel) {
@@ -1319,12 +1428,22 @@
         traductions.forEach((texte, noeud) => {
           noeud.textContent = texte;
         });
+        traductionsAppliquees = true;
 
         // ── Affichage du statut ──────────────────────────────────────────
         if (echecsNoeuds > 0) {
           afficherStatut(ui.statut, t("statusTranslatedPartial"), "error");
+        } else if (utiliseAlternance) {
+          const nomLang = NOMS_LANGUES[cible] || cible;
+          afficherStatut(ui.statut, "✓ " + t("statusTranslatedAlternate", { lang: nomLang }), "success");
         } else if (source === "auto" && derniereLangDetectee && derniereLangDetectee === cible) {
           // Auto-détection : la langue détectée est déjà la cible → rien d'utile à traduire.
+          if (isAutoOnOpen) {
+            // [Zéro-Clic] Faux positif résolu silencieusement : repli immédiat et remise à zéro neutre
+            contenusOriginaux = null;
+            replier();
+            return;
+          }
           const nomLang = NOMS_LANGUES[cible] || cible;
           afficherStatut(ui.statut, "✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
         } else if (derniereLangDetectee && source === "auto") {
@@ -1337,8 +1456,15 @@
         ui.btnOriginal.classList.remove("mt-hidden");
         ui.btnTraduire.textContent = t("btnRetranslate");
 
+        if (replierApres) {
+          replier();
+        }
+
       } catch (erreur) {
         console.error("[MagicTranslator] Erreur de traduction :", erreur);
+        if (!traductionsAppliquees) {
+          contenusOriginaux = null;
+        }
         const cle = ERREURS_CONNUES[erreur.message];
         const msg = cle ? t(cle) : t("errorGeneric", { msg: erreur.message });
         afficherStatut(ui.statut, msg, "error");
@@ -1351,6 +1477,9 @@
         ui.selectCible.disabled  = false;
         ui.btnTraduire.removeAttribute("aria-busy");
         ui.btnTraduire.removeAttribute("aria-disabled");
+        if (estDeplie) {
+          ui.btnTraduire.focus();
+        }
       }
     };
 
@@ -1366,12 +1495,23 @@
         noeud.textContent = texte;
       });
 
+      // Rétablissement de la langue cible originale si une alternance avait eu lieu
+      if (cibleAvantAlternance) {
+        ui.selectCible.value = cibleAvantAlternance;
+        cibleAvantAlternance = null;
+      }
+      if (sourceAvantAlternance) {
+        ui.selectSource.value = sourceAvantAlternance;
+        sourceAvantAlternance = null;
+      }
+
       // Réinitialisation de l'état
       contenusOriginaux = null;
       ui.btnOriginal.classList.add("mt-hidden");
       ui.btnTraduire.textContent = t("btnTranslate");
       afficherStatut(ui.statut, "", "");
       ui.statut.classList.add("mt-hidden");
+      ui.btnTraduire.focus();
     });
 
     // ── Raccourci clavier ─────────────────────────────────────────────────
@@ -1385,16 +1525,160 @@
     // ou par le menu clic droit sur ce même bouton.
     const gererMessageBg = (message) => {
       if (message && message.action === "toggleBanner") {
+        if (message.alternateTarget && message.alternateTarget !== "none") {
+          langueAlternance = message.alternateTarget;
+        }
         if (estDeplie) {
           replier();
         } else {
           deplier();
+          // Traduire automatiquement seulement si le message n'est pas déjà traduit (!contenusOriginaux)
+          if ((message.autoTranslate || autoTraduire1Clic) && !contenusOriginaux) {
+            setTimeout(() => {
+              if (estDeplie && !traductionEnCours && !contenusOriginaux && document.documentElement._mtActiveInstanceId === instanceId) {
+                lancerTraduction();
+              }
+            }, 60);
+          }
         }
       }
     };
 
     document.documentElement._mtMessageListener = gererMessageBg;
     browser.runtime.onMessage.addListener(gererMessageBg);
+
+    // ── Actualisation de la configuration & Mode Zéro-Clic ───────────────
+    const chargerConfigEtInitialiser = () => {
+      try {
+        browser.runtime.sendMessage({ action: "getConfig" })
+          .then((res) => {
+            if (res && res.success && ui.badgeMoteur) {
+              // 1. Synchronisation de la langue UI de Thunderbird et de la cible par défaut
+              if (res.uiLanguage) {
+                const langUi = res.uiLanguage.split("-")[0].toLowerCase();
+                if (I18N[langUi] && LOCALE !== langUi) {
+                  LOCALE = langUi;
+                  if (ui.selectSource) ui.selectSource.setAttribute("aria-label", t("labelFrom"));
+                  if (ui.selectCible) ui.selectCible.setAttribute("aria-label", t("labelTo"));
+                  if (ui.btnTraduire) ui.btnTraduire.textContent = t("btnTranslate");
+                  if (ui.btnOriginal) ui.btnOriginal.textContent = t("btnOriginal");
+                  if (ui.btnReplier) {
+                    ui.btnReplier.title = t("tooltipCollapse");
+                    ui.btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
+                  }
+                  const optAuto = ui.selectSource ? ui.selectSource.querySelector('option[value="auto"]') : null;
+                  if (optAuto) optAuto.textContent = t("autoDetect");
+                }
+                let langueCibleTrouvee = null;
+                if (LANGUES.some((l) => l.code === res.uiLanguage)) {
+                  langueCibleTrouvee = res.uiLanguage;
+                } else if (LANGUES.some((l) => l.code === langUi)) {
+                  langueCibleTrouvee = langUi;
+                }
+                if (langueCibleTrouvee && ui.selectCible) {
+                  ui.selectCible.value = langueCibleTrouvee;
+                }
+              }
+
+              if (res.alternateTarget) {
+                langueAlternance = res.alternateTarget;
+              }
+              if (res.autoTranslateOnClick !== undefined) {
+                autoTraduire1Clic = Boolean(res.autoTranslateOnClick);
+              }
+              const nomLabel = res.providerLabel || "Google";
+              const nomComplet = res.providerNom || nomLabel;
+              if (ui.badgeMoteurLabel) {
+                ui.badgeMoteurLabel.textContent = nomLabel;
+              }
+              if (res.hasPermission === false) {
+                aPermissionMoteur = false;
+                origineRequise = res.requiredOrigin;
+                ui.badgeDot.classList.add("is-warning");
+                ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Accès réseau requis — Cliquez pour ouvrir les réglages)`;
+                ui.badgeMoteur.setAttribute("aria-label", `Accès réseau requis pour ${nomComplet}`);
+              } else {
+                aPermissionMoteur = true;
+                origineRequise = "";
+                ui.badgeDot.classList.remove("is-warning");
+                ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
+                ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+              }
+
+              // Récupération des options Mode Zéro-Clic
+              if (res.autoTranslateOnOpen !== undefined) {
+                autoTranslateOnOpen = Boolean(res.autoTranslateOnOpen);
+                autoTranslateMode = res.autoTranslateMode || "all_foreign";
+                autoTranslateLangs = Array.isArray(res.autoTranslateLangs) ? res.autoTranslateLangs : [];
+              }
+
+              // ── Mode Zéro-Clic (Traduction automatique à l'ouverture) ───────────
+              const tenterAutoTraductionZeroClic = (tentative = 0) => {
+                if (!autoTranslateOnOpen || !aPermissionMoteur || !document.body || contenusOriginaux) return;
+                if (document.documentElement._mtActiveInstanceId !== instanceId) return;
+
+                // Extraction propre : élimine les styles CSS, scripts et citations imbriquées
+                const texteEchantillon = extraireTextePourDetection(document.body);
+                if (texteEchantillon.length < 35) {
+                  // Le document est peut-être encore en cours de montage initial dans Thunderbird
+                  if (tentative < 3) {
+                    setTimeout(() => tenterAutoTraductionZeroClic(tentative + 1), 150);
+                  }
+                  return;
+                }
+
+                browser.runtime.sendMessage({
+                  action: "detectLanguage",
+                  text: texteEchantillon.slice(0, 1500)
+                }).then((detectRes) => {
+                  if (document.documentElement._mtActiveInstanceId !== instanceId || contenusOriginaux) return;
+
+                  if (detectRes && detectRes.success && detectRes.lang) {
+                    const cibleActuelle = ui.selectCible.value;
+
+                    // 1. Seuil de fiabilité strict pour le mode automatique :
+                    // Exige isReliable === true ET un score d'au moins 80% (0 appel réseau en cas d'ambiguïté)
+                    const estFortementFiable = Boolean(detectRes.isReliable) && (detectRes.percentage >= 80);
+                    if (!estFortementFiable) return;
+
+                    // 2. Veto anti-faux positif : si la langue de l'utilisateur (cibleActuelle) apparaît
+                    // dans les langues détectées avec un score >= 15%, on s'abstient immédiatement !
+                    const listeLangues = Array.isArray(detectRes.languages) ? detectRes.languages : [];
+                    const contientLangueUtilisateur = listeLangues.some(
+                      (l) => languesSontEquivalentes(l.lang, cibleActuelle) && l.percentage >= 15
+                    );
+                    if (contientLangueUtilisateur) return;
+
+                    const langDetectee = detectRes.lang;
+
+                    // 3. Si l'e-mail n'est pas déjà dans la langue cible
+                    if (!languesSontEquivalentes(langDetectee, cibleActuelle)) {
+                      let doitTraduire = false;
+                      if (autoTranslateMode === "selected") {
+                        doitTraduire = autoTranslateLangs.some((l) => languesSontEquivalentes(l, langDetectee));
+                      } else {
+                        // "all_foreign" : toute langue étrangère
+                        doitTraduire = true;
+                      }
+
+                      if (doitTraduire && document.documentElement._mtActiveInstanceId === instanceId && !contenusOriginaux) {
+                        lancerTraduction({ isAutoOnOpen: true });
+                      }
+                    }
+                  }
+                }).catch(() => {});
+              };
+
+              if (autoTranslateOnOpen && aPermissionMoteur) {
+                tenterAutoTraductionZeroClic();
+              }
+            }
+          })
+          .catch(() => {});
+      } catch { /* contexte non disponible */ }
+    };
+
+    chargerConfigEtInitialiser();
 
     // ── MutationObserver — filet de sécurité ─────────────────────────────
     // Si Thunderbird remplace le contenu du body (ou l'élément body lui-même)

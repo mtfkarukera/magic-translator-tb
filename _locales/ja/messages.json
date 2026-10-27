@@ -168,7 +168,7 @@
     "message": "LibreTranslate インスタンスURL"
   },
   "helpLibreTranslateUrl": {
-    "message": "セルフホストサーバー (例: http://localhost:5000) またはパブリックURLを指定してください。"
+    "message": "セルフホストサーバー（例: http://localhost:5000）またはパブリックインスタンスのURLを入力してください。ローカル/LAN HTTPおよびリモートHTTPS接続はプロキシなしでネイティブにサポートされます。"
   },
   "labelLibreTranslateKey": {
     "message": "LibreTranslate APIキー (任意)"
@@ -295,5 +295,41 @@
   },
   "statusPermissionGranted": {
     "message": "✓ 権限が正常に付与されました！エンジンの準備が整いました。"
+  },
+  "sectionErgonomicsTitle": {
+    "message": "操作性と動作"
+  },
+  "labelAutoTranslateOnClick": {
+    "message": "ワンクリック自動翻訳"
+  },
+  "helpAutoTranslateOnClick": {
+    "message": "ツールバーのボタンをクリックするかAlt+Shift+Tを押すと、バナー内を再度クリックすることなく即座にメールを翻訳します。"
+  },
+  "labelAlternateTarget": {
+    "message": "代替翻訳先言語（デュアル翻訳）"
+  },
+  "optAlternateNone": {
+    "message": "なし（デフォルトで無効）"
+  },
+  "helpAlternateTarget": {
+    "message": "オプション。受信したメールがすでに主翻訳先言語で書かれている場合、自動的にこの代替言語に切り替えます。"
+  },
+  "labelAutoTranslateOnOpen": {
+    "message": "開封時の自動翻訳（ゼロクリックモード）"
+  },
+  "helpAutoTranslateOnOpen": {
+    "message": "受信メールを開くとクリック不要で即座に自動翻訳し、クイックアクセスピルに折りたたみます。"
+  },
+  "optModeAllForeign": {
+    "message": "翻訳先言語以外のすべてのメール"
+  },
+  "optModeSelected": {
+    "message": "以下で選択した言語のみ："
+  },
+  "labelPreferLocalDetection": {
+    "message": "ローカル言語検出を優先（Thunderbird内蔵エンジン）"
+  },
+  "helpPreferLocalDetection": {
+    "message": "ネットワーク通信を行う前に、お使いのPC上でローカルに言語を解析します（100%オフライン）。自動検出のないLibreTranslateやローカルLLM（Ollama等）に最適です。"
   }
 }

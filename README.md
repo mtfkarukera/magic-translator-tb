@@ -1,6 +1,6 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.3.10-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.4.1-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le **panneau de lecture** et dans la **fenêtre de rédaction (Compose Mode)** avec une interface Glassmorphism élégante et discrète.
@@ -9,6 +9,9 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ### 📖 1. Mode Lecture (Panneau de Message)
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
+- **Mode Zéro-Clic (Nouveau en v2.4.1)** — Traduit automatiquement les e-mails reçus en langue étrangère dès leur ouverture sans aucun clic, avec affichage informatif transparent du bandeau (statut « ✓ Traduit depuis [Langue] » et bouton « Original » immédiatement accessible en 1 clic pour restaurer le texte d'origine). Propulsé 100% hors-ligne par le moteur local CLD2 de Thunderbird pour la détection.
+- **Traduction en 1 Clic (Optionnelle)** — Traduit directement l'e-mail dès l'activation du bouton barre ou `Alt+Shift+T`, sans exiger de second clic dans le bandeau (activable dans les Préférences).
+- **Double Traduction & Inversion Intelligente** — Définissez une langue cible secondaire : inversion automatique `source ↔ target` pour les traductions bilingues, ou bascule vers votre langue d'alternance si un e-mail est déjà dans votre langue cible principale.
 - **Badge Moteur Interactif & Statut Réel** — Visualisation immédiate du moteur actif, statut réel connecté (voyant vert `●` ou alerte orange `●`), et autorisation réseau en 1 clic.
 - **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**.
 - **Flux UX épuré** — Traduction in situ réversible sans élément résiduel obstruant la lecture.
@@ -30,10 +33,11 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
   - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
   - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
   - **Mistral AI** (`mistral-small-latest`)
-  - **Ollama** (`http://localhost:11434`, traduction 100% locale)
-  - **LM Studio** (`http://localhost:1234`, traduction 100% locale)
+  - **Ollama** (`http://localhost:11434`, traduction 100% locale sans clé requise)
+  - **LM Studio** (`http://localhost:1234`, traduction 100% locale sans clé requise)
   - **Serveur Personnalisé** (vLLM, etc.)
-- **LibreTranslate** (*Open source*, support des serveurs auto-hébergés / locaux)
+- **LibreTranslate** (*Open source*, support natif des instances privées en HTTP local / LAN et HTTPS distant sans reverse proxy obligatoire, normalisation d'URL et timeout 60s)
+- **Détection Linguistique Locale Intégrée (Thunderbird CLD2)** — Option de détection 100% hors-ligne avant appel réseau, idéale pour LibreTranslate et les modèles IA sans auto-détection native.
 
 ### 🎨 4. Design, Accessibilité & Internationalisation
 - **Page d'options 100% multilingue** — Traduction complète de l'extension et des options en **7 langues** (`en`, `fr`, `de`, `es`, `ja`, `pt`, `vi`).
@@ -175,4 +179,4 @@ Les contributions sont bienvenues, en particulier pour :
 - De nouvelles langues d'interface
 
 ---
-*Développé par **MTF Karukera**. Découvre toutes les solutions logicielles et outils de productivité de la suite **magic-softs** sur [magic-clipper.mtfk.fr](https://magic-clipper.mtfk.fr/).*
+*Développé par **MTF Karukera**. Découvre toutes les solutions logicielles et outils de productivité de la suite **magic-softs** sur [mtfk.fr](https://mtfk.fr/).*
