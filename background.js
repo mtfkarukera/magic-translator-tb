@@ -22,6 +22,16 @@
 
 "use strict";
 
+const iconeBandeau = fetch(messenger.runtime.getURL("icon.png"))
+  .then((reponse) => reponse.blob())
+  .then((blob) => new Promise((resolve, reject) => {
+    const lecteur = new FileReader();
+    lecteur.onload = () => resolve(lecteur.result);
+    lecteur.onerror = () => reject(lecteur.error);
+    lecteur.readAsDataURL(blob);
+  }))
+  .catch(() => "");
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. ENREGISTREMENT DU SCRIPT DE CONTENU
 // ═══════════════════════════════════════════════════════════════════════════
@@ -290,6 +300,7 @@ async function traiterMessage(message, expediteur) {
       provider: config.provider,
       providerLabel: fournisseur.label,
       providerNom: fournisseur.nomComplet,
+      iconDataUrl: await iconeBandeau,
       hasPermission: Boolean(hasPermission),
       requiredOrigin,
       autoTranslateOnClick: Boolean(config.autoTranslateOnClick),

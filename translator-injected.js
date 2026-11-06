@@ -468,18 +468,10 @@
 }
 
 .mt-logo-icon {
-  min-width: 28px;
+  width: 20px;
   height: 20px;
-  padding: 0 4px;
-  border-radius: var(--mt-radius-sm);
-  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  letter-spacing: 0.5px;
-  color: white;
-  font-weight: 700;
+  object-fit: contain;
+  display: block;
   flex-shrink: 0;
   cursor: pointer;
   transition: all var(--mt-duration) var(--mt-ease-out);
@@ -933,9 +925,11 @@
     // Logo
     const logo = document.createElement("div");
     logo.className = "mt-logo";
-    const logoIcone = document.createElement("span");
+    const logoIcone = document.createElement("img");
     logoIcone.className = "mt-logo-icon";
-    logoIcone.textContent = "MT";
+    logoIcone.alt = "";
+    logoIcone.width = 20;
+    logoIcone.height = 20;
     // [M-A1] logoIcone purement décoratif : on retire le rôle bouton (doublon avec btnReplier).
     // L'utilisateur clavier n'a pas besoin de deux contrôles identiques dans le flux de tabulation.
     logoIcone.setAttribute("aria-hidden", "true");
@@ -1553,6 +1547,7 @@
         browser.runtime.sendMessage({ action: "getConfig" })
           .then((res) => {
             if (res && res.success && ui.badgeMoteur) {
+              if (res.iconDataUrl) ui.logoIcone.src = res.iconDataUrl;
               // 1. Synchronisation de la langue UI de Thunderbird et de la cible par défaut
               if (res.uiLanguage) {
                 const langUi = res.uiLanguage.split("-")[0].toLowerCase();
