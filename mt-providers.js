@@ -142,6 +142,78 @@
     }
   };
 
+  const MICROSOFT_LANGUES = {
+    auto: "",
+    zh: "zh-Hans",
+    "zh-cn": "zh-Hans",
+    "zh-tw": "zh-Hant",
+    no: "nb"
+  };
+
+  const FournisseurMicrosoft = {
+    id: "microsoft",
+    label: "Microsoft",
+    nomComplet: "Microsoft Edge Translate",
+
+    async traduire(texte, source, cible) {
+      let marqueurEsperluette;
+      do {
+        marqueurEsperluette = `MTAMP${crypto.randomUUID().replaceAll("-", "")}`;
+      } while (texte.includes(marqueurEsperluette));
+      const params = new URLSearchParams({
+        from: MICROSOFT_LANGUES[(source || "auto").toLowerCase()] ?? source,
+        to: MICROSOFT_LANGUES[cible.toLowerCase()] ?? cible,
+        isEnterpriseClient: "false"
+      });
+
+      let reponse;
+      try {
+        reponse = await fetch(`https://edge.microsoft.com/translate/translatetext?${params}`, {
+          method: "POST",
+          credentials: "omit",
+          signal: AbortSignal.timeout(TIMEOUT_CLOUD_MS),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify([texte.replaceAll("&", marqueurEsperluette).replaceAll("<", "&lt;").replaceAll(">", "&gt;")])
+        });
+      } catch (erreur) {
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("NETWORK");
+      }
+
+      if (!reponse.ok) {
+        throw new Error(reponse.status === 429 ? "RATE_LIMITED" : "SERVICE_UNAVAILABLE");
+      }
+
+      let donnees;
+      try {
+        donnees = await reponse.json();
+      } catch (erreur) {
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      if (!Array.isArray(donnees) || donnees.length !== 1 || typeof donnees[0]?.translations?.[0]?.text !== "string") {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      if (texte.split("&").length !== donnees[0].translations[0].text.split(marqueurEsperluette).length) {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
+
+      const langueDetectee = donnees[0].detectedLanguage?.language;
+      return {
+        success: true,
+        text: donnees[0].translations[0].text.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&").replaceAll(marqueurEsperluette, "&"),
+        detectedLang: typeof langueDetectee === "string" ?
+          langueDetectee === "zh-Hans" ? "zh-CN" : langueDetectee === "zh-Hant" ? "zh-TW" : langueDetectee === "nb" ? "no" : langueDetectee : null
+      };
+    }
+  };
+
   // ── 1b. FOURNISSEUR MYMEMORY API (SECOURS & AUTONOME) ──────────────────────
 
   /**
@@ -806,6 +878,7 @@
   // ── REGISTRE & GESTIONNAIRE GLOBAL ─────────────────────────────────────────
   const FOURNISSEURS = {
     google: FournisseurGoogle,
+    microsoft: FournisseurMicrosoft,
     mymemory: FournisseurMyMemory,
     deepl: FournisseurDeepL,
     libretranslate: FournisseurLibreTranslate,
@@ -935,6 +1008,9 @@
      * @returns {string}
      */
     obtenirPatternOrigine(provider, config = {}) {
+      if (provider === "microsoft") {
+        return "https://edge.microsoft.com/*";
+      }
       if (provider === "deepl") {
         const plan = config.deeplPlan || config.plan || "auto";
         const key = config.deeplApiKey || config.apiKey || "";

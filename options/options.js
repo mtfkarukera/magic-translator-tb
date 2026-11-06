@@ -212,6 +212,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       providerBadge.textContent = t("badgeDefault", "Par défaut");
       providerBadge.style.display = "inline-block";
       helpProvider.textContent = t("helpProviderGoogle", "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.");
+    } else if (provider === "microsoft") {
+      providerBadge.textContent = "Microsoft";
+      providerBadge.style.display = "inline-block";
+      helpProvider.textContent = t("helpProviderMicrosoft", "Uses Microsoft Edge translation without a user-supplied API key. Text is sent to Microsoft. This undocumented consumer endpoint may change or be rate-limited.");
     } else if (provider === "mymemory") {
       sectionMyMemory.classList.remove("mt-hidden");
       providerBadge.textContent = "MyMemory";
@@ -543,7 +547,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           deepl: "DeepL",
           gemini: "Google Gemini",
           llm: "Hub LLM",
-          libretranslate: "LibreTranslate"
+          libretranslate: "LibreTranslate",
+          microsoft: "Microsoft"
         };
         const nomMoteur = labelMap[provider] || provider;
         if (permissionProviderName) permissionProviderName.textContent = nomMoteur;

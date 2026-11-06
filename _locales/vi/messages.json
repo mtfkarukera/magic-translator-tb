@@ -80,6 +80,12 @@
   "optProviderGoogle": {
     "message": "Google Translate (Mặc định — Miễn phí, không cần cấu hình)"
   },
+  "optProviderMicrosoft": {
+    "message": "Microsoft Edge (Không cần khóa API)"
+  },
+  "helpProviderMicrosoft": {
+    "message": "Sử dụng tính năng dịch của Microsoft Edge mà không cần khóa API do người dùng cung cấp. Văn bản được gửi đến Microsoft. Điểm cuối dành cho người dùng phổ thông này không được tài liệu hóa, có thể thay đổi hoặc bị giới hạn tần suất."
+  },
   "optProviderMyMemory": {
     "message": "MyMemory (Miễn phí — Không cần khóa, 5.000 đến 50.000 ký tự/ngày)"
   },

@@ -61,6 +61,7 @@
     "storage"
   ],
   "host_permissions": [
+    "https://edge.microsoft.com/*",
     "https://translate-pa.googleapis.com/*",
     "https://translate.googleapis.com/*",
     "https://api.mymemory.translated.net/*",

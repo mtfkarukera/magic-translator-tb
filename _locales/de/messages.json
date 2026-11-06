@@ -80,6 +80,12 @@
   "optProviderGoogle": {
     "message": "Google Translate (Standard — Kostenlos, keine Konfig)"
   },
+  "optProviderMicrosoft": {
+    "message": "Microsoft Edge (Kein API-Schlüssel)"
+  },
+  "helpProviderMicrosoft": {
+    "message": "Nutzt die Übersetzung von Microsoft Edge ohne einen vom Nutzer bereitgestellten API-Schlüssel. Der Text wird an Microsoft gesendet. Dieser nicht dokumentierte Endpunkt für Verbraucher kann sich ändern oder gedrosselt werden."
+  },
   "optProviderMyMemory": {
     "message": "MyMemory (Kostenlos — Ohne Schlüssel, 5.000 bis 50.000 Zeichen/Tag)"
   },

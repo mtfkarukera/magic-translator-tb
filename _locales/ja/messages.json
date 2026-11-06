@@ -80,6 +80,12 @@
   "optProviderGoogle": {
     "message": "Google Translate (デフォルト — 無料・設定不要)"
   },
+  "optProviderMicrosoft": {
+    "message": "Microsoft Edge (APIキー不要)"
+  },
+  "helpProviderMicrosoft": {
+    "message": "ユーザーが用意したAPIキーなしでMicrosoft Edgeの翻訳を使用します。テキストはMicrosoftに送信されます。この一般向けの非公開エンドポイントは変更されたり、利用が制限されたりする可能性があります。"
+  },
   "optProviderMyMemory": {
     "message": "MyMemory (無料 — キー不要、1日5千〜5万文字)"
   },

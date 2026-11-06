@@ -80,6 +80,12 @@
   "optProviderGoogle": {
     "message": "Google Translate (Default — Free, zero config)"
   },
+  "optProviderMicrosoft": {
+    "message": "Microsoft Edge (No API key)"
+  },
+  "helpProviderMicrosoft": {
+    "message": "Uses Microsoft Edge translation without a user-supplied API key. Text is sent to Microsoft. This undocumented consumer endpoint may change or be rate-limited."
+  },
   "optProviderMyMemory": {
     "message": "MyMemory (Free — No key required, 5k to 50k chars/day)"
   },
