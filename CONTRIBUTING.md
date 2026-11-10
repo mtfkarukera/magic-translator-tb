@@ -42,9 +42,7 @@ Deux scripts, deux contextes (voir `ARCHITECTURE.md`) :
 
 Tout changement suit le **rituel de fin de sprint**, dans l'ordre :
 
-1. **Lint & tests** : `npm run lint` (0 erreur, 0 warning) + `npm test` (tests verts) + `npm run lint:webext`. `web-ext` est basé sur
-   Firefox : 3 warnings sont des **faux positifs Thunderbird attendus** (`messagesRead` + 2×
-   `data_collection_permissions`) ; tout dépassement de cette baseline est à corriger.
+1. **Lint & tests** : `npm run lint` (0 erreur, 0 warning) + `npm test` (tests verts) + `npm run lint:webext` (linter officiel `thunderbird/webext-linter` sur le `.xpi` compilé : `0 error(s), 0 hold, 0 warning(s)`).
 2. **Docs** : mettre à jour `README.md` / `ARCHITECTURE.md` si un comportement change.
 3. **CHANGELOG.md** : ajouter une entrée datée, par catégories.
 4. **Bump de version** : `manifest.json` **et** `package.json` (semver).

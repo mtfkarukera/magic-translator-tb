@@ -21,6 +21,15 @@
       </button>
     </header>
 
+    <!-- Filet de sécurité Opt-In (affiché uniquement si aucun moteur n'est encore activé) -->
+    <section id="consent-banner" class="consent-banner is-hidden" aria-label="Activation du moteur de traduction">
+      <p class="consent-text" data-i18n="composeConsentPrompt">Aucun moteur n'est encore activé. La traduction envoie le texte au fournisseur choisi :</p>
+      <div class="consent-actions">
+        <button type="button" id="btn-consent-accept" class="btn-consent-accept" data-i18n="composeBtnConsentAccept">✓ Activer Google (+ MyMemory) et traduire</button>
+        <button type="button" id="btn-consent-options" class="btn-consent-options" data-i18n="composeBtnConsentOptions">⚙️ Autre moteur…</button>
+      </div>
+    </section>
+
     <!-- Sélecteurs de Langues -->
     <section class="lang-section" aria-label="Sélection des langues">
       <div class="lang-field">

@@ -65,6 +65,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectProvider = document.getElementById("select-provider");
   const providerBadge = document.getElementById("provider-badge");
   const helpProvider = document.getElementById("help-provider");
+  const btnOpenSetup = document.getElementById("btn-open-setup");
+
+  const sectionGoogle = document.getElementById("section-google");
+  const chkEnableMyMemoryFallback = document.getElementById("enable-mymemory-fallback");
 
   const sectionDeepl = document.getElementById("section-deepl");
   const inputDeeplKey = document.getElementById("deepl-api-key");
@@ -117,7 +121,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ── Valeurs par défaut & Presets LLM ───────────────────────────────────────
   const DEFAUTS = {
-    provider: "google",
+    provider: "none",
+    enableMyMemoryFallback: false,
     mymemoryEmail: "",
     deeplApiKey: "",
     deeplPlan: "auto",
@@ -202,14 +207,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   function actualiserAffichageFournisseur() {
     const provider = selectProvider.value;
 
+    if (sectionGoogle) sectionGoogle.classList.add("mt-hidden");
     sectionDeepl.classList.add("mt-hidden");
     sectionGemini.classList.add("mt-hidden");
     sectionLlm.classList.add("mt-hidden");
     sectionLibreTranslate.classList.add("mt-hidden");
     sectionMyMemory.classList.add("mt-hidden");
 
-    if (provider === "google") {
-      providerBadge.textContent = t("badgeDefault", "Par défaut");
+    if (provider === "none") {
+      providerBadge.textContent = t("badgeUnconfigured", "Non configuré");
+      providerBadge.style.display = "inline-block";
+      helpProvider.textContent = t("helpProviderNone", "Aucun fournisseur n'est activé par défaut. Sélectionnez un moteur ci-dessus et enregistrez vos préférences.");
+    } else if (provider === "google") {
+      if (sectionGoogle) sectionGoogle.classList.remove("mt-hidden");
+      providerBadge.textContent = "Google";
       providerBadge.style.display = "inline-block";
       helpProvider.textContent = t("helpProviderGoogle", "Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.");
     } else if (provider === "mymemory") {
@@ -323,6 +334,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const config = { ...DEFAUTS, ...stocke };
 
     selectProvider.value = config.provider;
+    if (chkEnableMyMemoryFallback) {
+      chkEnableMyMemoryFallback.checked = Boolean(config.enableMyMemoryFallback);
+    }
     inputDeeplKey.value = config.deeplApiKey;
     selectDeeplPlan.value = config.deeplPlan;
 
@@ -508,6 +522,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   configurerBasculeMotDePasse(btnToggleLlmKey, inputLlmApiKey);
   configurerBasculeMotDePasse(btnToggleLtKey, inputLibreTranslateKey);
 
+  if (btnOpenSetup) {
+    btnOpenSetup.addEventListener("click", () => {
+      browser.runtime.sendMessage({ action: "openSetup" }).catch(() => {});
+    });
+  }
+
   /**
    * Vérifie dynamiquement l'état de permission du moteur sélectionné.
    * N'affiche le bandeau que si et seulement si la permission d'hôte est manquante.
@@ -518,8 +538,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const config = obtenirConfigFormulaire();
     const provider = config.provider;
 
-    // Google Translate est déclaré dans le manifest et ne nécessite aucun prompt
-    if (provider === "google") {
+    // Google Translate (déclaré dans le manifest) et "none" ne nécessitent aucun prompt
+    if (provider === "none" || provider === "google") {
       warningBanner.classList.add("mt-hidden");
       return;
     }
@@ -572,6 +592,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return {
       provider: selectProvider.value,
+      enableMyMemoryFallback: chkEnableMyMemoryFallback ? chkEnableMyMemoryFallback.checked : false,
       deeplApiKey: inputDeeplKey.value.trim(),
       deeplPlan: selectDeeplPlan.value,
       geminiApiKey: inputGeminiKey.value.trim(),
@@ -598,7 +619,9 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @returns {Promise<boolean>}
    */
   async function assurerPermissionsHote(config) {
+    if (!config || !config.provider || config.provider === "none") return true;
     const pattern = globalThis.MTProviders.obtenirPatternOrigine(config.provider, config);
+    if (!pattern) return true;
     try {
       if (browser.permissions && browser.permissions.request) {
         // Sous Gecko (Thunderbird), browser.permissions.request() doit être exécuté
@@ -613,10 +636,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * Valide que l'URL personnalisée respecte l'exigence HTTPS hors localhost de Mozilla Thunderbird.
+   * @param {Object} config
+   * @returns {boolean}
+   */
+  function validerSecuriteUrlFormulaire(config) {
+    if (!globalThis.MTProviders || !globalThis.MTProviders.validerUrlSecurisee) return true;
+    if (config.provider === "llm" && config.llmBaseUrl) {
+      const val = globalThis.MTProviders.validerUrlSecurisee(config.llmBaseUrl);
+      if (!val.valide) {
+        afficherStatut(
+          val.erreur === "CLEARTEXT_FORBIDDEN"
+            ? t("errorCleartextForbidden", "Connexion HTTP non chiffrée refusée : conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire hors de localhost / 127.0.0.1.")
+            : "URL de base LLM invalide.",
+          "error"
+        );
+        inputLlmBaseUrl.focus();
+        return false;
+      }
+    }
+    if (config.provider === "libretranslate" && config.libretranslateUrl) {
+      const val = globalThis.MTProviders.validerUrlSecurisee(config.libretranslateUrl);
+      if (!val.valide) {
+        afficherStatut(
+          val.erreur === "CLEARTEXT_FORBIDDEN"
+            ? t("errorCleartextForbidden", "Connexion HTTP non chiffrée refusée : conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire hors de localhost / 127.0.0.1.")
+            : "URL LibreTranslate invalide.",
+          "error"
+        );
+        inputLibreTranslateUrl.focus();
+        return false;
+      }
+    }
+    return true;
+  }
+
   // ── Test de connexion en direct ────────────────────────────────────────────
   btnTest.addEventListener("click", async () => {
     const config = obtenirConfigFormulaire();
     const provider = config.provider;
+
+    if (provider === "none") {
+      afficherStatut(t("errorTestProviderNone", "Veuillez d'abord sélectionner un fournisseur de traduction à tester."), "error");
+      selectProvider.focus();
+      return;
+    }
 
     // Validation préalable
     if (provider === "deepl" && !config.deeplApiKey) {
@@ -649,6 +714,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (provider === "libretranslate" && !config.libretranslateUrl) {
       afficherStatut("Veuillez renseigner l'URL de votre instance LibreTranslate.", "error");
       inputLibreTranslateUrl.focus();
+      return;
+    }
+
+    if (!validerSecuriteUrlFormulaire(config)) {
       return;
     }
 
@@ -714,6 +783,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const config = obtenirConfigFormulaire();
 
+    if (!validerSecuriteUrlFormulaire(config)) {
+      return;
+    }
+
     // Demande de permission à la volée sur le geste utilisateur direct
     await assurerPermissionsHote(config);
     await verifierPermissionMoteur();
@@ -723,7 +796,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     afficherStatut(t("btnSaving", "Enregistrement des préférences…"), "loading");
 
     try {
-      await browser.storage.local.set(config);
+      await browser.storage.local.set({ ...config, onboardingShown: true });
       afficherStatut(t("statusSaved", "✓ Préférences enregistrées avec succès !"), "success");
     } catch (err) {
       console.error("[MagicTranslator Options] Erreur sauvegarde :", err);

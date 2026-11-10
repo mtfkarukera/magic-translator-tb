@@ -78,7 +78,7 @@
     "message": "Default"
   },
   "optProviderGoogle": {
-    "message": "Google Translate (Default — Free, zero config)"
+    "message": "Google Translate (Free — No API key required)"
   },
   "optProviderMyMemory": {
     "message": "MyMemory (Free — No key required, 5k to 50k chars/day)"
@@ -150,7 +150,7 @@
     "message": "API Base URL"
   },
   "helpLlmBaseUrl": {
-    "message": "Standard endpoint. The path /v1/chat/completions will be appended automatically."
+    "message": "Standard endpoint (/v1/chat/completions added automatically). Per Mozilla Thunderbird security policy, HTTPS is required outside your local machine (http:// is allowed only on localhost / 127.0.0.1)."
   },
   "labelLlmApiKey": {
     "message": "API Key (Bearer Token)"
@@ -168,7 +168,7 @@
     "message": "LibreTranslate Instance URL"
   },
   "helpLibreTranslateUrl": {
-    "message": "Enter your self-hosted server URL (e.g. http://localhost:5000) or a public instance. Local/LAN HTTP and remote HTTPS connections are natively supported without any proxy."
+    "message": "Enter your LibreTranslate instance URL. Per Mozilla Thunderbird security policy, HTTPS is required for all remote or LAN servers; http:// is allowed only on your local machine (localhost / 127.0.0.1)."
   },
   "labelLibreTranslateKey": {
     "message": "LibreTranslate API Key (Optional)"
@@ -331,5 +331,107 @@
   },
   "helpPreferLocalDetection": {
     "message": "Analyzes the source language locally on your computer before any network call (100% offline). Ideal for LibreTranslate or local models (Ollama/LLMs) without built-in auto-detection."
+  },
+  "optProviderNone": {
+    "message": "— Select a translation provider —"
+  },
+  "helpProviderNone": {
+    "message": "No provider is enabled by default. Select a translation engine above and save your preferences."
+  },
+  "badgeUnconfigured": {
+    "message": "Unconfigured"
+  },
+  "optionsPrivacyDisclosure": {
+    "message": "🛡️ Privacy: When you translate an email or draft, the text to translate is sent over HTTPS to the provider selected above (or processed locally via localhost). Nothing is sent while no provider is selected."
+  },
+  "btnOpenSetupWizard": {
+    "message": "🧭 Welcome Wizard"
+  },
+  "labelEnableMyMemoryFallback": {
+    "message": "Automatic fallback to MyMemory on temporary outage"
+  },
+  "helpEnableMyMemoryFallback": {
+    "message": "If Google Translate is temporarily rate-limited (HTTP 429 or network error), allow sending the text to the MyMemory API (api.mymemory.translated.net) as a fallback."
+  },
+  "errorTestProviderNone": {
+    "message": "Please select a translation provider to test first."
+  },
+  "errorCleartextForbidden": {
+    "message": "Unencrypted HTTP connection refused: per Mozilla Thunderbird security policy, HTTPS is required outside localhost / 127.0.0.1."
+  },
+  "composeConsentPrompt": {
+    "message": "No translation engine is enabled yet. Translating sends the text to the chosen provider:"
+  },
+  "composeBtnConsentAccept": {
+    "message": "✓ Enable Google (+ MyMemory) & translate"
+  },
+  "composeBtnConsentOptions": {
+    "message": "⚙️ Other provider…"
+  },
+  "composeBadgeUnconfigured": {
+    "message": "Setup required"
+  },
+  "composeStatusConsentRequired": {
+    "message": "Please enable a translation engine above."
+  },
+  "composeStatusCleartextForbidden": {
+    "message": "HTTP refused outside localhost (Mozilla Thunderbird policy: HTTPS required)."
+  },
+  "setupPageTitle": {
+    "message": "Welcome to Magic Translator — Initial Setup"
+  },
+  "setupWelcomeTitle": {
+    "message": "Welcome to Magic Translator"
+  },
+  "setupWelcomeSubtitle": {
+    "message": "Reversible, consent-first email translation right inside Thunderbird."
+  },
+  "setupPrivacyTitle": {
+    "message": "Transparency & Translation Provider Choice"
+  },
+  "setupPrivacyText": {
+    "message": "In accordance with Mozilla Thunderbird privacy requirements, no translation provider is enabled by default without your explicit consent. When you translate an email or draft, the text to translate is sent over an encrypted connection (HTTPS) only to the provider you choose below (or processed locally on your machine via localhost)."
+  },
+  "setupPrivacyOfflineNote": {
+    "message": "💡 Preliminary language detection runs 100% offline on your computer using Thunderbird's built-in engine, with zero network requests."
+  },
+  "setupQuickStartBadge": {
+    "message": "Recommended • Ready to use"
+  },
+  "setupQuickStartTitle": {
+    "message": "Quick Start with Google Translate"
+  },
+  "setupQuickStartDesc": {
+    "message": "Enable Google Translate (free service, no API key required) to immediately translate emails while reading and composing. Your text is sent to Google (translate-pa.googleapis.com) only when you request a translation."
+  },
+  "setupMyMemoryFallbackLabel": {
+    "message": "Allow automatic fallback to MyMemory (api.mymemory.translated.net) if Google is temporarily unavailable"
+  },
+  "setupBtnActivateGoogle": {
+    "message": "✓ Enable Google Translate and start"
+  },
+  "setupCustomBadge": {
+    "message": "Pro Cloud or 100% Local"
+  },
+  "setupCustomTitle": {
+    "message": "Choose another provider or Local AI"
+  },
+  "setupCustomDesc": {
+    "message": "Prefer using your own API key or keeping data strictly on your computer? Configure your preferred engine in the add-on settings:"
+  },
+  "setupCustomItemLocal": {
+    "message": "🔒 100% Local (localhost): Ollama, LM Studio, local LibreTranslate"
+  },
+  "setupCustomItemCloud": {
+    "message": "☁️ Cloud APIs: DeepL (Free/Pro), Google Gemini, OpenAI, Mistral, Groq, MyMemory"
+  },
+  "setupBtnOpenOptions": {
+    "message": "⚙️ Configure another provider…"
+  },
+  "setupStatusActivated": {
+    "message": "✓ Google Translate is now enabled! You can close this tab and start translating your emails."
+  },
+  "setupBtnCloseTab": {
+    "message": "Close this tab"
   }
 }

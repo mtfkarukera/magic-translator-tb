@@ -1,15 +1,20 @@
 # ✉️ Magic Translator — Extension Thunderbird
 
-[![Version](https://img.shields.io/badge/version-v2.4.1-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
+[![Version](https://img.shields.io/badge/version-v2.5.0-7c3aed)](https://github.com/mtfkarukera/magic-translator-tb/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
 Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails directement dans le **panneau de lecture** et dans la **fenêtre de rédaction (Compose Mode)** avec une interface Glassmorphism élégante et discrète.
 
 ## ✨ Fonctionnalités
 
+### 🛡️ 0. Consentement Explicite (Opt-In) & Sécurité Réseau (Nouveau en v2.5.0)
+- **Assistant de Premier Lancement (`setup/`)** — À l'installation, aucun moteur de traduction n'est activé par défaut (`provider: "none"`). Une page d'accueil transparente présente les données transmises et permet d'activer **Google Translate** en 1 clic (avec case à cocher explicite pour le relais de secours **MyMemory**) ou de configurer le moteur de votre choix.
+- **Filet de Sécurité en 1 Clic** — Si vous fermez l'assistant d'accueil sans choisir de moteur, le premier clic sur **Traduire** (en lecture ou en rédaction) affiche un bandeau d'autorisation intégré : cliquez sur **`✓ Activer Google (+ MyMemory) et traduire`** pour enregistrer votre consentement et lancer immédiatement votre traduction sans perdre une seconde.
+- **Chiffrement HTTPS Strict Hors Bouclage Local** — Conformément aux règles de sécurité de Mozilla Thunderbird, le protocole chiffré **`https://`** est strictement imposé pour tout serveur distant ou situé sur le réseau local (LAN). Le protocole non chiffré `http://` est réservé exclusivement à votre propre machine locale (`localhost` / `127.0.0.1`).
+
 ### 📖 1. Mode Lecture (Panneau de Message)
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
-- **Mode Zéro-Clic (Nouveau en v2.4.1)** — Traduit automatiquement les e-mails reçus en langue étrangère dès leur ouverture sans aucun clic, avec affichage informatif transparent du bandeau (statut « ✓ Traduit depuis [Langue] » et bouton « Original » immédiatement accessible en 1 clic pour restaurer le texte d'origine). Propulsé 100% hors-ligne par le moteur local CLD2 de Thunderbird pour la détection.
+- **Mode Zéro-Clic** — Traduit automatiquement les e-mails reçus en langue étrangère dès leur ouverture sans aucun clic, avec affichage informatif transparent du bandeau (statut « ✓ Traduit depuis [Langue] » et bouton « Original » immédiatement accessible en 1 clic pour restaurer le texte d'origine). Propulsé 100% hors-ligne par le moteur local CLD2 de Thunderbird pour la détection.
 - **Traduction en 1 Clic (Optionnelle)** — Traduit directement l'e-mail dès l'activation du bouton barre ou `Alt+Shift+T`, sans exiger de second clic dans le bandeau (activable dans les Préférences).
 - **Double Traduction & Inversion Intelligente** — Définissez une langue cible secondaire : inversion automatique `source ↔ target` pour les traductions bilingues, ou bascule vers votre langue d'alternance si un e-mail est déjà dans votre langue cible principale.
 - **Badge Moteur Interactif & Statut Réel** — Visualisation immédiate du moteur actif, statut réel connecté (voyant vert `●` ou alerte orange `●`), et autorisation réseau en 1 clic.
@@ -25,18 +30,18 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 - **Réversibilité totale** — Bouton **Restaurer l'original** pour retrouver l'état initial en un clic.
 
 ### 🌐 3. Hub Multi-Fournisseurs & LLMs
-- **Google Translate** (*par défaut*, gratuit, zéro configuration — avec bascule automatique transparente sur MyMemory en cas de quota ou indisponibilité)
+- **Google Translate** (*recommandé*, gratuit, activation en 1 clic — avec relais automatique optionnel vers MyMemory en cas de quota ou indisponibilité)
 - **MyMemory** (*Gratuit*, sans clé d'API, 5 000 à 50 000 car./jour via e-mail optionnel)
 - **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
-- **Google Gemini API** (*Cloud IA*, `gemini-3.5-flash-lite`, ultra-rapide et intelligent)
+- **Google Gemini API** (*Cloud IA*, `gemini-2.5-flash`, ultra-rapide et intelligent)
 - **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
   - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
   - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
   - **Mistral AI** (`mistral-small-latest`)
-  - **Ollama** (`http://localhost:11434`, traduction 100% locale sans clé requise)
-  - **LM Studio** (`http://localhost:1234`, traduction 100% locale sans clé requise)
-  - **Serveur Personnalisé** (vLLM, etc.)
-- **LibreTranslate** (*Open source*, support natif des instances privées en HTTP local / LAN et HTTPS distant sans reverse proxy obligatoire, normalisation d'URL et timeout 60s)
+  - **Ollama** (`http://localhost:11434`, traduction 100% locale sur la machine sans clé requise)
+  - **LM Studio** (`http://localhost:1234`, traduction 100% locale sur la machine sans clé requise)
+  - **Serveur Personnalisé** (vLLM, etc. — **HTTPS obligatoire** si hébergé hors de `localhost`/`127.0.0.1`)
+- **LibreTranslate** (*Open source*, support des instances locales sur `http://localhost` / `http://127.0.0.1` et des instances distantes/LAN en `https://`, normalisation d'URL et timeout 60s)
 - **Détection Linguistique Locale Intégrée (Thunderbird CLD2)** — Option de détection 100% hors-ligne avant appel réseau, idéale pour LibreTranslate et les modèles IA sans auto-détection native.
 
 ### 🎨 4. Design, Accessibilité & Internationalisation
@@ -108,6 +113,14 @@ magic-translator-tb/
 │   ├── options.html           # Interface utilisateur en Dark Glassmorphism
 │   ├── options.css            # Styles autonomes et accessibles WCAG AA
 │   └── options.js             # Logique de chargement, test et persistance storage.local
+├── setup/                     # Assistant de premier lancement & consentement Opt-In
+│   ├── setup.html             # Interface d'accueil et transparence des données
+│   ├── setup.css              # Styles Glassmorphism de l'assistant
+│   └── setup.js               # Activation en 1 clic ou redirection vers les Options
+├── compose/                   # Popup du Mode Rédaction (Compose Mode)
+│   ├── compose.html           # Interface de traduction des brouillons
+│   ├── compose.css            # Styles adaptatifs clair/sombre
+│   └── compose.js             # Traduction Objet/Corps/Sélection et consentement inline
 ├── icon.png                   # Icône de l'extension (128×128)
 ├── build.sh                   # Packaging reproductible du XPI (→ dist/)
 ├── LICENSE                    # Licence MPL-2.0
@@ -164,12 +177,15 @@ Clic [Traduire] ou bouton barre → réaffiche le bandeau pour restaurer l'origi
 
 Mozilla Public License 2.0 (MPL-2.0)
 
-## 🔒 Confidentialité des données
+## 🔒 Confidentialité des données & Sécurité Réseau
 
 Magic Translator **ne fait aucune télémétrie** et **ne transmet rien à ses développeurs** ni à un quelconque serveur du projet (il n'existe aucun serveur Magic Translator).
 
-**Partage avec Google Translate :**  
-Pour fonctionner, l'extension envoie le **contenu du corps des e-mails que vous choisissez de traduire** à l'API de Google Translate (client `gtx`). Ces données transitent *exclusivement et directement* entre votre client Thunderbird et les serveurs de Google (HTTPS). Seul le **corps rendu** du message est transmis : les en-têtes gérés par Thunderbird (expéditeur, destinataire, sujet) sont hors du document de contenu et ne sont pas collectés — sauf s'ils figurent dans le corps même du message. À ce titre, le manifest déclare la catégorie de collecte **`personalCommunications`** (contenu de messages transmis à un tiers), conformément au cadre de consentement de Mozilla.
+**Consentement Explicite Préalable (Opt-In) :**  
+À l'installation, **aucun moteur de traduction n'est activé par défaut** (`provider: "none"`). Tant que vous n'avez pas choisi votre fournisseur via l'assistant de premier lancement ou le bandeau d'autorisation en 1 clic, aucune donnée ne quitte Thunderbird. Après votre accord explicite, l'extension envoie le **contenu du corps des e-mails ou du brouillon que vous choisissez de traduire** directement au fournisseur que vous avez sélectionné (ex: Google Translate, avec relais optionnel vers MyMemory uniquement si vous l'avez coché). Le manifest déclare la catégorie **`personalCommunications`** conformément au cadre de consentement de Mozilla.
+
+**Exigence Mozilla Thunderbird — HTTPS Strict Hors Bouclage Local :**  
+Conformément aux exigences de sécurité de Mozilla Thunderbird, toutes les connexions vers des serveurs distants ou situés sur votre réseau local (LAN) exigent obligatoirement le protocole chiffré **`https://`**. Le protocole non chiffré `http://` est **strictement réservé** aux serveurs tournant sur votre propre machine locale (`localhost` ou `127.0.0.1`, ex: Ollama, LM Studio ou LibreTranslate local), sans jamais transmettre de clé d'API en clair.
 
 ## 🤝 Contribution
 

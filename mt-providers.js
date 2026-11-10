@@ -61,7 +61,69 @@
     return "https://api.deepl.com/v2/translate";
   }
 
-  // ── 1. FOURNISSEUR GOOGLE TRANSLATE (DÉFAUT) ───────────────────────────────
+  // ── VALIDATION DE SÉCURITÉ RÉSEAU (HTTPS STRICT HORS BOUCLE LOCALE) ────────
+  /**
+   * Vérifie si un nom d'hôte (hostname) correspond strictement à l'interface de
+   * boucle locale (loopback) de la machine de l'utilisateur, conformément à la
+   * fonction isLoopback() de thunderbird/webext-linter (src/scan/url.js).
+   * Le trafic loopback ne quitte jamais la machine physique.
+   *
+   * @param {string} hostname - Nom d'hôte extrait par le parseur WHATWG URL
+   * @returns {boolean} Vrai uniquement pour localhost, *.localhost, [::1], 0.0.0.0 et 127.0.0.0/8
+   */
+  function estHoteLoopback(hostname) {
+    if (!hostname || typeof hostname !== "string") {
+      return false;
+    }
+    const h = hostname.toLowerCase().trim();
+    if (
+      h === "localhost" ||
+      h.endsWith(".localhost") ||
+      h === "[::1]" ||
+      h === "0.0.0.0"
+    ) {
+      return true;
+    }
+    const parts = h.split(".");
+    return (
+      parts.length === 4 &&
+      parts[0] === "127" &&
+      parts.every((p) => p !== "" && [...p].every((c) => c >= "0" && c <= "9"))
+    );
+  }
+
+  /**
+   * Valide qu'une URL respecte la politique de chiffrement de Mozilla Thunderbird (ATN) :
+   * - Tout serveur distant ou réseau (LAN) DOIT utiliser "https:" (chiffré TLS).
+   * - Le protocole non chiffré "http:" est strictement restreint aux adresses loopback
+   *   locales (localhost / 127.0.0.1) où les données ne quittent jamais la machine.
+   *
+   * @param {string} rawUrl - URL à valider
+   * @returns {{valide: boolean, url?: string, estLoopbackHttp?: boolean, erreur?: string}}
+   */
+  function validerUrlSecurisee(rawUrl) {
+    let parsed;
+    try {
+      parsed = new URL(rawUrl);
+    } catch {
+      return { valide: false, erreur: "INVALID_URL" };
+    }
+
+    if (parsed.protocol === "https:") {
+      return { valide: true, url: rawUrl, estLoopbackHttp: false };
+    }
+
+    if (parsed.protocol === "http:") {
+      if (estHoteLoopback(parsed.hostname)) {
+        return { valide: true, url: rawUrl, estLoopbackHttp: true };
+      }
+      return { valide: false, erreur: "CLEARTEXT_FORBIDDEN" };
+    }
+
+    return { valide: false, erreur: "INVALID_PROTOCOL" };
+  }
+
+  // ── 1. FOURNISSEUR GOOGLE TRANSLATE (OPT-IN EXPLICITE REQUIS) ──────────────
   const GOOGLE_PA_KEY = "AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA";
 
   const FournisseurGoogle = {
@@ -71,14 +133,17 @@
 
     /**
      * Traduit un texte via Google Translate (API Translate-PA WebExtensions).
-     * En cas d'indisponibilité ou blocage, bascule automatiquement sur MyMemory en secours.
+     * Requiert que l'utilisateur ait explicitement activé ce fournisseur (Opt-In).
+     * Si l'utilisateur a également activé l'option enableMyMemoryFallback, bascule sur
+     * MyMemory en cas d'indisponibilité de Google.
      * @param {string} texte - Texte brut à traduire
      * @param {string} source - Langue source ("auto" ou code)
      * @param {string} cible - Langue cible
-     * @param {Object} [config] - Configuration optionnelle
+     * @param {Object} [config] - Configuration optionnelle ({ enableMyMemoryFallback })
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
     async traduire(texte, source, cible, config = {}) {
+      const autoriserSecoursMyMemory = Boolean(config && config.enableMyMemoryFallback);
       const params = new URLSearchParams();
       params.append("params.client", "gtx");
       params.append("query.source_language", source || "auto");
@@ -97,36 +162,43 @@
           signal: AbortSignal.timeout(TIMEOUT_TRADUCTION_MS)
         });
       } catch (erreur) {
-        // En cas de timeout ou erreur réseau, repli automatique sur MyMemory
-        try {
-          return await FournisseurMyMemory.traduire(texte, source, cible, config);
-        } catch {
-          if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
-            throw new Error("TIMEOUT");
+        if (autoriserSecoursMyMemory) {
+          try {
+            return await FournisseurMyMemory.traduire(texte, source, cible, config);
+          } catch {
+            // Poursuite vers le code d'erreur standard ci-dessous
           }
-          throw new Error("NETWORK");
         }
+        if (erreur && (erreur.name === "TimeoutError" || erreur.name === "AbortError")) {
+          throw new Error("TIMEOUT");
+        }
+        throw new Error("NETWORK");
       }
 
       if (!reponse.ok) {
-        // En cas d'erreur HTTP (ex: 429 ou 500), repli automatique sur MyMemory
-        try {
-          return await FournisseurMyMemory.traduire(texte, source, cible, config);
-        } catch {
-          if (reponse.status === 429) throw new Error("RATE_LIMITED");
-          throw new Error("SERVICE_UNAVAILABLE");
+        if (autoriserSecoursMyMemory) {
+          try {
+            return await FournisseurMyMemory.traduire(texte, source, cible, config);
+          } catch {
+            // Poursuite vers le code d'erreur standard ci-dessous
+          }
         }
+        if (reponse.status === 429) throw new Error("RATE_LIMITED");
+        throw new Error("SERVICE_UNAVAILABLE");
       }
 
       let donnees;
       try {
         donnees = await reponse.json();
       } catch {
-        try {
-          return await FournisseurMyMemory.traduire(texte, source, cible, config);
-        } catch {
-          throw new Error("SERVICE_UNAVAILABLE");
+        if (autoriserSecoursMyMemory) {
+          try {
+            return await FournisseurMyMemory.traduire(texte, source, cible, config);
+          } catch {
+            throw new Error("SERVICE_UNAVAILABLE");
+          }
         }
+        throw new Error("SERVICE_UNAVAILABLE");
       }
 
       if (donnees && typeof donnees.translation === "string") {
@@ -137,8 +209,10 @@
         };
       }
 
-      // Format inattendu : tentative de secours sur MyMemory
-      return await FournisseurMyMemory.traduire(texte, source, cible, config);
+      if (autoriserSecoursMyMemory) {
+        return await FournisseurMyMemory.traduire(texte, source, cible, config);
+      }
+      throw new Error("SERVICE_UNAVAILABLE");
     }
   };
 
@@ -441,13 +515,14 @@
     async traduire(texte, source, cible, config = {}) {
       let baseUrl = (config.url && config.url.trim()) ? config.url.trim() : "https://libretranslate.com";
       baseUrl = baseUrl.replace(/\/translate\/?$/i, "").replace(/\/+$/, "");
-      try {
-        const u = new URL(baseUrl);
-        if (u.protocol !== "http:" && u.protocol !== "https:") {
-          baseUrl = "https://libretranslate.com";
+      const validation = validerUrlSecurisee(baseUrl);
+      if (!validation.valide) {
+        if (validation.erreur === "CLEARTEXT_FORBIDDEN") {
+          throw new Error("CLEARTEXT_FORBIDDEN");
         }
-      } catch {
         baseUrl = "https://libretranslate.com";
+      } else {
+        baseUrl = validation.url;
       }
       const endpoint = `${baseUrl}/translate`;
 
@@ -458,7 +533,8 @@
         format: "text"
       };
 
-      if (config.apiKey && config.apiKey.trim()) {
+      // Sécurité : ne jamais transmettre de clé d'API sur du HTTP non chiffré
+      if (config.apiKey && config.apiKey.trim() && !validation.estLoopbackHttp) {
         payload.api_key = config.apiKey.trim();
       }
 
@@ -715,13 +791,14 @@
         baseUrl = preset === "lmstudio" ? "http://localhost:1234" : "http://localhost:11434";
       }
 
-      try {
-        const u = new URL(baseUrl);
-        if (u.protocol !== "http:" && u.protocol !== "https:") {
-          baseUrl = "http://localhost:11434";
+      const validation = validerUrlSecurisee(baseUrl);
+      if (!validation.valide) {
+        if (validation.erreur === "CLEARTEXT_FORBIDDEN") {
+          throw new Error("CLEARTEXT_FORBIDDEN");
         }
-      } catch {
-        baseUrl = "http://localhost:11434";
+        baseUrl = preset === "lmstudio" ? "http://localhost:1234" : "http://localhost:11434";
+      } else {
+        baseUrl = validation.url;
       }
 
       // Rejet immédiat si clé manquante pour les fournisseurs Cloud
@@ -751,7 +828,8 @@
       const headers = {
         "Content-Type": "application/json"
       };
-      if (apiKey) {
+      // Sécurité : ne jamais transmettre de jeton Bearer sur du HTTP non chiffré
+      if (apiKey && !validation.estLoopbackHttp) {
         headers["Authorization"] = `Bearer ${apiKey}`;
       }
 
@@ -817,6 +895,8 @@
     FOURNISSEURS,
     TIMEOUT_CLOUD_MS,
     TIMEOUT_LOCAL_MS,
+    estHoteLoopback,
+    validerUrlSecurisee,
     normaliserCodeDeepL,
     obtenirEndpointDeepL,
     obtenirNomLangue,
@@ -825,11 +905,18 @@
 
     /**
      * Récupère un fournisseur par son identifiant.
-     * @param {string} id - 'google', 'deepl', 'libretranslate', 'gemini', 'llm'
+     * @param {string} id - 'none', 'google', 'mymemory', 'deepl', 'libretranslate', 'gemini', 'llm'
      * @param {Object} [config] - Configuration optionnelle pour dynamiser le label
-     * @returns {Object} Le fournisseur correspondant (ou Google par défaut)
+     * @returns {Object} Le fournisseur correspondant
      */
     obtenirFournisseur(id, config = {}) {
+      if (id === "none") {
+        return {
+          id: "none",
+          label: "Non configuré",
+          nomComplet: "Aucun fournisseur sélectionné"
+        };
+      }
       const fournisseur = FOURNISSEURS[id] || FournisseurGoogle;
       if (id === "llm" && fournisseur.obtenirLabel) {
         return {
@@ -849,7 +936,10 @@
      * @returns {Promise<{success: boolean, text: string, detectedLang: string|null}>}
      */
     async traduire(config, texte, source, cible) {
-      const providerId = (config && config.provider) || "google";
+      if (!config || !config.provider || config.provider === "none") {
+        throw new Error("CONSENT_REQUIRED");
+      }
+      const providerId = config.provider;
       const fournisseur = MTProviders.obtenirFournisseur(providerId, config);
       return await fournisseur.traduire(texte, source, cible, config);
     },
@@ -860,7 +950,10 @@
      * @returns {Promise<{success: boolean, message: string}>}
      */
     async testerConnexion(config) {
-      const providerId = (config && config.provider) || "google";
+      if (!config || !config.provider || config.provider === "none") {
+        return { success: false, message: "CONSENT_REQUIRED" };
+      }
+      const providerId = config.provider;
       const fournisseur = MTProviders.obtenirFournisseur(providerId, config);
 
       try {
@@ -935,6 +1028,9 @@
      * @returns {string}
      */
     obtenirPatternOrigine(provider, config = {}) {
+      if (provider === "none") {
+        return "";
+      }
       if (provider === "deepl") {
         const plan = config.deeplPlan || config.plan || "auto";
         const key = config.deeplApiKey || config.apiKey || "";
@@ -957,6 +1053,9 @@
           if (u.protocol !== "http:" && u.protocol !== "https:") {
             return "http://localhost/*";
           }
+          if (u.protocol === "http:" && !estHoteLoopback(u.hostname)) {
+            return "";
+          }
           // Les match patterns WebExtension ne supportent pas de numéro de port
           return `${u.protocol}//${u.hostname}/*`;
         } catch {
@@ -969,6 +1068,9 @@
           const u = new URL(url);
           if (u.protocol !== "http:" && u.protocol !== "https:") {
             return "https://libretranslate.com/*";
+          }
+          if (u.protocol === "http:" && !estHoteLoopback(u.hostname)) {
+            return "";
           }
           return `${u.protocol}//${u.hostname}/*`;
         } catch {

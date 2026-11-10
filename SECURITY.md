@@ -35,18 +35,19 @@ des e-mails. Les hypothèses structurantes sont :
   `textContent` / `createTextNode`. Pas d'`innerHTML`, `outerHTML`, `insertAdjacentHTML`, ni `eval`.
   → un e-mail hostile **ne peut pas** exécuter de code via l'extension.
 - ✅ **Aucune persistance du contenu des e-mails.** Seules les préférences d'options et les clés d'API (ex: DeepL) sont stockées localement via `browser.storage.local`. Aucun historique ni cache de texte d'e-mail n'est conservé.
-- ✅ **HTTPS forcé** pour tous les appels réseau distants.
+- ✅ **Consentement explicite préalable (Opt-In — `provider: "none"` par défaut).** Aucun moteur de traduction ni relais de secours n'est activé avant le choix explicite de l'utilisateur (assistant de premier lancement `setup/setup.html` ou bandeau de consentement inline en 1 clic). Tant qu'aucun fournisseur n'est sélectionné, zéro requête réseau (`fetch`) n'est émise.
+- ✅ **HTTPS strictement imposé hors bouclage local.** Conformément aux règles de sécurité de Mozilla Thunderbird (`cleartext-transmission`), toute connexion vers un serveur distant ou une adresse IP de réseau local (LAN) exige obligatoirement le protocole chiffré `https://`. Le protocole `http://` est strictement restreint aux adresses de bouclage local (`localhost`, `127.0.0.1`, `[::1]`) sur la machine de l'utilisateur, et aucune clé d'API (`Authorization` / `api_key`) n'est jamais transmise sur `http://`.
 - ✅ **Isolation Shadow DOM** de l'interface utilisateur.
 
 ---
 
 ## Flux de données — transparence
 
-Pour traduire, l'extension **transmet le texte de l'e-mail concerné au service configuré** :
+Pour traduire, l'extension **transmet le texte de l'e-mail concerné uniquement au service explicitement choisi par l'utilisateur** :
 
 | Donnée | Destinataire | Transport | Quand |
 |--------|--------------|-----------|-------|
-| **Corps rendu** du message à traduire | **Google Translate** (par défaut), **DeepL API**, **Google Gemini API**, **LLMs Cloud/Locaux** (OpenAI, Groq, Mistral, Ollama, LM Studio) ou instance **LibreTranslate** | HTTPS / HTTP local | À chaque clic « Traduire » |
+| **Corps rendu** du message à traduire (ou brouillon en mode rédaction) | Moteur choisi par l'utilisateur (**Google Translate**, **MyMemory**, **DeepL API**, **Google Gemini API**, **LLMs Cloud/Locaux** ou **LibreTranslate**). Bascule vers MyMemory uniquement si explicitement cochée (`enableMyMemoryFallback`). | `https://` obligatoire (ou `http://` strictement sur `localhost` / `127.0.0.1` sans clé d'API) | Uniquement après Opt-In explicite, au clic « Traduire » (ou en mode 1-clic / 0-clic activé par l'utilisateur) |
 
 - Ces données transitent **directement** entre votre client Thunderbird et le service de traduction choisi ; elles ne passent par aucun serveur intermédiaire du projet.
 - **Seul le corps rendu est collecté** (`document.body` du document de contenu du message). Le bloc

@@ -78,7 +78,7 @@
     "message": "Padrão"
   },
   "optProviderGoogle": {
-    "message": "Google Translate (Padrão — Gratuito, sem config)"
+    "message": "Google Translate (Gratuito — Sem chave de API)"
   },
   "optProviderMyMemory": {
     "message": "MyMemory (Gratuito — Sem chave, 5.000 a 50.000 caracteres/dia)"
@@ -150,7 +150,7 @@
     "message": "URL Base da API (Base URL)"
   },
   "helpLlmBaseUrl": {
-    "message": "Ponto de extremidade padrão. O caminho /v1/chat/completions será adicionado automaticamente."
+    "message": "Endpoint padrão (/v1/chat/completions adicionado automaticamente). De acordo com a política de segurança do Mozilla Thunderbird, HTTPS é obrigatório fora da sua máquina local (http:// só é permitido em localhost / 127.0.0.1)."
   },
   "labelLlmApiKey": {
     "message": "Chave de API (Bearer Token)"
@@ -168,7 +168,7 @@
     "message": "URL da instância LibreTranslate"
   },
   "helpLibreTranslateUrl": {
-    "message": "Insira o URL do seu servidor auto-hospedado (ex: http://localhost:5000) ou de uma instância pública. Conexões HTTP locais/LAN e HTTPS remotas são suportadas nativamente sem proxy."
+    "message": "Indique o URL da sua instância LibreTranslate. De acordo com a política de segurança do Mozilla Thunderbird, HTTPS é obrigatório para servidores remotos ou LAN; http:// só é permitido na sua máquina local (localhost / 127.0.0.1)."
   },
   "labelLibreTranslateKey": {
     "message": "Chave de API LibreTranslate (Opcional)"
@@ -331,5 +331,107 @@
   },
   "helpPreferLocalDetection": {
     "message": "Analisa o idioma de origem localmente no seu computador antes de qualquer chamada de rede (100% offline). Ideal para LibreTranslate ou modelos locais (Ollama/LLMs) sem detecção automática integrada."
+  },
+  "optProviderNone": {
+    "message": "— Escolha um fornecedor de tradução —"
+  },
+  "helpProviderNone": {
+    "message": "Nenhum fornecedor está ativo por predefinição. Selecione um motor acima e guarde as suas preferências."
+  },
+  "badgeUnconfigured": {
+    "message": "Não configurado"
+  },
+  "optionsPrivacyDisclosure": {
+    "message": "🛡️ Privacidade: Ao traduzir um e-mail ou rascunho, o texto é transmitido via HTTPS para o fornecedor selecionado acima (ou processado localmente via localhost). Nada é enviado enquanto nenhum fornecedor for escolhido."
+  },
+  "btnOpenSetupWizard": {
+    "message": "🧭 Assistente de boas-vindas"
+  },
+  "labelEnableMyMemoryFallback": {
+    "message": "Alternativa automática para MyMemory em caso de indisponibilidade"
+  },
+  "helpEnableMyMemoryFallback": {
+    "message": "Se o Google Translate estiver temporariamente sobrecarregado (erro 429 ou falha de rede), autoriza o envio do texto para a API MyMemory (api.mymemory.translated.net) como recurso."
+  },
+  "errorTestProviderNone": {
+    "message": "Selecione primeiro um fornecedor de tradução para testar."
+  },
+  "errorCleartextForbidden": {
+    "message": "Ligação HTTP não encriptada recusada: de acordo com a política de segurança do Mozilla Thunderbird, HTTPS é obrigatório fora de localhost / 127.0.0.1."
+  },
+  "composeConsentPrompt": {
+    "message": "Nenhum motor está ativo. A tradução envia o texto para o fornecedor escolhido:"
+  },
+  "composeBtnConsentAccept": {
+    "message": "✓ Ativar Google (+ MyMemory) e traduzir"
+  },
+  "composeBtnConsentOptions": {
+    "message": "⚙️ Outro motor…"
+  },
+  "composeBadgeUnconfigured": {
+    "message": "Configurar"
+  },
+  "composeStatusConsentRequired": {
+    "message": "Ative um motor de tradução acima."
+  },
+  "composeStatusCleartextForbidden": {
+    "message": "HTTP recusado fora de localhost (política Mozilla Thunderbird: HTTPS obrigatório)."
+  },
+  "setupPageTitle": {
+    "message": "Bem-vindo ao Magic Translator — Configuração inicial"
+  },
+  "setupWelcomeTitle": {
+    "message": "Bem-vindo ao Magic Translator"
+  },
+  "setupWelcomeSubtitle": {
+    "message": "Tradução de e-mails reversível e respeitadora do seu consentimento no Thunderbird."
+  },
+  "setupPrivacyTitle": {
+    "message": "Transparência e Escolha do Motor de Tradução"
+  },
+  "setupPrivacyText": {
+    "message": "Em conformidade com os requisitos de privacidade do Mozilla Thunderbird, nenhum motor de tradução é ativado por predefinição sem o seu consentimento explícito. Ao traduzir um e-mail ou rascunho, o texto é transmitido através de uma ligação encriptada (HTTPS) apenas para o fornecedor escolhido abaixo (ou processado localmente via localhost)."
+  },
+  "setupPrivacyOfflineNote": {
+    "message": "💡 A deteção prévia do idioma ocorre 100 % offline no seu computador através do motor interno do Thunderbird."
+  },
+  "setupQuickStartBadge": {
+    "message": "Recomendado • Pronto a usar"
+  },
+  "setupQuickStartTitle": {
+    "message": "Início rápido com o Google Translate"
+  },
+  "setupQuickStartDesc": {
+    "message": "Ative o Google Translate (gratuito, sem chave de API) para traduzir instantaneamente os seus e-mails na leitura e na redação. Os seus textos só são enviados para a Google (translate-pa.googleapis.com) quando pede uma tradução."
+  },
+  "setupMyMemoryFallbackLabel": {
+    "message": "Permitir alternativa automática para MyMemory (api.mymemory.translated.net) em caso de indisponibilidade temporária da Google"
+  },
+  "setupBtnActivateGoogle": {
+    "message": "✓ Ativar Google Translate e começar"
+  },
+  "setupCustomBadge": {
+    "message": "Cloud Pro ou 100 % Local"
+  },
+  "setupCustomTitle": {
+    "message": "Escolher outro motor ou IA local"
+  },
+  "setupCustomDesc": {
+    "message": "Prefere utilizar a sua própria chave de API ou manter os dados estritamente na sua máquina? Configure o motor da sua escolha nas definições:"
+  },
+  "setupCustomItemLocal": {
+    "message": "🔒 100 % Local (localhost): Ollama, LM Studio, LibreTranslate local"
+  },
+  "setupCustomItemCloud": {
+    "message": "☁️ API Cloud: DeepL (Free/Pro), Google Gemini, OpenAI, Mistral, Groq, MyMemory"
+  },
+  "setupBtnOpenOptions": {
+    "message": "⚙️ Configurar outro motor…"
+  },
+  "setupStatusActivated": {
+    "message": "✓ O Google Translate está ativo! Já pode fechar este separador e traduzir os seus e-mails."
+  },
+  "setupBtnCloseTab": {
+    "message": "Fechar este separador"
   }
 }

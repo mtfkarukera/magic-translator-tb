@@ -78,7 +78,7 @@
     "message": "Mặc định"
   },
   "optProviderGoogle": {
-    "message": "Google Translate (Mặc định — Miễn phí, không cần cấu hình)"
+    "message": "Google Dịch (Miễn phí — Không cần khóa API)"
   },
   "optProviderMyMemory": {
     "message": "MyMemory (Miễn phí — Không cần khóa, 5.000 đến 50.000 ký tự/ngày)"
@@ -150,7 +150,7 @@
     "message": "URL Cơ sở của API (Base URL)"
   },
   "helpLlmBaseUrl": {
-    "message": "Điểm cuối chuẩn. Đường dẫn /v1/chat/completions sẽ được tự động thêm vào."
+    "message": "Endpoint tiêu chuẩn (tự động thêm /v1/chat/completions). Theo chính sách bảo mật của Mozilla Thunderbird, bắt buộc dùng HTTPS ngoài máy cục bộ của bạn (http:// chỉ được phép trên localhost / 127.0.0.1)."
   },
   "labelLlmApiKey": {
     "message": "Khóa API (Bearer Token)"
@@ -168,7 +168,7 @@
     "message": "URL phiên bản LibreTranslate"
   },
   "helpLibreTranslateUrl": {
-    "message": "Nhập URL máy chủ tự lưu trữ của bạn (ví dụ: http://localhost:5000) hoặc phiên bản công khai. Kết nối HTTP cục bộ/LAN và HTTPS từ xa được hỗ trợ nguyên bản mà không cần proxy."
+    "message": "Nhập URL máy chủ LibreTranslate của bạn. Theo chính sách bảo mật của Mozilla Thunderbird, bắt buộc dùng HTTPS cho mọi máy chủ từ xa hoặc mạng LAN; http:// chỉ được phép trên máy cục bộ (localhost / 127.0.0.1)."
   },
   "labelLibreTranslateKey": {
     "message": "Khóa API LibreTranslate (Tùy chọn)"
@@ -331,5 +331,107 @@
   },
   "helpPreferLocalDetection": {
     "message": "Phân tích ngôn ngữ nguồn cục bộ trên máy tính của bạn trước bất kỳ kết nối mạng nào (100% ngoại tuyến). Lý tưởng cho LibreTranslate hoặc các mô hình cục bộ (Ollama/LLMs) không có tự động phát hiện tích hợp."
+  },
+  "optProviderNone": {
+    "message": "— Chọn nhà cung cấp dịch thuật —"
+  },
+  "helpProviderNone": {
+    "message": "Không có nhà cung cấp nào được bật mặc định. Hãy chọn một công cụ ở trên và lưu tùy chọn của bạn."
+  },
+  "badgeUnconfigured": {
+    "message": "Chưa cấu hình"
+  },
+  "optionsPrivacyDisclosure": {
+    "message": "🛡️ Quyền riêng tư: Khi bạn dịch email hoặc thư nháp, văn bản cần dịch sẽ được gửi qua HTTPS tới nhà cung cấp đã chọn ở trên (hoặc xử lý cục bộ qua localhost). Không có dữ liệu nào được gửi khi chưa chọn nhà cung cấp."
+  },
+  "btnOpenSetupWizard": {
+    "message": "🧭 Trình hướng dẫn ban đầu"
+  },
+  "labelEnableMyMemoryFallback": {
+    "message": "Tự động chuyển dự phòng sang MyMemory khi gián đoạn"
+  },
+  "helpEnableMyMemoryFallback": {
+    "message": "Nếu Google Dịch tạm thời quá tải (lỗi 429 hoặc lỗi mạng), cho phép gửi văn bản tới API MyMemory (api.mymemory.translated.net) để dịch dự phòng."
+  },
+  "errorTestProviderNone": {
+    "message": "Vui lòng chọn một nhà cung cấp dịch thuật để kiểm tra trước."
+  },
+  "errorCleartextForbidden": {
+    "message": "Kết nối HTTP không mã hóa bị từ chối: theo chính sách bảo mật của Mozilla Thunderbird, bắt buộc dùng HTTPS ngoài localhost / 127.0.0.1."
+  },
+  "composeConsentPrompt": {
+    "message": "Chưa có công cụ dịch nào được bật. Việc dịch sẽ gửi văn bản tới nhà cung cấp đã chọn:"
+  },
+  "composeBtnConsentAccept": {
+    "message": "✓ Bật Google (+ MyMemory) & dịch"
+  },
+  "composeBtnConsentOptions": {
+    "message": "⚙️ Công cụ khác…"
+  },
+  "composeBadgeUnconfigured": {
+    "message": "Cần thiết lập"
+  },
+  "composeStatusConsentRequired": {
+    "message": "Vui lòng bật một công cụ dịch ở trên."
+  },
+  "composeStatusCleartextForbidden": {
+    "message": "HTTP bị từ chối ngoài localhost (chính sách Mozilla Thunderbird: bắt buộc HTTPS)."
+  },
+  "setupPageTitle": {
+    "message": "Chào mừng đến với Magic Translator — Thiết lập ban đầu"
+  },
+  "setupWelcomeTitle": {
+    "message": "Chào mừng đến với Magic Translator"
+  },
+  "setupWelcomeSubtitle": {
+    "message": "Dịch email có thể hoàn tác và tôn trọng sự đồng ý của bạn ngay trong Thunderbird."
+  },
+  "setupPrivacyTitle": {
+    "message": "Minh bạch & Lựa chọn công cụ dịch"
+  },
+  "setupPrivacyText": {
+    "message": "Theo yêu cầu về quyền riêng tư của Mozilla Thunderbird, không có công cụ dịch nào được bật mặc định nếu chưa có sự đồng ý rõ ràng của bạn. Khi bạn dịch email hoặc thư nháp, văn bản chỉ được truyền qua kết nối mã hóa (HTTPS) tới nhà cung cấp bạn chọn bên dưới (hoặc xử lý cục bộ qua localhost)."
+  },
+  "setupPrivacyOfflineNote": {
+    "message": "💡 Việc nhận diện ngôn ngữ ban đầu diễn ra 100% ngoại tuyến trên máy tính của bạn bằng bộ máy tích hợp của Thunderbird."
+  },
+  "setupQuickStartBadge": {
+    "message": "Khuyên dùng • Sẵn sàng sử dụng"
+  },
+  "setupQuickStartTitle": {
+    "message": "Bắt đầu nhanh với Google Dịch"
+  },
+  "setupQuickStartDesc": {
+    "message": "Bật Google Dịch (miễn phí, không cần khóa API) để dịch tức thì email khi đọc và soạn thảo. Văn bản của bạn chỉ được gửi tới Google (translate-pa.googleapis.com) khi bạn yêu cầu dịch."
+  },
+  "setupMyMemoryFallbackLabel": {
+    "message": "Cho phép tự động chuyển dự phòng sang MyMemory (api.mymemory.translated.net) nếu Google tạm thời không khả dụng"
+  },
+  "setupBtnActivateGoogle": {
+    "message": "✓ Bật Google Dịch và bắt đầu"
+  },
+  "setupCustomBadge": {
+    "message": "Cloud Pro hoặc 100% Cục bộ"
+  },
+  "setupCustomTitle": {
+    "message": "Chọn công cụ khác hoặc AI cục bộ"
+  },
+  "setupCustomDesc": {
+    "message": "Bạn muốn dùng khóa API riêng hoặc giữ dữ liệu hoàn toàn trên máy tính của mình? Hãy cấu hình công cụ mong muốn trong phần cài đặt:"
+  },
+  "setupCustomItemLocal": {
+    "message": "🔒 100% Cục bộ (localhost): Ollama, LM Studio, LibreTranslate nội bộ"
+  },
+  "setupCustomItemCloud": {
+    "message": "☁️ Cloud API: DeepL (Free/Pro), Google Gemini, OpenAI, Mistral, Groq, MyMemory"
+  },
+  "setupBtnOpenOptions": {
+    "message": "⚙️ Cấu hình công cụ khác…"
+  },
+  "setupStatusActivated": {
+    "message": "✓ Đã bật Google Dịch! Bạn có thể đóng thẻ này và bắt đầu dịch email."
+  },
+  "setupBtnCloseTab": {
+    "message": "Đóng thẻ này"
   }
 }

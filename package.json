@@ -1,14 +1,14 @@
 {
   "name": "magic-translator",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "private": true,
   "type": "module",
   "description": "Extension Thunderbird de traduction d'e-mails via Google Translate.",
   "author": "MTF Karukera",
   "license": "MPL-2.0",
   "scripts": {
-    "lint": "eslint background.js mt-text.js mt-providers.js translator-injected.js options/options.js compose/compose.js",
-    "lint:webext": "npx --yes web-ext lint --source-dir . --ignore-files \"node_modules/**\" \"build/**\" \"dist/**\" \"test/**\" \"*.md\" \"LICENSE\" \"build.sh\" \"eslint.config.js\" \"package.json\" \"package-lock.json\" \"debug.log\" \".claude/**\"",
+    "lint": "eslint background.js mt-text.js mt-providers.js translator-injected.js setup/setup.js options/options.js compose/compose.js",
+    "lint:webext": "bash build.sh >/dev/null && (node ~/.cache/thunderbird-webext-linter/verify.js --warnings-as-errors \"$(readlink -f dist/magic-translator.xpi)\"; status=$?; rm -rf dist/xpi-review-*; exit $status)",
     "build": "bash build.sh",
     "test": "node --test test/*.test.js"
   },

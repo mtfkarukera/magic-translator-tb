@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="setupPageTitle">Bienvenue dans Magic Translator — Configuration initiale</title>
+  <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+  <main class="mt-setup-wrapper">
+    <!-- En-tête de bienvenue -->
+    <header class="mt-setup-header">
+      <div class="mt-logo-row">
+        <img src="../icon.png" alt="Magic Translator" class="mt-logo-icon" width="44" height="44">
+        <div class="mt-title-group">
+          <div class="mt-title-line">
+            <h1 data-i18n="setupWelcomeTitle">Bienvenue dans Magic Translator</h1>
+            <span class="mt-version-badge">v2.5.0</span>
+          </div>
+          <p class="mt-subtitle" data-i18n="setupWelcomeSubtitle">Traduction d'e-mails réversible et respectueuse de votre consentement dans Thunderbird.</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Encadré de transparence & consentement (Exigence Mozilla ATN) -->
+    <section class="mt-privacy-card" aria-labelledby="privacy-heading">
+      <div class="mt-privacy-header">
+        <span class="mt-privacy-icon" aria-hidden="true">🛡️</span>
+        <h2 id="privacy-heading" data-i18n="setupPrivacyTitle">Transparence &amp; Choix du moteur de traduction</h2>
+      </div>
+      <p class="mt-privacy-text" data-i18n="setupPrivacyText">Conformément aux exigences de confidentialité de Mozilla Thunderbird, aucun moteur de traduction n'est activé par défaut sans votre accord explicite. Lorsque vous traduisez un e-mail ou un brouillon, le texte à traduire est transmis via une connexion chiffrée (HTTPS) uniquement au fournisseur que vous aurez choisi ci-dessous (ou traité localement sur votre machine via localhost).</p>
+      <p class="mt-privacy-note" data-i18n="setupPrivacyOfflineNote">💡 La détection préalable de la langue s'effectue à 100 % hors-ligne sur votre ordinateur grâce au moteur interne de Thunderbird, sans aucun envoi réseau.</p>
+    </section>
+
+    <!-- Grille des 2 choix d'activation -->
+    <div class="mt-choices-grid">
+      <!-- Carte 1 : Démarrage rapide 1-clic (Google Translate + option MyMemory) -->
+      <section class="mt-choice-card mt-choice-recommended" aria-labelledby="choice-google-title">
+        <div class="mt-card-top">
+          <span class="mt-choice-badge mt-badge-primary" data-i18n="setupQuickStartBadge">Recommandé • Prêt à l'emploi</span>
+          <h3 id="choice-google-title" data-i18n="setupQuickStartTitle">Démarrage rapide avec Google Translate</h3>
+          <p class="mt-choice-desc" data-i18n="setupQuickStartDesc">Activez Google Translate (service gratuit, sans clé d'API) pour traduire instantanément vos e-mails en lecture et en rédaction. Vos textes ne sont envoyés à Google (translate-pa.googleapis.com) que lorsque vous demandez une traduction.</p>
+          
+          <label class="mt-checkbox-row" for="chk-mymemory-fallback">
+            <input type="checkbox" id="chk-mymemory-fallback" checked>
+            <span class="mt-checkbox-text" data-i18n="setupMyMemoryFallbackLabel">Autoriser le relais automatique vers MyMemory (api.mymemory.translated.net) en cas d'indisponibilité temporaire de Google</span>
+          </label>
+        </div>
+
+        <div class="mt-card-actions">
+          <button type="button" id="btn-activate-google" class="mt-btn mt-btn-primary">
+            <span data-i18n="setupBtnActivateGoogle">✓ Activer Google Translate et commencer</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Carte 2 : Choisir un autre fournisseur ou IA locale -->
+      <section class="mt-choice-card" aria-labelledby="choice-custom-title">
+        <div class="mt-card-top">
+          <span class="mt-choice-badge mt-badge-secondary" data-i18n="setupCustomBadge">Cloud Pro ou 100 % Local</span>
+          <h3 id="choice-custom-title" data-i18n="setupCustomTitle">Choisir un autre moteur ou une IA locale</h3>
+          <p class="mt-choice-desc" data-i18n="setupCustomDesc">Vous préférez utiliser votre propre clé d'API ou garder vos données strictement sur votre machine ? Configurez le moteur de votre choix dans les paramètres de l'extension :</p>
+          <ul class="mt-provider-list">
+            <li data-i18n="setupCustomItemLocal">🔒 100 % Local (localhost) : Ollama, LM Studio, LibreTranslate local</li>
+            <li data-i18n="setupCustomItemCloud">☁️ API Cloud : DeepL (Free/Pro), Google Gemini, OpenAI, Mistral, Groq, MyMemory</li>
+          </ul>
+        </div>
+
+        <div class="mt-card-actions">
+          <button type="button" id="btn-open-options" class="mt-btn mt-btn-secondary">
+            <span data-i18n="setupBtnOpenOptions">⚙️ Configurer un autre moteur…</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Zone de retour visuel après activation -->
+    <div id="setup-status" class="mt-status-banner" role="status" aria-live="polite" hidden>
+      <span id="setup-status-text" class="mt-status-text"></span>
+      <button type="button" id="btn-close-tab" class="mt-btn mt-btn-small" data-i18n="setupBtnCloseTab">Fermer cet onglet</button>
+    </div>
+  </main>
+
+  <script src="setup.js"></script>
+</body>
+</html>

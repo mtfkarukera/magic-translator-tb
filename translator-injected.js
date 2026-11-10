@@ -71,6 +71,12 @@
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
       errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
       errorPermissionRequired: "Permission requise pour {provider} : Cliquez sur le badge ⚙️ pour ouvrir les réglages.",
+      errorConsentRequired:    "Veuillez activer un moteur de traduction ci-dessus pour commencer.",
+      errorCleartextForbidden: "Connexion HTTP non chiffrée refusée (politique Mozilla Thunderbird : HTTPS requis hors localhost).",
+      consentPrompt:           "Aucun moteur de traduction n'est encore activé. La traduction envoie le texte de l'e-mail au fournisseur choisi :",
+      btnConsentAccept:        "✓ Activer Google (+ MyMemory) et traduire",
+      btnConsentOptions:       "⚙️ Autre moteur…",
+      badgeUnconfigured:       "À activer",
       statusAlreadyIn:         "Déjà en {lang}",
       statusTranslatedAlternate: "Traduit vers {lang} (cible d'alternance)"
     },
@@ -97,6 +103,12 @@
       errorTimeout:            "Request timed out. Check your connection.",
       errorNetwork:            "Network error. Check your connection.",
       errorPermissionRequired: "Permission required for {provider}: Click the ⚙️ badge to open settings.",
+      errorConsentRequired:    "Please enable a translation provider above to start.",
+      errorCleartextForbidden: "Unencrypted HTTP connection refused (Mozilla Thunderbird policy: HTTPS required outside localhost).",
+      consentPrompt:           "No translation provider is enabled yet. Translating sends the email text to the chosen provider:",
+      btnConsentAccept:        "✓ Enable Google (+ MyMemory) & translate",
+      btnConsentOptions:       "⚙️ Other provider…",
+      badgeUnconfigured:       "Setup required",
       statusAlreadyIn:         "Already in {lang}",
       statusTranslatedAlternate: "Translated to {lang} (alternate target)"
     },
@@ -123,6 +135,12 @@
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
       errorNetwork:            "Error de red. Comprueba tu conexión.",
       errorPermissionRequired: "Permiso requerido para {provider}: Haz clic en la insignia ⚙️ para abrir los ajustes.",
+      errorConsentRequired:    "Activa un proveedor de traducción arriba para comenzar.",
+      errorCleartextForbidden: "Conexión HTTP sin cifrar rechazada (política de Mozilla Thunderbird: se requiere HTTPS fuera de localhost).",
+      consentPrompt:           "Aún no hay ningún motor de traducción activo. Al traducir, el texto del correo se envía al proveedor elegido:",
+      btnConsentAccept:        "✓ Activar Google (+ MyMemory) y traducir",
+      btnConsentOptions:       "⚙️ Otro motor…",
+      badgeUnconfigured:       "Configurar",
       statusAlreadyIn:         "Ya en {lang}",
       statusTranslatedAlternate: "Traducido al {lang} (destino alternativo)"
     },
@@ -149,6 +167,12 @@
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
       errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
       errorPermissionRequired: "Berechtigung für {provider} erforderlich: Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu öffnen.",
+      errorConsentRequired:    "Bitte aktivieren Sie oben einen Übersetzungsdienst, um zu beginnen.",
+      errorCleartextForbidden: "Unverschlüsselte HTTP-Verbindung abgelehnt (Mozilla Thunderbird-Richtlinie: HTTPS außerhalb von localhost erforderlich).",
+      consentPrompt:           "Es ist noch kein Übersetzungsdienst aktiviert. Beim Übersetzen wird der E-Mail-Text an den gewählten Dienst gesendet:",
+      btnConsentAccept:        "✓ Google (+ MyMemory) aktivieren & übersetzen",
+      btnConsentOptions:       "⚙️ Anderer Dienst…",
+      badgeUnconfigured:       "Einrichten",
       statusAlreadyIn:         "Bereits auf {lang}",
       statusTranslatedAlternate: "Übersetzt nach {lang} (Alternative)"
     },
@@ -175,6 +199,12 @@
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
       errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
       errorPermissionRequired: "Cần quyền cho {provider}: Nhấp vào huy hiệu ⚙️ để mở cài đặt.",
+      errorConsentRequired:    "Vui lòng kích hoạt một công cụ dịch ở trên để bắt đầu.",
+      errorCleartextForbidden: "Kết nối HTTP không mã hóa bị từ chối (chính sách Mozilla Thunderbird: bắt buộc HTTPS ngoài localhost).",
+      consentPrompt:           "Chưa có công cụ dịch nào được bật. Việc dịch sẽ gửi nội dung email đến nhà cung cấp đã chọn:",
+      btnConsentAccept:        "✓ Bật Google (+ MyMemory) & dịch",
+      btnConsentOptions:       "⚙️ Công cụ khác…",
+      badgeUnconfigured:       "Cần thiết lập",
       statusAlreadyIn:         "Đã ở {lang}",
       statusTranslatedAlternate: "Đã dịch sang {lang} (ngôn ngữ thay thế)"
     },
@@ -201,6 +231,12 @@
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
       errorNetwork:            "ネットワークエラー。接続を確認してください。",
       errorPermissionRequired: "{provider}の権限が必要です：⚙️バッジをクリックして設定を開いてください。",
+      errorConsentRequired:    "開始するには、上で翻訳エンジンを有効にしてください。",
+      errorCleartextForbidden: "暗号化されていないHTTP接続は拒否されました（Mozilla Thunderbirdポリシー：localhost以外はHTTPS必須）。",
+      consentPrompt:           "翻訳エンジンがまだ有効になっていません。翻訳を実行すると、メール本文が選択したプロバイダーに送信されます：",
+      btnConsentAccept:        "✓ Google（+ MyMemory）を有効にして翻訳",
+      btnConsentOptions:       "⚙️ 他のエンジン…",
+      badgeUnconfigured:       "未設定",
       statusAlreadyIn:         "すでに{lang}です",
       statusTranslatedAlternate: "{lang}へ翻訳（代替）"
     },
@@ -227,6 +263,12 @@
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
       errorNetwork:            "Erro de rede. Verifique a sua ligação.",
       errorPermissionRequired: "Permissão necessária para {provider}: Clique no selo ⚙️ para abrir as definições.",
+      errorConsentRequired:    "Ative um motor de tradução acima para começar.",
+      errorCleartextForbidden: "Ligação HTTP não encriptada recusada (política Mozilla Thunderbird: HTTPS obrigatório fora de localhost).",
+      consentPrompt:           "Nenhum motor de tradução está ativo. A tradução envia o texto do e-mail para o fornecedor escolhido:",
+      btnConsentAccept:        "✓ Ativar Google (+ MyMemory) e traduzir",
+      btnConsentOptions:       "⚙️ Outro motor…",
+      badgeUnconfigured:       "Configurar",
       statusAlreadyIn:         "Já em {lang}",
       statusTranslatedAlternate: "Traduzido para {lang} (destino alternativo)"
     }
@@ -740,6 +782,50 @@
 }
 
 .mt-hidden { display: none !important; }
+
+/* ── BARRE DE CONSENTEMENT INLINE (Filet de sécurité Opt-In) ── */
+.mt-consent-bar {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-top: 2px;
+  border-radius: var(--mt-radius-sm);
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.38);
+  font-size: 12px;
+  color: var(--mt-text-primary);
+}
+
+.mt-consent-text {
+  flex: 1 1 240px;
+  line-height: 1.35;
+}
+
+.mt-consent-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mt-btn-consent-accept {
+  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
+  color: #ffffff;
+  padding: 5px 12px;
+  font-size: 11.5px;
+}
+
+.mt-btn-consent-options {
+  background: var(--mt-btn-secondary-bg);
+  color: var(--mt-text-primary);
+  border: 1px solid var(--mt-btn-secondary-border);
+  padding: 5px 10px;
+  font-size: 11.5px;
+}
 `;
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -799,6 +885,8 @@
     TIMEOUT:             "errorTimeout",
     NETWORK:             "errorNetwork",
     PERMISSION_REQUIRED: "errorPermissionRequired",
+    CONSENT_REQUIRED:    "errorConsentRequired",
+    CLEARTEXT_FORBIDDEN: "errorCleartextForbidden",
     // [M-A5] Ajout des codes retournés par le background après les corrections de sécurité.
     UNAUTHORIZED:        "errorServiceUnavailable",
     INVALID_PAYLOAD:     "errorServiceUnavailable"
@@ -1054,6 +1142,35 @@
     btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
     bandeau.appendChild(btnReplier);
 
+    // ── Barre de consentement inline (filet de sécurité Opt-In) ─────
+    const consentBar = document.createElement("div");
+    consentBar.className = "mt-consent-bar mt-hidden";
+    consentBar.setAttribute("role", "region");
+    consentBar.setAttribute("aria-label", "Consentement du moteur de traduction");
+
+    const consentText = document.createElement("span");
+    consentText.className = "mt-consent-text";
+    consentText.textContent = t("consentPrompt");
+    consentBar.appendChild(consentText);
+
+    const consentActions = document.createElement("div");
+    consentActions.className = "mt-consent-actions";
+
+    const btnConsentAccept = document.createElement("button");
+    btnConsentAccept.type = "button";
+    btnConsentAccept.className = "mt-btn mt-btn-consent-accept";
+    btnConsentAccept.textContent = t("btnConsentAccept");
+    consentActions.appendChild(btnConsentAccept);
+
+    const btnConsentOptions = document.createElement("button");
+    btnConsentOptions.type = "button";
+    btnConsentOptions.className = "mt-btn mt-btn-consent-options";
+    btnConsentOptions.textContent = t("btnConsentOptions");
+    consentActions.appendChild(btnConsentOptions);
+
+    consentBar.appendChild(consentActions);
+    bandeau.appendChild(consentBar);
+
     shadow.appendChild(bandeau);
 
     // ── Objet de retour (références directes aux éléments du DOM) ────
@@ -1070,7 +1187,11 @@
       btnTraduire,
       btnOriginal,
       statut,
-      btnReplier
+      btnReplier,
+      consentBar,
+      consentText,
+      btnConsentAccept,
+      btnConsentOptions
     };
   };
 
@@ -1106,6 +1227,7 @@
     const ui = construireUI();
 
     let aPermissionMoteur = true;
+    let consentementRequis = false;
     let origineRequise = "";
     let autoTraduire1Clic = false;
     let autoTranslateOnOpen = false;
@@ -1123,13 +1245,16 @@
       return n1.split("-")[0] === n2.split("-")[0];
     };
 
-    ui.badgeMoteur.addEventListener("click", () => {
+    const ouvrirOptions = () => {
       try {
         browser.runtime.openOptionsPage();
       } catch {
         browser.runtime.sendMessage({ action: "openOptions" }).catch(() => {});
       }
-    });
+    };
+
+    ui.badgeMoteur.addEventListener("click", ouvrirOptions);
+    ui.btnConsentOptions.addEventListener("click", ouvrirOptions);
 
     // ── Insertion dans le DOM ────────────────────────────────────────────
     // On insère le conteneur en tout premier enfant du body pour que le
@@ -1186,6 +1311,13 @@
       // [Mi-R2] Guard : document.body peut être null si Thunderbird n'a pas fini de charger.
       if (!document.body) {
         afficherStatut(ui.statut, t("errorNoText"), "error");
+        return;
+      }
+
+      // Garde-fou Opt-In ATN : afficher la barre de consentement si aucun moteur n'est configuré
+      if (consentementRequis) {
+        if (ui.consentBar) ui.consentBar.classList.remove("mt-hidden");
+        afficherStatut(ui.statut, t("errorConsentRequired"), "error");
         return;
       }
 
@@ -1486,6 +1618,26 @@
     // ── Bouton « Traduire » ─────────────────────────────────────────────
     ui.btnTraduire.addEventListener("click", lancerTraduction);
 
+    // ── Bouton d'activation 1-clic du filet de sécurité (Opt-In inline) ──
+    ui.btnConsentAccept.addEventListener("click", () => {
+      browser.runtime.sendMessage({
+        action: "acceptDefaultProvider",
+        enableMyMemoryFallback: true
+      }).then((res) => {
+        if (res && res.success) {
+          consentementRequis = false;
+          aPermissionMoteur = true;
+          if (ui.consentBar) ui.consentBar.classList.add("mt-hidden");
+          if (ui.badgeDot) ui.badgeDot.classList.remove("is-warning");
+          if (ui.badgeMoteurLabel) ui.badgeMoteurLabel.textContent = res.providerLabel || "Google";
+          if (ui.badgeMoteur) {
+            ui.badgeMoteur.title = "Moteur actif : Google Translate (Modifier dans les paramètres)";
+          }
+          lancerTraduction();
+        }
+      }).catch(() => {});
+    });
+
     // ── Bouton « Original » — restauration du texte d'origine ───────────
     ui.btnOriginal.addEventListener("click", () => {
       if (traductionEnCours || !contenusOriginaux) return;
@@ -1566,6 +1718,9 @@
                     ui.btnReplier.title = t("tooltipCollapse");
                     ui.btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
                   }
+                  if (ui.consentText) ui.consentText.textContent = t("consentPrompt");
+                  if (ui.btnConsentAccept) ui.btnConsentAccept.textContent = t("btnConsentAccept");
+                  if (ui.btnConsentOptions) ui.btnConsentOptions.textContent = t("btnConsentOptions");
                   const optAuto = ui.selectSource ? ui.selectSource.querySelector('option[value="auto"]') : null;
                   if (optAuto) optAuto.textContent = t("autoDetect");
                 }
@@ -1586,23 +1741,35 @@
               if (res.autoTranslateOnClick !== undefined) {
                 autoTraduire1Clic = Boolean(res.autoTranslateOnClick);
               }
-              const nomLabel = res.providerLabel || "Google";
-              const nomComplet = res.providerNom || nomLabel;
-              if (ui.badgeMoteurLabel) {
-                ui.badgeMoteurLabel.textContent = nomLabel;
-              }
-              if (res.hasPermission === false) {
-                aPermissionMoteur = false;
-                origineRequise = res.requiredOrigin;
+
+              if (res.consentRequired || res.provider === "none") {
+                consentementRequis = true;
+                if (ui.consentBar) ui.consentBar.classList.remove("mt-hidden");
                 ui.badgeDot.classList.add("is-warning");
-                ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Accès réseau requis — Cliquez pour ouvrir les réglages)`;
-                ui.badgeMoteur.setAttribute("aria-label", `Accès réseau requis pour ${nomComplet}`);
+                if (ui.badgeMoteurLabel) ui.badgeMoteurLabel.textContent = t("badgeUnconfigured");
+                ui.badgeMoteur.title = t("errorConsentRequired");
+                ui.badgeMoteur.setAttribute("aria-label", t("errorConsentRequired"));
               } else {
-                aPermissionMoteur = true;
-                origineRequise = "";
-                ui.badgeDot.classList.remove("is-warning");
-                ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
-                ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+                consentementRequis = false;
+                if (ui.consentBar) ui.consentBar.classList.add("mt-hidden");
+                const nomLabel = res.providerLabel || "Google";
+                const nomComplet = res.providerNom || nomLabel;
+                if (ui.badgeMoteurLabel) {
+                  ui.badgeMoteurLabel.textContent = nomLabel;
+                }
+                if (res.hasPermission === false) {
+                  aPermissionMoteur = false;
+                  origineRequise = res.requiredOrigin;
+                  ui.badgeDot.classList.add("is-warning");
+                  ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Accès réseau requis — Cliquez pour ouvrir les réglages)`;
+                  ui.badgeMoteur.setAttribute("aria-label", `Accès réseau requis pour ${nomComplet}`);
+                } else {
+                  aPermissionMoteur = true;
+                  origineRequise = "";
+                  ui.badgeDot.classList.remove("is-warning");
+                  ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
+                  ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+                }
               }
 
               // Récupération des options Mode Zéro-Clic
@@ -1614,7 +1781,7 @@
 
               // ── Mode Zéro-Clic (Traduction automatique à l'ouverture) ───────────
               const tenterAutoTraductionZeroClic = (tentative = 0) => {
-                if (!autoTranslateOnOpen || !aPermissionMoteur || !document.body || contenusOriginaux) return;
+                if (consentementRequis || !autoTranslateOnOpen || !aPermissionMoteur || !document.body || contenusOriginaux) return;
                 if (document.documentElement._mtActiveInstanceId !== instanceId) return;
 
                 // Extraction propre : élimine les styles CSS, scripts et citations imbriquées

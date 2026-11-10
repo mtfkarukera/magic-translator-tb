@@ -24,6 +24,7 @@ let etatOriginal = {
 };
 let texteSelectionne = "";
 let aPermissionMoteur = true;
+let consentementRequis = false;
 let origineRequise = "";
 
 // ── Utilitaires d'Internationalisation ────────────────────────────────────────
@@ -113,8 +114,22 @@ async function chargerBadgeMoteur() {
     const badgeTxt = document.getElementById("txt-provider-label");
     const badge = document.getElementById("btn-provider-badge");
     const dot = document.querySelector(".provider-dot");
+    const consentBanner = document.getElementById("consent-banner");
 
     if (res && res.success) {
+      if (res.consentRequired || res.provider === "none") {
+        consentementRequis = true;
+        if (consentBanner) consentBanner.classList.remove("is-hidden");
+        if (badgeTxt) badgeTxt.textContent = t("composeBadgeUnconfigured", "À activer");
+        if (dot) dot.classList.add("is-warning");
+        if (badge) {
+          badge.title = t("composeStatusConsentRequired", "Veuillez activer un moteur de traduction.");
+        }
+        return;
+      }
+
+      consentementRequis = false;
+      if (consentBanner) consentBanner.classList.add("is-hidden");
       const nomLabel = res.providerLabel || "Google";
       const nomComplet = res.providerNom || nomLabel;
       if (badgeTxt) badgeTxt.textContent = nomLabel;
@@ -255,6 +270,14 @@ async function executerTraduction() {
   const chkSelection = document.getElementById("chk-selection");
   const selectSource = document.getElementById("select-source");
   const selectTarget = document.getElementById("select-target");
+
+  // Garde-fou Opt-In ATN : afficher la bannière de consentement si aucun moteur n'est activé
+  if (consentementRequis) {
+    const consentBanner = document.getElementById("consent-banner");
+    if (consentBanner) consentBanner.classList.remove("is-hidden");
+    definirStatut("error", "composeStatusConsentRequired", "Veuillez activer un moteur ci-dessus.");
+    return;
+  }
 
   // Demande d'autorisation 1-clic préalable si la permission réseau manque
   if (!aPermissionMoteur && origineRequise) {
@@ -414,6 +437,13 @@ async function executerTraduction() {
     console.error("[MagicTranslator:Compose] Erreur lors de la traduction :", err);
     if (err.message === "PERMISSION_REQUIRED") {
       definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
+    } else if (err.message === "CONSENT_REQUIRED") {
+      consentementRequis = true;
+      const consentBanner = document.getElementById("consent-banner");
+      if (consentBanner) consentBanner.classList.remove("is-hidden");
+      definirStatut("error", "composeStatusConsentRequired", "Veuillez activer un moteur ci-dessus.");
+    } else if (err.message === "CLEARTEXT_FORBIDDEN") {
+      definirStatut("error", "composeStatusCleartextForbidden", "HTTP refusé hors localhost (politique Mozilla Thunderbird : HTTPS requis).");
     } else {
       definirStatut("error", "composeStatusError", "Erreur de traduction", err.message || "réseau");
     }
@@ -607,4 +637,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     browser.runtime.openOptionsPage();
   });
+
+  // Filet de sécurité Opt-In 1-clic dans la popup de rédaction
+  const btnConsentAccept = document.getElementById("btn-consent-accept");
+  if (btnConsentAccept) {
+    btnConsentAccept.addEventListener("click", async () => {
+      try {
+        const res = await browser.runtime.sendMessage({
+          action: "acceptDefaultProvider",
+          enableMyMemoryFallback: true
+        });
+        if (res && res.success) {
+          consentementRequis = false;
+          const consentBanner = document.getElementById("consent-banner");
+          if (consentBanner) consentBanner.classList.add("is-hidden");
+          await chargerBadgeMoteur();
+          await executerTraduction();
+        }
+      } catch (err) {
+        console.error("[MagicTranslator:Compose] Erreur activation 1-clic :", err);
+      }
+    });
+  }
+
+  const btnConsentOptions = document.getElementById("btn-consent-options");
+  if (btnConsentOptions) {
+    btnConsentOptions.addEventListener("click", () => {
+      browser.runtime.openOptionsPage();
+    });
+  }
 });

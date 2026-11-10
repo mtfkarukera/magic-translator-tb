@@ -6,10 +6,13 @@ import assert from "node:assert/strict";
 import "../mt-providers.js";
 
 const {
+  estHoteLoopback,
+  validerUrlSecurisee,
   normaliserCodeDeepL,
   obtenirEndpointDeepL,
   obtenirFournisseur,
   traduire,
+  testerConnexion,
   construireEndpointLLM,
   obtenirPatternOrigine,
   TIMEOUT_CLOUD_MS,
@@ -65,11 +68,13 @@ test("obtenirEndpointDeepL : détection Free vs Pro", () => {
   );
 });
 
-test("obtenirFournisseur : récupération et fallback par défaut", () => {
+test("obtenirFournisseur : récupération, état 'none' et fallback par défaut", () => {
   assert.equal(obtenirFournisseur("google"), FOURNISSEURS.google);
   assert.equal(obtenirFournisseur("deepl"), FOURNISSEURS.deepl);
   assert.equal(obtenirFournisseur("libretranslate"), FOURNISSEURS.libretranslate);
-  // Fournisseur inconnu ou non défini -> fallback immédiat sur Google
+  // État non configuré (Opt-In requis)
+  assert.equal(obtenirFournisseur("none").id, "none");
+  // Fournisseur inconnu -> fallback sur Google
   assert.equal(obtenirFournisseur("inconnu"), FOURNISSEURS.google);
   assert.equal(obtenirFournisseur(null), FOURNISSEURS.google);
 });
@@ -83,13 +88,15 @@ test("DeepL : rejet immédiat si clé API absente", async () => {
   );
 });
 
-test("LibreTranslate : URL personnalisée avec nettoyage du slash final", async () => {
+test("LibreTranslate : URL loopback autorisée en HTTP, rejet LAN/distant en HTTP (CLEARTEXT_FORBIDDEN)", async () => {
   // Mock fetch temporaire pour vérifier l'URL appelée
   const fetchOriginal = globalThis.fetch;
   let urlAppelee = "";
+  let bodyAppele = null;
 
-  globalThis.fetch = async (url) => {
+  globalThis.fetch = async (url, opts) => {
     urlAppelee = url;
+    bodyAppele = JSON.parse(opts.body);
     return {
       ok: true,
       json: async () => ({ translatedText: "Hello", detectedLanguage: { language: "fr" } })
@@ -98,7 +105,7 @@ test("LibreTranslate : URL personnalisée avec nettoyage du slash final", async 
 
   try {
     const res = await traduire(
-      { provider: "libretranslate", url: "http://localhost:5000///" },
+      { provider: "libretranslate", url: "http://localhost:5000///", apiKey: "secret-should-not-go-over-http" },
       "Bonjour",
       "fr",
       "en"
@@ -106,15 +113,30 @@ test("LibreTranslate : URL personnalisée avec nettoyage du slash final", async 
     assert.equal(urlAppelee, "http://localhost:5000/translate");
     assert.equal(res.success, true);
     assert.equal(res.text, "Hello");
+    // Aucune clé API ne doit être transmise sur du HTTP non chiffré
+    assert.equal(bodyAppele.api_key, undefined);
 
-    // Test de normalisation avec /translate déjà présent
+    // Test de normalisation avec /translate déjà présent sur loopback 127.0.0.1
     await traduire(
-      { provider: "libretranslate", url: "http://192.168.1.50:5000/translate/" },
+      { provider: "libretranslate", url: "http://127.0.0.1:5000/translate/" },
       "Bonjour",
       "fr",
       "en"
     );
-    assert.equal(urlAppelee, "http://192.168.1.50:5000/translate");
+    assert.equal(urlAppelee, "http://127.0.0.1:5000/translate");
+
+    // Rejet strict d'une IP LAN en HTTP non chiffré (politique Mozilla Thunderbird)
+    await assert.rejects(
+      async () => {
+        await traduire(
+          { provider: "libretranslate", url: "http://192.168.1.50:5000/translate/" },
+          "Bonjour",
+          "fr",
+          "en"
+        );
+      },
+      { message: "CLEARTEXT_FORBIDDEN" }
+    );
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -402,9 +424,9 @@ test("FournisseurMyMemory : succès et construction URL", async () => {
   }
 });
 
-test("FournisseurGoogle : bascule automatique sur MyMemory si erreur 429", async () => {
+test("FournisseurGoogle : bascule sur MyMemory si erreur 429 UNIQUEMENT lorsque enableMyMemoryFallback est activé", async () => {
   const fetchOriginal = globalThis.fetch;
-  const appels = [];
+  let appels = [];
 
   globalThis.fetch = async (url) => {
     appels.push(url);
@@ -421,7 +443,19 @@ test("FournisseurGoogle : bascule automatique sur MyMemory si erreur 429", async
   };
 
   try {
-    const res = await FOURNISSEURS.google.traduire("Bonjour", "fr", "en");
+    // 1. Par défaut (enableMyMemoryFallback non activé) : aucun appel vers MyMemory, rejette RATE_LIMITED
+    await assert.rejects(
+      async () => {
+        await FOURNISSEURS.google.traduire("Bonjour", "fr", "en", { enableMyMemoryFallback: false });
+      },
+      { message: "RATE_LIMITED" }
+    );
+    assert.equal(appels.length, 1);
+    assert.ok(appels[0].includes("translate-pa.googleapis.com"));
+
+    // 2. Avec enableMyMemoryFallback: true explicite : bascule vers MyMemory
+    appels = [];
+    const res = await FOURNISSEURS.google.traduire("Bonjour", "fr", "en", { enableMyMemoryFallback: true });
     assert.equal(res.success, true);
     assert.equal(res.text, "Hello from MyMemory");
     assert.equal(appels.length, 2);
@@ -430,6 +464,56 @@ test("FournisseurGoogle : bascule automatique sur MyMemory si erreur 429", async
   } finally {
     globalThis.fetch = fetchOriginal;
   }
+});
+
+test("Opt-In explicite ATN : rejet CONSENT_REQUIRED si provider est 'none' ou absent", async () => {
+  await assert.rejects(
+    async () => {
+      await traduire({ provider: "none" }, "Bonjour", "fr", "en");
+    },
+    { message: "CONSENT_REQUIRED" }
+  );
+
+  await assert.rejects(
+    async () => {
+      await traduire({}, "Bonjour", "fr", "en");
+    },
+    { message: "CONSENT_REQUIRED" }
+  );
+
+  const testRes = await testerConnexion({ provider: "none" });
+  assert.equal(testRes.success, false);
+  assert.equal(testRes.message, "CONSENT_REQUIRED");
+  assert.equal(obtenirPatternOrigine("none"), "");
+});
+
+test("Sécurité HTTPS vs Loopback (estHoteLoopback & validerUrlSecurisee)", () => {
+  // Hôtes loopback autorisés en HTTP
+  assert.equal(estHoteLoopback("localhost"), true);
+  assert.equal(estHoteLoopback("ollama.localhost"), true);
+  assert.equal(estHoteLoopback("127.0.0.1"), true);
+  assert.equal(estHoteLoopback("127.10.20.30"), true);
+  assert.equal(estHoteLoopback("[::1]"), true);
+  assert.equal(estHoteLoopback("0.0.0.0"), true);
+
+  // Hôtes LAN et distants non-loopback
+  assert.equal(estHoteLoopback("192.168.1.50"), false);
+  assert.equal(estHoteLoopback("10.0.0.5"), false);
+  assert.equal(estHoteLoopback("api.openai.com"), false);
+
+  // Validation d'URL
+  assert.equal(validerUrlSecurisee("http://localhost:11434").valide, true);
+  assert.equal(validerUrlSecurisee("http://localhost:11434").estLoopbackHttp, true);
+  assert.equal(validerUrlSecurisee("https://192.168.1.50:8443").valide, true);
+  assert.equal(validerUrlSecurisee("https://192.168.1.50:8443").estLoopbackHttp, false);
+
+  const rejetLan = validerUrlSecurisee("http://192.168.1.50:11434");
+  assert.equal(rejetLan.valide, false);
+  assert.equal(rejetLan.erreur, "CLEARTEXT_FORBIDDEN");
+
+  const rejetDistant = validerUrlSecurisee("http://api.mon-serveur.com/v1");
+  assert.equal(rejetDistant.valide, false);
+  assert.equal(rejetDistant.erreur, "CLEARTEXT_FORBIDDEN");
 });
 
 test("FournisseurMyMemory : sous-découpage automatique des textes longs (> 450 car.) et nettoyage", async () => {

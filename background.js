@@ -170,11 +170,13 @@ messenger.tabs.onRemoved.addListener((tabId) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 6. GESTION DE LA CONFIGURATION (storage)
+// 6. GESTION DE LA CONFIGURATION (storage) & PREMIER LANCEMENT (OPT-IN)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const CONFIG_DEFAUT = {
-  provider: "google",
+  provider: "none",
+  enableMyMemoryFallback: false,
+  onboardingShown: false,
   mymemoryEmail: "",
   deeplApiKey: "",
   deeplPlan: "auto",
@@ -207,6 +209,26 @@ async function chargerConfiguration() {
   }
 }
 
+// Ouverture automatique de l'assistant de premier lancement (Opt-In explicite ATN)
+messenger.runtime.onInstalled.addListener(async (details) => {
+  try {
+    if (details.reason === "install") {
+      await messenger.tabs.create({
+        url: messenger.runtime.getURL("setup/setup.html")
+      });
+    } else if (details.reason === "update") {
+      const stocke = await browser.storage.local.get(["provider", "onboardingShown"]);
+      if ((!stocke.provider || stocke.provider === "none") && !stocke.onboardingShown) {
+        await messenger.tabs.create({
+          url: messenger.runtime.getURL("setup/setup.html")
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("[MagicTranslator] Impossible d'ouvrir l'assistant de premier lancement :", err);
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 7. GESTIONNAIRE DE MESSAGES (traduction & configuration)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -221,7 +243,9 @@ const CODES_ERREURS_CONNUS = new Set([
   "SERVICE_UNAVAILABLE",
   "INVALID_PAYLOAD",
   "UNAUTHORIZED",
-  "PERMISSION_REQUIRED"
+  "PERMISSION_REQUIRED",
+  "CONSENT_REQUIRED",
+  "CLEARTEXT_FORBIDDEN"
 ]);
 
 /**
@@ -275,21 +299,26 @@ async function traiterMessage(message, expediteur) {
   // ── Action 1 : Demande de configuration active (avec vérification permission réelle) ──
   if (message.action === "getConfig") {
     const config = await chargerConfiguration();
+    const consentRequired = !config.provider || config.provider === "none";
     const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
     const requiredOrigin = globalThis.MTProviders.obtenirPatternOrigine(config.provider, config);
     let hasPermission = true;
-    try {
-      if (messenger.permissions && messenger.permissions.contains) {
-        hasPermission = await messenger.permissions.contains({ origins: [requiredOrigin] });
+    if (!consentRequired && requiredOrigin) {
+      try {
+        if (messenger.permissions && messenger.permissions.contains) {
+          hasPermission = await messenger.permissions.contains({ origins: [requiredOrigin] });
+        }
+      } catch {
+        hasPermission = true;
       }
-    } catch {
-      hasPermission = true;
     }
     return {
       success: true,
       provider: config.provider,
       providerLabel: fournisseur.label,
       providerNom: fournisseur.nomComplet,
+      consentRequired,
+      enableMyMemoryFallback: Boolean(config.enableMyMemoryFallback),
       hasPermission: Boolean(hasPermission),
       requiredOrigin,
       autoTranslateOnClick: Boolean(config.autoTranslateOnClick),
@@ -300,6 +329,35 @@ async function traiterMessage(message, expediteur) {
       autoTranslateLangs: Array.isArray(config.autoTranslateLangs) ? config.autoTranslateLangs : [],
       uiLanguage: (messenger.i18n && messenger.i18n.getUILanguage) ? messenger.i18n.getUILanguage() : "fr"
     };
+  }
+
+  // ── Action 1b : Opt-In rapide 1-clic (Google Translate + MyMemory) ────────
+  if (message.action === "acceptDefaultProvider") {
+    const enableFallback = message.enableMyMemoryFallback !== false;
+    await browser.storage.local.set({
+      provider: "google",
+      enableMyMemoryFallback: enableFallback,
+      onboardingShown: true
+    });
+    return {
+      success: true,
+      provider: "google",
+      providerLabel: "Google",
+      providerNom: "Google Translate",
+      enableMyMemoryFallback: enableFallback
+    };
+  }
+
+  // ── Action 1c : Ouverture de l'assistant de premier lancement (setup) ─────
+  if (message.action === "openSetup") {
+    try {
+      await messenger.tabs.create({
+        url: messenger.runtime.getURL("setup/setup.html")
+      });
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   }
 
   // ── Action 2 : Test direct de connexion fournisseur (depuis options) ──────
@@ -348,6 +406,15 @@ async function traiterMessage(message, expediteur) {
     }
 
     const config = await chargerConfiguration();
+
+    // Garde-fou strict Opt-In ATN : aucun appel réseau sans consentement explicite
+    if (!config.provider || config.provider === "none") {
+      return {
+        success: false,
+        error: "CONSENT_REQUIRED"
+      };
+    }
+
     let apiKey = "";
     let url = "";
     let model = "";

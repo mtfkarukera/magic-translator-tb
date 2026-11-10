@@ -12,6 +12,7 @@ build/
 
 # Dependencies
 node_modules/
+WEBEXT-LINTER-CACHE/
 
 # OS files
 .DS_Store

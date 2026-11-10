@@ -85,6 +85,13 @@ Responsabilités :
 Page d'options intégrée (`options.html`, `options.js`, `options.css`) permettant de configurer et
 tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% internationalisée en 7 langues.
 
+### 2.5 `setup/` — assistant de premier lancement & consentement explicite (Opt-In)
+
+Page d'accueil dédiée (`setup.html`, `setup.js`, `setup.css`) ouverte automatiquement à l'installation (`runtime.onInstalled` lorsque `provider === "none"` et `!onboardingShown`).
+- Informe clairement l'utilisateur des données transmises (corps du message ou brouillon) avant tout appel réseau.
+- Permet d'activer **Google Translate** en 1 clic (avec case à cocher explicite pour le relais de secours **MyMemory**, cochée par défaut sur la carte) via l'action `acceptDefaultProvider`, ou d'ouvrir la page complète des Options (`runtime.openOptionsPage()`).
+- Si l'utilisateur ferme cet onglet sans faire de choix (`provider === "none"`), un **filet de sécurité inline** (`.mt-consent-bar` dans `translator-injected.js` et `#consent-banner` dans `compose/compose.html`) intercepte le clic sur « Traduire » et propose d'activer Google (+ MyMemory) et de lancer immédiatement la traduction en 1 clic, garantissant zéro frustration UX et zéro transmission réseau sans consentement explicite.
+
 ---
 
 ## 3. Flux de traduction détaillé
@@ -131,10 +138,12 @@ tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% inter
 | Sens | Message | Réponse |
 |------|---------|---------|
 | background → injected | `{ action: "toggleBanner", autoTranslate?: boolean }` | — (ouvre/ferme l'UI et traduit si 1-clic) |
-| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom, autoTranslateOnClick, alternateTarget, autoTranslateOnOpen, autoTranslateMode, autoTranslateLangs, preferLocalDetection }` |
+| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom, consentementRequis, enableMyMemoryFallback, autoTranslateOnClick, alternateTarget, autoTranslateOnOpen, autoTranslateMode, autoTranslateLangs, preferLocalDetection }` |
+| setup / injected / compose → background | `{ action: "acceptDefaultProvider", enableMyMemoryFallback?: boolean }` | `{ success: true, config }` (active `provider: "google"` et met à jour le badge) |
+| options → background | `{ action: "openSetup" }` | `{ success: true }` (ouvre `setup/setup.html` dans un nouvel onglet) |
 | injected → background | `{ action: "detectLanguage", text }` | `{ success: true, language: string }` (CLD2 local hors-ligne) |
 | options → background | `{ action: "testProvider", config }` | `{ success: boolean, message: string }` |
-| injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel }` ou `{ success: false, error }` |
+| injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel }` ou `{ success: false, error }` (`CONSENT_REQUIRED`, `CLEARTEXT_FORBIDDEN`, etc.) |
 
 ### 3.1 Hub Multi-Fournisseurs (`mt-providers.js`)
 
@@ -142,13 +151,17 @@ Le module `mt-providers.js` encapsule la communication avec les différents serv
 - `TIMEOUT_CLOUD_MS = 10000` (10 secondes) pour les services Cloud ultra-rapides (Google, DeepL, MyMemory, Gemini, OpenAI, Groq, Mistral).
 - `TIMEOUT_LOCAL_MS = 60000` (60 secondes) pour LibreTranslate et les moteurs locaux (Ollama, LM Studio, serveurs personnalisés sur CPU/Docker).
 
+Garde-fous de conformité ATN (`data-exfiltration` & `cleartext-transmission`) :
+- **Garde-fou `CONSENT_REQUIRED`** : Par défaut à l'installation, `CONFIG_DEFAUT.provider = "none"` et `enableMyMemoryFallback = false`. Si `traduireAvecFournisseur()` est appelé alors que `provider === "none"`, il lève immédiatement `new Error("CONSENT_REQUIRED")` sans émettre la moindre requête réseau.
+- **Validation HTTPS stricte hors loopback (`estHoteLoopback` & `validerUrlSecurisee`)** : Toute URL personnalisée (LibreTranslate ou Hub LLM) est inspectée par `validerUrlSecurisee(urlBrute)`. Les URLs en `https://` sont autorisées partout. Les URLs en `http://` sont **strictement restreintes** aux hôtes de bouclage local (`localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`, `0.0.0.0`, conformément à `isLoopback()` de `thunderbird/webext-linter`). Toute adresse `http://` distante ou LAN (ex: `http://192.168.1.50:5000`) est bloquée avec l'erreur `CLEARTEXT_FORBIDDEN`. De plus, sur `http://` loopback, aucun en-tête `Authorization` ni paramètre `api_key` n'est jamais transmis.
+
 Détail des fournisseurs :
-- **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA&params.client=gtx&sl=<src>&tl=<tgt>&q=<texte>`. Fournisseur par défaut, gratuit et sans configuration. Si Google renvoie une erreur (quota `RATE_LIMITED` 429, indisponibilité serveur ou coupure réseau), une bascule automatique de secours (*fallback*) s'effectue instantanément et de façon transparente vers **MyMemory**.
-- **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get?q=<texte>&langpair=<src>|<tgt>[&de=<email>]`. Service gratuit sans clé d'API (quota de base de 5 000 car./jour par IP, étendu à 50 000 car./jour en renseignant un e-mail dans les options). Gère automatiquement en interne le sous-découpage en tranches de ≤ 450 caractères (respect des sauts de ligne, de la ponctuation et des sentinelles `\nMTSEP...\n`) pour respecter la limite stricte de 500 caractères par requête, avec nettoyage des balises XLIFF MateCat et entités HTML. Utilisable en moteur principal ou en relais de secours.
+- **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA&params.client=gtx&sl=<src>&tl=<tgt>&q=<texte>`. Gratuit et sans clé d'API. Uniquement si l'utilisateur a explicitement activé `config.enableMyMemoryFallback === true`, une bascule automatique de secours (*fallback*) s'effectue vers **MyMemory** en cas d'erreur Google (`RATE_LIMITED` 429, indisponibilité serveur ou coupure réseau).
+- **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get?q=<texte>&langpair=<src>|<tgt>[&de=<email>]`. Service gratuit sans clé d'API (quota de base de 5 000 car./jour par IP, étendu à 50 000 car./jour en renseignant un e-mail dans les options). Gère automatiquement en interne le sous-découpage en tranches de ≤ 450 caractères (respect des sauts de ligne, de la ponctuation et des sentinelles `\nMTSEP...\n`) pour respecter la limite stricte de 500 caractères par requête, avec nettoyage des balises XLIFF MateCat et entités HTML. Utilisable en moteur principal ou en relais de secours explicite.
 - **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
-- **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent?key=<apiKey>` avec prompt système étanche.
-- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut. Timeout local à 60s pour Ollama/LM Studio.
-- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text", api_key }`. Normalisation automatique de l'URL (nettoyage de tout suffixe `/translate` ou `/translate/` accidentellement saisi). Timeout étendu à 60s pour les calculs neuronaux CPU. Les connexions en clair HTTP vers localhost, 127.0.0.1 ou le réseau local (LAN) ainsi que distantes en HTTPS sont nativement prises en charge sans reverse proxy grâce à l'exemption explicite de CSP dans `manifest.json`.
+- **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent` avec en-tête `x-goog-api-key` et prompt système étanche.
+- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut. Timeout local à 60s pour Ollama/LM Studio. Exige `https://` hors `localhost`/`127.0.0.1`.
+- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text" }`. Normalisation automatique de l'URL (nettoyage de tout suffixe `/translate` ou `/translate/` accidentellement saisi). Timeout étendu à 60s pour les calculs neuronaux CPU. Supporte `http://` uniquement sur `localhost` / `127.0.0.1` et exige `https://` pour tout serveur distant ou LAN.
 
 ### 3.2 Détection Linguistique Locale & Mode Zéro-Clic
 
@@ -233,13 +246,9 @@ Voir **`SECURITY.md`** pour le détail. Points structurants :
   code via l'extension.
 - **Frontière de privilège** : seul `background.js` accède au réseau ; le script injecté passe par
   message-passing.
-- **Politique CSP Manifest V3 (Compatibilité HTTP)** : La clé `content_security_policy: { extension_pages: "script-src 'self'" }`
-  est déclarée dans `manifest.json`. Cela désactive la directive par défaut de Gecko `upgrade-insecure-requests` qui
-  forçait la réécriture silencieuse des requêtes `http://` en `https://`, autorisant les connexions directes en clair
-  vers les serveurs privés auto-hébergés (LibreTranslate, Ollama, LM Studio sur localhost ou réseau local LAN) tout en
-  maintenant une isolation stricte d'exécution de scripts (`script-src 'self'`).
-- **Donnée transmise à un tiers** : le corps des e-mails traduits est envoyé à Google. Aucune autre
-  exfiltration : le harnais de débogage `remoteLog`/`DEBUG` a été **retiré en v2.0.9**.
+- **Politique CSP Manifest V3 & HTTPS Strict Hors Loopback** : La clé `content_security_policy: { extension_pages: "script-src 'self'" }`
+  est déclarée dans `manifest.json` afin d'autoriser les connexions `http://` strictement vers les serveurs locaux tournant sur la machine (`localhost`, `127.0.0.1`, `[::1]`) pour Ollama, LM Studio ou LibreTranslate local, tout en maintenant une isolation stricte d'exécution de scripts (`script-src 'self'`). Toute connexion hors bouclage local (serveur distant ou réseau local LAN) exige obligatoirement **`https://`** (`validerUrlSecurisee()` dans `mt-providers.js` et `optional_host_permissions: ["https://*/*"]`).
+- **Consentement Explicite Préalable (Opt-In)** : Aucun moteur n'est actif par défaut (`provider: "none"`). Le corps des e-mails traduits n'est envoyé qu'après accord explicite de l'utilisateur au fournisseur sélectionné. Aucune autre exfiltration : le harnais de débogage `remoteLog`/`DEBUG` a été **retiré en v2.0.9**.
 - **Aucune persistance** : rien n'est stocké en `storage` ni mis en cache.
 
 ---

@@ -45,16 +45,47 @@
             <span class="mt-badge-info" id="provider-badge" data-i18n="badgeDefault">Par défaut</span>
           </label>
           <select id="select-provider" class="mt-select">
-            <option value="google" data-i18n="optProviderGoogle">Google Translate (Par défaut — Gratuit, zéro config)</option>
+            <option value="none" data-i18n="optProviderNone">— Choisissez un fournisseur de traduction —</option>
+            <option value="google" data-i18n="optProviderGoogle">Google Translate (Gratuit — Sans clé d'API)</option>
             <option value="mymemory" data-i18n="optProviderMyMemory">MyMemory (Gratuit — Sans clé, 5 000 à 50 000 car./jour)</option>
             <option value="deepl" data-i18n="optProviderDeepl">DeepL API (Qualité linguistique pro)</option>
             <option value="gemini" data-i18n="optProviderGemini">Google Gemini API (Cloud — Rapide &amp; Intelligent)</option>
             <option value="llm" data-i18n="optProviderLlm">Hub LLMs (OpenAI, Groq, Mistral, Ollama, LM Studio, Custom)</option>
             <option value="libretranslate" data-i18n="optProviderLibreTranslate">LibreTranslate (Open source / Auto-hébergé)</option>
           </select>
-          <p class="mt-help-text" id="help-provider" data-i18n="helpProviderGoogle">
-            Google Translate fonctionne immédiatement sans aucune clé d'API ni configuration.
+          <p class="mt-help-text" id="help-provider" data-i18n="helpProviderNone">
+            Aucun fournisseur n'est activé par défaut. Sélectionnez un moteur ci-dessus et enregistrez vos préférences.
           </p>
+        </div>
+
+        <!-- Encadré de Transparence & Confidentialité (Exigence Mozilla ATN) -->
+        <div id="privacy-disclosure-box" class="mt-provider-section" style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <p class="mt-help-text" style="margin: 0; flex: 1 1 260px;" data-i18n="optionsPrivacyDisclosure">
+              🛡️ Confidentialité : lorsque vous traduisez un e-mail ou un brouillon, le texte à traduire est transmis via HTTPS au fournisseur sélectionné ci-dessus (ou traité sur votre machine via localhost). Aucun envoi n'a lieu tant qu'aucun fournisseur n'est choisi.
+            </p>
+            <button type="button" id="btn-open-setup" class="mt-btn mt-btn-secondary" style="padding: 5px 10px; font-size: 12px; min-height: auto;" data-i18n="btnOpenSetupWizard">
+              🧭 Assistant d'accueil
+            </button>
+          </div>
+        </div>
+
+        <!-- Section Google Translate (Option explicite de secours MyMemory) -->
+        <div id="section-google" class="mt-provider-section mt-hidden">
+          <div class="mt-field-group">
+            <div class="mt-toggle-row">
+              <div class="mt-toggle-info">
+                <label for="enable-mymemory-fallback" class="mt-toggle-title" data-i18n="labelEnableMyMemoryFallback">Relais automatique vers MyMemory en cas d'indisponibilité</label>
+                <p class="mt-help-text" data-i18n="helpEnableMyMemoryFallback">
+                  Si Google Translate est temporairement saturé (erreur 429 ou panne réseau), autorise l'envoi du texte à traduire vers l'API MyMemory (api.mymemory.translated.net) en secours.
+                </p>
+              </div>
+              <label class="mt-toggle-switch" for="enable-mymemory-fallback">
+                <input type="checkbox" id="enable-mymemory-fallback" role="switch" class="mt-toggle-input">
+                <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Section DeepL -->
@@ -128,9 +159,9 @@
 
           <div class="mt-field-group">
             <label for="llm-base-url" class="mt-label" data-i18n="labelLlmBaseUrl">URL de Base de l'API (Base URL)</label>
-            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com" spellcheck="false">
+            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com ou http://localhost:11434" spellcheck="false">
             <p class="mt-help-text" id="help-llm-url" data-i18n="helpLlmBaseUrl">
-              Endpoint standard. Le chemin <code>/v1/chat/completions</code> sera ajouté automatiquement.
+              Endpoint standard (/v1/chat/completions ajouté automatiquement). Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire hors de votre machine locale (http:// est autorisé uniquement sur localhost / 127.0.0.1).
             </p>
           </div>
 
@@ -157,7 +188,7 @@
             <label for="libretranslate-url" class="mt-label" data-i18n="labelLibreTranslateUrl">URL de l'instance LibreTranslate</label>
             <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false">
             <p class="mt-help-text" data-i18n="helpLibreTranslateUrl">
-              Indiquez l'URL de votre serveur auto-hébergé (ex: <code>http://localhost:5000</code> ou <code>http://192.168.1.50:5000</code>) ou d'une instance publique. Les connexions HTTP locales/LAN et HTTPS sont prises en charge.
+              Indiquez l'URL de votre instance LibreTranslate. Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire pour tout serveur distant ou réseau local (LAN) ; http:// n'est autorisé que sur votre machine locale (localhost / 127.0.0.1).
             </p>
           </div>
 

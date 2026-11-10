@@ -78,7 +78,7 @@
     "message": "デフォルト"
   },
   "optProviderGoogle": {
-    "message": "Google Translate (デフォルト — 無料・設定不要)"
+    "message": "Google 翻訳（無料・APIキー不要）"
   },
   "optProviderMyMemory": {
     "message": "MyMemory (無料 — キー不要、1日5千〜5万文字)"
@@ -150,7 +150,7 @@
     "message": "API ベースURL (Base URL)"
   },
   "helpLlmBaseUrl": {
-    "message": "標準エンドポイント。/v1/chat/completions が自動的に付加されます。"
+    "message": "標準エンドポイント（/v1/chat/completions が自動付与されます）。Mozilla Thunderbird のセキュリティポリシーにより、ローカルマシン以外では HTTPS が必須です（http:// は localhost / 127.0.0.1 のみ許可）。"
   },
   "labelLlmApiKey": {
     "message": "APIキー (Bearer Token)"
@@ -168,7 +168,7 @@
     "message": "LibreTranslate インスタンスURL"
   },
   "helpLibreTranslateUrl": {
-    "message": "セルフホストサーバー（例: http://localhost:5000）またはパブリックインスタンスのURLを入力してください。ローカル/LAN HTTPおよびリモートHTTPS接続はプロキシなしでネイティブにサポートされます。"
+    "message": "LibreTranslate インスタンスの URL を入力してください。Mozilla Thunderbird のセキュリティポリシーにより、リモートや LAN サーバーには HTTPS が必須です（http:// は localhost / 127.0.0.1 のみ許可）。"
   },
   "labelLibreTranslateKey": {
     "message": "LibreTranslate APIキー (任意)"
@@ -331,5 +331,107 @@
   },
   "helpPreferLocalDetection": {
     "message": "ネットワーク通信を行う前に、お使いのPC上でローカルに言語を解析します（100%オフライン）。自動検出のないLibreTranslateやローカルLLM（Ollama等）に最適です。"
+  },
+  "optProviderNone": {
+    "message": "— 翻訳プロバイダーを選択してください —"
+  },
+  "helpProviderNone": {
+    "message": "初期状態ではどのプロバイダーも有効化されていません。上でエンジンを選択して設定を保存してください。"
+  },
+  "badgeUnconfigured": {
+    "message": "未設定"
+  },
+  "optionsPrivacyDisclosure": {
+    "message": "🛡️ プライバシー：メールや下書きを翻訳する際、テキストは HTTPS 経由で選択したプロバイダーに送信されます（または localhost でローカル処理されます）。プロバイダーを選択しない限り送信されません。"
+  },
+  "btnOpenSetupWizard": {
+    "message": "🧭 セットアップウィザード"
+  },
+  "labelEnableMyMemoryFallback": {
+    "message": "一時的な障害時に MyMemory へ自動フォールバック"
+  },
+  "helpEnableMyMemoryFallback": {
+    "message": "Google 翻訳が一時的に制限された場合（429 エラーや通信障害）、代替として MyMemory API (api.mymemory.translated.net) へテキストを送信することを許可します。"
+  },
+  "errorTestProviderNone": {
+    "message": "テストする翻訳プロバイダーを先に選択してください。"
+  },
+  "errorCleartextForbidden": {
+    "message": "暗号化されていない HTTP 接続は拒否されました：Mozilla Thunderbird のセキュリティポリシーにより、localhost / 127.0.0.1 以外では HTTPS が必須です。"
+  },
+  "composeConsentPrompt": {
+    "message": "翻訳エンジンがまだ有効になっていません。翻訳するとテキストが選択したプロバイダーに送信されます："
+  },
+  "composeBtnConsentAccept": {
+    "message": "✓ Google（+ MyMemory）を有効にして翻訳"
+  },
+  "composeBtnConsentOptions": {
+    "message": "⚙️ 他のエンジン…"
+  },
+  "composeBadgeUnconfigured": {
+    "message": "未設定"
+  },
+  "composeStatusConsentRequired": {
+    "message": "上で翻訳エンジンを有効にしてください。"
+  },
+  "composeStatusCleartextForbidden": {
+    "message": "localhost 以外の HTTP は拒否されました（Thunderbird ポリシー：HTTPS 必須）。"
+  },
+  "setupPageTitle": {
+    "message": "Magic Translator へようこそ — 初期設定"
+  },
+  "setupWelcomeTitle": {
+    "message": "Magic Translator へようこそ"
+  },
+  "setupWelcomeSubtitle": {
+    "message": "Thunderbird 内で元の文面にいつでも戻せる、同意ベースのメール翻訳拡張機能。"
+  },
+  "setupPrivacyTitle": {
+    "message": "透明性と翻訳エンジンの選択"
+  },
+  "setupPrivacyText": {
+    "message": "Mozilla Thunderbird のプライバシー要件に従い、明示的な同意なしにデフォルトで翻訳エンジンが有効になることはありません。メールや下書きを翻訳する際、翻訳対象テキストは暗号化通信（HTTPS）によって以下で選択したプロバイダーにのみ送信されます（または localhost 経由でローカル処理されます）。"
+  },
+  "setupPrivacyOfflineNote": {
+    "message": "💡 事前の言語検出は Thunderbird 内蔵エンジンにより 100% オフラインで実行され、外部通信は一切発生しません。"
+  },
+  "setupQuickStartBadge": {
+    "message": "推奨 • すぐに利用可能"
+  },
+  "setupQuickStartTitle": {
+    "message": "Google 翻訳でクイックスタート"
+  },
+  "setupQuickStartDesc": {
+    "message": "Google 翻訳（無料・APIキー不要）を有効にして、閲覧中や作成中のメールを即座に翻訳します。翻訳を実行した時のみ Google (translate-pa.googleapis.com) にテキストが送信されます。"
+  },
+  "setupMyMemoryFallbackLabel": {
+    "message": "Google が一時的に利用できない場合、MyMemory (api.mymemory.translated.net) への自動フォールバックを許可する"
+  },
+  "setupBtnActivateGoogle": {
+    "message": "✓ Google 翻訳を有効にして開始"
+  },
+  "setupCustomBadge": {
+    "message": "クラウド Pro または 100% ローカル"
+  },
+  "setupCustomTitle": {
+    "message": "別のエンジンまたはローカル AI を選択"
+  },
+  "setupCustomDesc": {
+    "message": "独自の API キーを使用したい場合や、データを完全に自分の PC 内にとどめたい場合は、設定画面でお好みのエンジンを構成できます："
+  },
+  "setupCustomItemLocal": {
+    "message": "🔒 100% ローカル (localhost)：Ollama、LM Studio、ローカル LibreTranslate"
+  },
+  "setupCustomItemCloud": {
+    "message": "☁️ クラウド API：DeepL (Free/Pro)、Google Gemini、OpenAI、Mistral、Groq、MyMemory"
+  },
+  "setupBtnOpenOptions": {
+    "message": "⚙️ 別のエンジンを設定…"
+  },
+  "setupStatusActivated": {
+    "message": "✓ Google 翻訳が有効になりました！このタブを閉じてメールの翻訳を開始できます。"
+  },
+  "setupBtnCloseTab": {
+    "message": "このタブを閉じる"
   }
 }
