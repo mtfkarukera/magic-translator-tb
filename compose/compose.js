@@ -5,10 +5,10 @@
  * Responsabilités :
  *   1. Récupérer l'e-mail en cours de rédaction (Objet, Corps et Sélection)
  *   2. Détecter si une sélection de texte est active dans l'éditeur
- *   3. Remplacer chirurgicalement la sélection via execCommand ou nœuds DOM directs
- *   4. Traduire l'Objet et le Corps in situ en direct en protégeant les citations
- *   5. Conserver l'état initial dans un coffre-fort persistant par onglet
- *   6. Permettre la restauration immédiate de l'original même après fermeture/réouverture de la popup
+ *   3. Remplacer chirurgicalement la sélection et conserver un snapshot DOM fiable pour la restauration
+ *   4. Traduire l'Objet et le Corps par lots (MTSEP) en protégeant les citations et les balises techniques
+ *   5. Conserver l'état initial dans le stockage de session éphémère par onglet (browser.storage.session)
+ *   6. Permettre la restauration immédiate et vérifiée de l'original même après fermeture/réouverture de la popup
  */
 
 "use strict";
@@ -24,17 +24,40 @@ let etatOriginal = {
 };
 let texteSelectionne = "";
 let aPermissionMoteur = true;
+let estMoteurConfigure = true;
 let consentementRequis = false;
 let origineRequise = "";
+let langueAlternance = "none";
+
+const { decouperLong, extraireEspaces } = globalThis.MTText;
+
+function obtenirStockageSession() {
+  return (browser.storage && browser.storage.session) ? browser.storage.session : browser.storage.local;
+}
+
+function languesSontEquivalentes(l1, l2) {
+  if (!l1 || !l2) return false;
+  const n1 = l1.toLowerCase();
+  const n2 = l2.toLowerCase();
+  if (n1 === n2) return true;
+  return n1.split("-")[0] === n2.split("-")[0];
+}
 
 // ── Utilitaires d'Internationalisation ────────────────────────────────────────
-function t(cle, repli = "") {
+function t(cle, repli = "", remplacements = null) {
+  let msg = repli;
   try {
-    const msg = browser.i18n.getMessage(cle);
-    return msg || repli;
+    const trad = browser.i18n.getMessage(cle);
+    if (trad) msg = trad;
   } catch {
-    return repli;
+    msg = repli;
   }
+  if (remplacements && msg) {
+    Object.keys(remplacements).forEach((k) => {
+      msg = msg.replace("{" + k + "}", String(remplacements[k]));
+    });
+  }
+  return msg;
 }
 
 function appliquerI18n() {
@@ -79,6 +102,18 @@ function definirStatut(type, cleI18n, texteRepli, detail = "") {
   txt.textContent = detail ? `${base} (${detail})` : base;
 }
 
+function synchroniserBoutonTraduire(enCours = false) {
+  const btnTranslate = document.getElementById("btn-translate");
+  if (!btnTranslate) return;
+  if (enCours) {
+    btnTranslate.disabled = true;
+    btnTranslate.setAttribute("aria-busy", "true");
+    return;
+  }
+  btnTranslate.removeAttribute("aria-busy");
+  btnTranslate.disabled = Boolean(consentementRequis);
+}
+
 // ── Fonction d'Autorisation 1-Clic sous Geste Utilisateur ───────────────────
 async function demanderAutorisation1Clic() {
   if (!origineRequise) return true;
@@ -88,15 +123,7 @@ async function demanderAutorisation1Clic() {
       if (accorde) {
         aPermissionMoteur = true;
         origineRequise = "";
-        const dot = document.querySelector(".provider-dot");
-        if (dot) dot.classList.remove("is-warning");
-        const badge = document.getElementById("btn-provider-badge");
-        const badgeTxt = document.getElementById("txt-provider-label");
-        const nom = (badgeTxt && badgeTxt.textContent) || "Moteur";
-        if (badge) {
-          badge.title = `${nom} (Modifier dans les paramètres)`;
-          badge.setAttribute("aria-label", `Paramètres du moteur : ${nom}`);
-        }
+        await chargerBadgeMoteur();
         definirStatut("ready", "composeStatusReady", "Prêt");
         return true;
       }
@@ -117,18 +144,27 @@ async function chargerBadgeMoteur() {
     const consentBanner = document.getElementById("consent-banner");
 
     if (res && res.success) {
+      if (res.alternateTarget) {
+        langueAlternance = res.alternateTarget;
+      }
+
       if (res.consentRequired || res.provider === "none") {
         consentementRequis = true;
+        estMoteurConfigure = false;
         if (consentBanner) consentBanner.classList.remove("is-hidden");
         if (badgeTxt) badgeTxt.textContent = t("composeBadgeUnconfigured", "À activer");
         if (dot) dot.classList.add("is-warning");
         if (badge) {
-          badge.title = t("composeStatusConsentRequired", "Veuillez activer un moteur de traduction.");
+          const msgConsent = t("composeStatusConsentRequired", "Veuillez activer un moteur de traduction.");
+          badge.title = msgConsent;
+          badge.setAttribute("aria-label", msgConsent);
         }
+        synchroniserBoutonTraduire(false);
         return;
       }
 
       consentementRequis = false;
+      estMoteurConfigure = res.isConfigured !== false;
       if (consentBanner) consentBanner.classList.add("is-hidden");
       const nomLabel = res.providerLabel || "Google";
       const nomComplet = res.providerNom || nomLabel;
@@ -136,24 +172,52 @@ async function chargerBadgeMoteur() {
 
       if (res.hasPermission === false) {
         aPermissionMoteur = false;
-        origineRequise = res.requiredOrigin;
+        origineRequise = res.requiredOrigin || "";
         if (dot) dot.classList.add("is-warning");
         if (badge) {
-          badge.title = `${nomComplet} (⚠️ Autorisation requise — Cliquez pour autoriser en 1 clic)`;
-          badge.setAttribute("aria-label", `Autorisation requise pour ${nomComplet}`);
+          const titrePerm = t("composeBadgePermWarningTitle", "{provider} (Autorisation requise — Cliquez pour autoriser)", { provider: nomComplet });
+          badge.title = titrePerm;
+          badge.setAttribute("aria-label", titrePerm);
+        }
+      } else if (!estMoteurConfigure) {
+        aPermissionMoteur = true;
+        origineRequise = "";
+        if (dot) dot.classList.add("is-warning");
+        if (badge) {
+          const titreCle = t("composeBadgeKeyWarningTitle", "{provider} (Clé d'API requise — Cliquez pour configurer)", { provider: nomComplet });
+          badge.title = titreCle;
+          badge.setAttribute("aria-label", titreCle);
         }
       } else {
         aPermissionMoteur = true;
         origineRequise = "";
         if (dot) dot.classList.remove("is-warning");
         if (badge) {
-          badge.title = `${nomComplet} (Modifier dans les paramètres)`;
-          badge.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
+          const titreActif = t("composeBadgeActiveTitle", "{provider} (Modifier dans les paramètres)", { provider: nomComplet });
+          badge.title = titreActif;
+          badge.setAttribute("aria-label", titreActif);
         }
       }
+      synchroniserBoutonTraduire(false);
     }
   } catch (err) {
     console.warn("[MagicTranslator:Compose] Erreur badge moteur :", err);
+  }
+}
+
+function mettreAJourBadgeDepuisReponse(rep) {
+  if (!rep || !rep.providerLabel) return;
+  const badgeTxt = document.getElementById("txt-provider-label");
+  const badge = document.getElementById("btn-provider-badge");
+  const suffixe = rep.usedFallback ? t("composeBadgeFallbackSuffix", " (secours)") : "";
+  if (badgeTxt) {
+    badgeTxt.textContent = rep.providerLabel + suffixe;
+  }
+  if (badge) {
+    const nomComplet = (rep.providerNom || rep.providerLabel) + suffixe;
+    const titreActif = t("composeBadgeActiveTitle", "{provider} (Modifier dans les paramètres)", { provider: nomComplet });
+    badge.title = titreActif;
+    badge.setAttribute("aria-label", titreActif);
   }
 }
 
@@ -183,11 +247,18 @@ async function extraireNoeudsCorpsEditeur(tabId) {
     const resultats = await browser.scripting.executeScript({
       target: { tabId: tabId },
       func: () => {
-        const BALISES_EXCLUES = new Set(["SCRIPT", "STYLE", "NOSCRIPT"]);
-        const estDansCitation = (noeud) => {
+        const BALISES_EXCLUES = new Set([
+          "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
+          "EMBED", "SVG", "MATH", "CODE", "TEXTAREA", "TEMPLATE"
+        ]);
+        const estExcluOuDansCitation = (noeud) => {
           let parent = noeud.parentElement;
           while (parent && parent !== document.body) {
-            if (parent.tagName === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
+            const nom = (parent.tagName || "").toUpperCase();
+            if (BALISES_EXCLUES.has(nom)) return true;
+            if (parent.hidden) return true;
+            if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
             if (parent.classList && (parent.classList.contains("moz-cite-prefix") || parent.classList.contains("moz-email-headers-table"))) return true;
             parent = parent.parentElement;
           }
@@ -197,8 +268,7 @@ async function extraireNoeudsCorpsEditeur(tabId) {
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
           acceptNode(noeud) {
             if (!noeud.nodeValue || !noeud.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-            if (noeud.parentElement && BALISES_EXCLUES.has(noeud.parentElement.tagName.toUpperCase())) return NodeFilter.FILTER_REJECT;
-            if (estDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
+            if (!noeud.parentElement || estExcluOuDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
             return NodeFilter.FILTER_ACCEPT;
           }
         });
@@ -223,14 +293,21 @@ async function extraireNoeudsCorpsEditeur(tabId) {
 
 async function injecterTraductionsCorpsEditeur(tabId, traductions) {
   try {
-    await browser.scripting.executeScript({
+    const resultats = await browser.scripting.executeScript({
       target: { tabId: tabId },
       func: (trads) => {
-        const BALISES_EXCLUES = new Set(["SCRIPT", "STYLE", "NOSCRIPT"]);
-        const estDansCitation = (noeud) => {
+        const BALISES_EXCLUES = new Set([
+          "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
+          "EMBED", "SVG", "MATH", "CODE", "TEXTAREA", "TEMPLATE"
+        ]);
+        const estExcluOuDansCitation = (noeud) => {
           let parent = noeud.parentElement;
           while (parent && parent !== document.body) {
-            if (parent.tagName === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
+            const nom = (parent.tagName || "").toUpperCase();
+            if (BALISES_EXCLUES.has(nom)) return true;
+            if (parent.hidden) return true;
+            if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
             if (parent.classList && (parent.classList.contains("moz-cite-prefix") || parent.classList.contains("moz-email-headers-table"))) return true;
             parent = parent.parentElement;
           }
@@ -240,8 +317,7 @@ async function injecterTraductionsCorpsEditeur(tabId, traductions) {
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
           acceptNode(noeud) {
             if (!noeud.nodeValue || !noeud.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-            if (noeud.parentElement && BALISES_EXCLUES.has(noeud.parentElement.tagName.toUpperCase())) return NodeFilter.FILTER_REJECT;
-            if (estDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
+            if (!noeud.parentElement || estExcluOuDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
             return NodeFilter.FILTER_ACCEPT;
           }
         });
@@ -252,18 +328,161 @@ async function injecterTraductionsCorpsEditeur(tabId, traductions) {
           n.nodeValue = trads[idx];
           idx++;
         }
+        return idx;
       },
       args: [traductions]
     });
+    return (resultats && resultats[0] && typeof resultats[0].result === "number") ? resultats[0].result : 0;
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur injection traductions corps :", err);
     throw err;
   }
 }
 
+// ── Traduction par lots des extraits du corps (protocole MTSEP) ──────────────
+async function traduireExtraitsParLots(extraits, sourceInit, targetInit) {
+  let source = sourceInit;
+  let target = targetInit;
+  const texteJoint = extraits.join("\n");
+
+  const hex4 = () => {
+    const buf = new Uint16Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0].toString(16).padStart(4, "0");
+  };
+  let SENTINEL;
+  do {
+    SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
+  } while (texteJoint.toUpperCase().includes(SENTINEL.toUpperCase()));
+
+  const SEPARATEUR = "\n" + SENTINEL + "\n";
+  const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "gi");
+  const TAILLE_MAX_LOT = 4000;
+
+  const lots = [];
+  let lotCourant = { items: [], texte: "" };
+
+  extraits.forEach((ext, index) => {
+    const { lead, coeur, trail } = extraireEspaces(ext);
+    if (!coeur) return;
+    const tailSep = lotCourant.texte ? SEPARATEUR.length : 0;
+    if (lotCourant.texte.length + tailSep + coeur.length > TAILLE_MAX_LOT && lotCourant.items.length > 0) {
+      lots.push(lotCourant);
+      lotCourant = { items: [], texte: "" };
+    }
+    lotCourant.items.push({ index, lead, coeur, trail });
+    lotCourant.texte += (lotCourant.texte ? SEPARATEUR : "") + coeur;
+  });
+  if (lotCourant.items.length > 0) {
+    lots.push(lotCourant);
+  }
+
+  const resultatFinal = [...extraits];
+  let derniereReponse = null;
+
+  const appelerTraduction = async (txt, AutoriserAlternanceAuto = false) => {
+    let rep = await browser.runtime.sendMessage({
+      action: "translate",
+      text: txt,
+      source,
+      target
+    });
+    if (!rep || !rep.success) {
+      throw new Error((rep && rep.error) || "SERVICE_UNAVAILABLE");
+    }
+    if (
+      AutoriserAlternanceAuto &&
+      source === "auto" &&
+      rep.detectedLang &&
+      languesSontEquivalentes(rep.detectedLang, target) &&
+      langueAlternance &&
+      langueAlternance !== "none" &&
+      !languesSontEquivalentes(langueAlternance, rep.detectedLang)
+    ) {
+      target = langueAlternance;
+      source = rep.detectedLang;
+      const selectTarget = document.getElementById("select-target");
+      if (selectTarget) selectTarget.value = target;
+      rep = await browser.runtime.sendMessage({
+        action: "translate",
+        text: txt,
+        source,
+        target
+      });
+      if (!rep || !rep.success) {
+        throw new Error((rep && rep.error) || "SERVICE_UNAVAILABLE");
+      }
+    }
+    derniereReponse = rep;
+    return rep;
+  };
+
+  for (let lIdx = 0; lIdx < lots.length; lIdx++) {
+    const lot = lots[lIdx];
+    const autoriserAlt = lIdx === 0;
+
+    if (lot.items.length === 1 && lot.texte.length > TAILLE_MAX_LOT) {
+      const item = lot.items[0];
+      const segments = decouperLong(lot.texte, TAILLE_MAX_LOT);
+      const morceaux = [];
+      for (let sIdx = 0; sIdx < segments.length; sIdx++) {
+        const repSeg = await appelerTraduction(segments[sIdx], autoriserAlt && sIdx === 0);
+        morceaux.push(repSeg.text);
+      }
+      resultatFinal[item.index] = item.lead + morceaux.join("") + item.trail;
+      continue;
+    }
+
+    const repLot = await appelerTraduction(lot.texte, autoriserAlt);
+    if (lot.items.length === 1) {
+      const item = lot.items[0];
+      resultatFinal[item.index] = item.lead + repLot.text.replace(SEPARATEUR_RE, "").trim() + item.trail;
+    } else {
+      const parties = repLot.text.split(SEPARATEUR_RE);
+      if (parties.length === lot.items.length) {
+        lot.items.forEach((item, idx) => {
+          resultatFinal[item.index] = item.lead + parties[idx].trim() + item.trail;
+        });
+      } else {
+        for (const item of lot.items) {
+          const repUnitaire = await appelerTraduction(item.coeur, false);
+          resultatFinal[item.index] = item.lead + repUnitaire.text.trim() + item.trail;
+        }
+      }
+    }
+  }
+
+  return { traductions: resultatFinal, targetEffective: target, derniereReponse };
+}
+
+async function lireCoffreOnglet(cleCoffre) {
+  const sessionStore = obtenirStockageSession();
+  const resSession = await sessionStore.get(cleCoffre);
+  if (resSession && resSession[cleCoffre]) {
+    return resSession[cleCoffre];
+  }
+  if (sessionStore !== browser.storage.local) {
+    const resLocal = await browser.storage.local.get(cleCoffre);
+    if (resLocal && resLocal[cleCoffre]) {
+      return resLocal[cleCoffre];
+    }
+  }
+  return null;
+}
+
+async function ecrireCoffreOnglet(cleCoffre, valeur) {
+  await obtenirStockageSession().set({ [cleCoffre]: valeur });
+}
+
+async function supprimerCoffreOnglet(cleCoffre) {
+  await obtenirStockageSession().remove(cleCoffre);
+  if (obtenirStockageSession() !== browser.storage.local) {
+    await browser.storage.local.remove(cleCoffre).catch(() => {});
+  }
+}
+
 // ── Action : Traduire ────────────────────────────────────────────────────────
 async function executerTraduction() {
-  const btnTranslate = document.getElementById("btn-translate");
   const btnRestore = document.getElementById("btn-restore");
   const chkSubject = document.getElementById("chk-subject");
   const chkBody = document.getElementById("chk-body");
@@ -271,15 +490,15 @@ async function executerTraduction() {
   const selectSource = document.getElementById("select-source");
   const selectTarget = document.getElementById("select-target");
 
-  // Garde-fou Opt-In ATN : afficher la bannière de consentement si aucun moteur n'est activé
   if (consentementRequis) {
     const consentBanner = document.getElementById("consent-banner");
     if (consentBanner) consentBanner.classList.remove("is-hidden");
+    const btnConsentAccept = document.getElementById("btn-consent-accept");
+    if (btnConsentAccept) btnConsentAccept.focus();
     definirStatut("error", "composeStatusConsentRequired", "Veuillez activer un moteur ci-dessus.");
     return;
   }
 
-  // Demande d'autorisation 1-clic préalable si la permission réseau manque
   if (!aPermissionMoteur && origineRequise) {
     const accorde = await demanderAutorisation1Clic();
     if (!accorde) {
@@ -288,13 +507,17 @@ async function executerTraduction() {
     }
   }
 
+  if (!estMoteurConfigure) {
+    definirStatut("error", "errorUnauthorized", "Clé d'API manquante ou invalide. Ouvrez les réglages.");
+    return;
+  }
+
   const sourceLang = selectSource.value;
   let targetLang = selectTarget.value;
 
-  if (sourceLang === targetLang) {
-    const prefs = await browser.storage.local.get({ alternateTarget: "none" });
-    if (prefs.alternateTarget && prefs.alternateTarget !== "none" && prefs.alternateTarget !== sourceLang) {
-      targetLang = prefs.alternateTarget;
+  if (languesSontEquivalentes(sourceLang, targetLang)) {
+    if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, sourceLang)) {
+      targetLang = langueAlternance;
       selectTarget.value = targetLang;
     } else {
       definirStatut("error", "errorSameLanguage", "Les langues source et cible sont identiques.");
@@ -304,7 +527,7 @@ async function executerTraduction() {
 
   browser.storage.local.set({ composeLastTargetLang: targetLang }).catch(() => {});
 
-  btnTranslate.disabled = true;
+  synchroniserBoutonTraduire(true);
   definirStatut("busy", "composeStatusTranslating", "Traduction en cours…");
 
   try {
@@ -313,14 +536,13 @@ async function executerTraduction() {
 
     // 1. Traduction de la Sélection uniquement
     if (texteSelectionne && chkSelection && chkSelection.checked) {
-      if (!etatOriginal.estTraduit) {
-        etatOriginal.selection = texteSelectionne;
-        etatOriginal.modeSelection = true;
-        etatOriginal.estTraduit = true;
-        await browser.storage.local.set({ [cleCoffre]: etatOriginal });
-      }
+      // Snapshot complet des nœuds du corps AVANT modification : garantit une restauration
+      // 100 % fiable même après fermeture/réouverture de la popup (perte de sélection).
+      const snapshotCorps = etatOriginal.estTraduit && etatOriginal.extraitsCorps
+        ? etatOriginal.extraitsCorps
+        : await extraireNoeudsCorpsEditeur(ongletActifId);
 
-      const repSelection = await browser.runtime.sendMessage({
+      let repSelection = await browser.runtime.sendMessage({
         action: "translate",
         text: texteSelectionne,
         source: sourceLang,
@@ -331,35 +553,66 @@ async function executerTraduction() {
         throw new Error(repSelection ? repSelection.error : "SERVICE_UNAVAILABLE");
       }
 
+      if (
+        sourceLang === "auto" &&
+        repSelection.detectedLang &&
+        languesSontEquivalentes(repSelection.detectedLang, targetLang) &&
+        langueAlternance &&
+        langueAlternance !== "none" &&
+        !languesSontEquivalentes(langueAlternance, repSelection.detectedLang)
+      ) {
+        targetLang = langueAlternance;
+        selectTarget.value = targetLang;
+        repSelection = await browser.runtime.sendMessage({
+          action: "translate",
+          text: texteSelectionne,
+          source: repSelection.detectedLang,
+          target: targetLang
+        });
+        if (!repSelection || !repSelection.success) {
+          throw new Error(repSelection ? repSelection.error : "SERVICE_UNAVAILABLE");
+        }
+      }
+
+      mettreAJourBadgeDepuisReponse(repSelection);
       const texteTraduit = repSelection.text;
 
-      // Remplacement natif et instantané dans l'éditeur de Thunderbird
+      if (!etatOriginal.estTraduit) {
+        etatOriginal = {
+          sujet: null,
+          extraitsCorps: snapshotCorps,
+          selection: texteSelectionne,
+          modeSelection: true,
+          estTraduit: true
+        };
+        await ecrireCoffreOnglet(cleCoffre, etatOriginal);
+      }
+
       await browser.scripting.executeScript({
         target: { tabId: ongletActifId },
         func: (traduction) => {
-          const editor = document.querySelector("body[contenteditable='true']") || document.body;
-          if (editor && typeof editor.focus === "function") {
-            editor.focus();
-          }
-          const succes = document.execCommand("insertText", false, traduction);
-          if (!succes) {
-            const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0) {
-              const range = sel.getRangeAt(0);
-              range.deleteContents();
-              range.insertNode(document.createTextNode(traduction));
-            }
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            const noeudInsere = document.createTextNode(traduction);
+            range.insertNode(noeudInsere);
+            const nouveauRange = document.createRange();
+            nouveauRange.selectNodeContents(noeudInsere);
+            sel.removeAllRanges();
+            sel.addRange(nouveauRange);
           }
         },
         args: [texteTraduit]
       });
 
+      texteSelectionne = texteTraduit;
       btnRestore.disabled = false;
       definirStatut("ready", "composeStatusSuccess", "Message traduit avec succès ✓");
       return;
     }
 
-    // 2. Traduction Globale (Objet et/ou Corps)
+    // 2. Traduction Globale atomique (Objet et/ou Corps)
     const veutObjet = Boolean(chkSubject && chkSubject.checked);
     const veutCorps = Boolean(chkBody && chkBody.checked);
 
@@ -368,87 +621,119 @@ async function executerTraduction() {
       return;
     }
 
-    // 2.a Traduction de l'Objet (Sujet) via setComposeDetails
-    if (veutObjet && details.subject && details.subject.trim()) {
-      if (etatOriginal.sujet === null) {
-        etatOriginal.sujet = details.subject;
-      }
+    const sujetInitial = (etatOriginal.estTraduit && etatOriginal.sujet !== null)
+      ? etatOriginal.sujet
+      : (details.subject || "");
+    const aObjetNonVide = Boolean(veutObjet && sujetInitial.trim());
 
-      const repSubject = await browser.runtime.sendMessage({
+    let extraitsSource = [];
+    if (veutCorps) {
+      extraitsSource = (etatOriginal.estTraduit && Array.isArray(etatOriginal.extraitsCorps))
+        ? etatOriginal.extraitsCorps
+        : await extraireNoeudsCorpsEditeur(ongletActifId);
+    }
+    const aCorpsNonVide = Boolean(veutCorps && extraitsSource.some((s) => s && s.trim()));
+
+    if (!aObjetNonVide && !aCorpsNonVide) {
+      definirStatut("error", "errorNoText", "Aucun texte à traduire.");
+      return;
+    }
+
+    // 2.a Traduction en mémoire d'abord (aucune écriture partielle en cas d'échec réseau)
+    let sujetTraduit = null;
+    let traductionsCorps = null;
+
+    if (aCorpsNonVide) {
+      const resCorps = await traduireExtraitsParLots(extraitsSource, sourceLang, targetLang);
+      traductionsCorps = resCorps.traductions;
+      targetLang = resCorps.targetEffective;
+      mettreAJourBadgeDepuisReponse(resCorps.derniereReponse);
+    }
+
+    if (aObjetNonVide) {
+      let repSubject = await browser.runtime.sendMessage({
         action: "translate",
-        text: details.subject,
+        text: sujetInitial,
         source: sourceLang,
         target: targetLang
       });
-
       if (!repSubject || !repSubject.success) {
         throw new Error(repSubject ? repSubject.error : "SERVICE_UNAVAILABLE");
       }
-
-      await browser.compose.setComposeDetails(ongletActifId, { subject: repSubject.text });
-    }
-
-    // 2.b Traduction du Corps in situ via injection directe dans le DOM de l'éditeur
-    if (veutCorps) {
-      const extraits = await extraireNoeudsCorpsEditeur(ongletActifId);
-
-      if (extraits && extraits.length > 0) {
-        if (etatOriginal.extraitsCorps === null) {
-          etatOriginal.extraitsCorps = [...extraits];
+      if (
+        !aCorpsNonVide &&
+        sourceLang === "auto" &&
+        repSubject.detectedLang &&
+        languesSontEquivalentes(repSubject.detectedLang, targetLang) &&
+        langueAlternance &&
+        langueAlternance !== "none" &&
+        !languesSontEquivalentes(langueAlternance, repSubject.detectedLang)
+      ) {
+        targetLang = langueAlternance;
+        selectTarget.value = targetLang;
+        repSubject = await browser.runtime.sendMessage({
+          action: "translate",
+          text: sujetInitial,
+          source: repSubject.detectedLang,
+          target: targetLang
+        });
+        if (!repSubject || !repSubject.success) {
+          throw new Error(repSubject ? repSubject.error : "SERVICE_UNAVAILABLE");
         }
-
-        const traductions = [];
-        for (const ext of extraits) {
-          const texteSegment = ext.trim();
-          if (!texteSegment) {
-            traductions.push(ext);
-            continue;
-          }
-
-          const rep = await browser.runtime.sendMessage({
-            action: "translate",
-            text: texteSegment,
-            source: sourceLang,
-            target: targetLang
-          });
-
-          if (!rep || !rep.success || !rep.text) {
-            throw new Error(rep ? rep.error : "SERVICE_UNAVAILABLE");
-          }
-
-          const lead = ext.match(/^\s*/)[0];
-          const trail = ext.match(/\s*$/)[0];
-          traductions.push(lead + rep.text + trail);
-        }
-
-        await injecterTraductionsCorpsEditeur(ongletActifId, traductions);
       }
+      mettreAJourBadgeDepuisReponse(repSubject);
+      sujetTraduit = repSubject.text;
     }
 
-    etatOriginal.modeSelection = false;
-    etatOriginal.estTraduit = true;
+    // 2.b Sauvegarde de l'original avant écriture dans l'éditeur
+    if (!etatOriginal.estTraduit) {
+      etatOriginal = {
+        sujet: aObjetNonVide ? sujetInitial : null,
+        extraitsCorps: aCorpsNonVide ? [...extraitsSource] : null,
+        selection: null,
+        modeSelection: false,
+        estTraduit: true
+      };
+      await ecrireCoffreOnglet(cleCoffre, etatOriginal);
+    }
 
-    // Persister dans le coffre-fort par onglet pour survie à la fermeture de la popup
-    await browser.storage.local.set({ [cleCoffre]: etatOriginal });
+    // 2.c Application atomique Objet + Corps
+    if (sujetTraduit !== null) {
+      await browser.compose.setComposeDetails(ongletActifId, { subject: sujetTraduit });
+    }
+    if (traductionsCorps !== null) {
+      await injecterTraductionsCorpsEditeur(ongletActifId, traductionsCorps);
+    }
 
     btnRestore.disabled = false;
     definirStatut("ready", "composeStatusSuccess", "Message traduit avec succès ✓");
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la traduction :", err);
-    if (err.message === "PERMISSION_REQUIRED") {
+    const code = err && err.message ? err.message : "SERVICE_UNAVAILABLE";
+    if (code === "PERMISSION_REQUIRED") {
       definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
-    } else if (err.message === "CONSENT_REQUIRED") {
+    } else if (code === "CONSENT_REQUIRED") {
       consentementRequis = true;
       const consentBanner = document.getElementById("consent-banner");
       if (consentBanner) consentBanner.classList.remove("is-hidden");
+      const btnConsentAccept = document.getElementById("btn-consent-accept");
+      if (btnConsentAccept) btnConsentAccept.focus();
       definirStatut("error", "composeStatusConsentRequired", "Veuillez activer un moteur ci-dessus.");
-    } else if (err.message === "CLEARTEXT_FORBIDDEN") {
-      definirStatut("error", "composeStatusCleartextForbidden", "HTTP refusé hors localhost (politique Mozilla Thunderbird : HTTPS requis).");
+    } else if (code === "CLEARTEXT_FORBIDDEN") {
+      definirStatut("error", "composeStatusCleartextForbidden", "HTTP refusé hors localhost (HTTPS requis).");
+    } else if (code === "UNAUTHORIZED") {
+      definirStatut("error", "errorUnauthorized", "Clé d'API manquante ou invalide.");
+    } else if (code === "RATE_LIMITED") {
+      definirStatut("error", "errorRateLimited", "Trop de requêtes. Réessayez dans un instant.");
+    } else if (code === "TIMEOUT") {
+      definirStatut("error", "errorTimeout", "Délai dépassé. Vérifiez votre connexion.");
+    } else if (code === "NETWORK") {
+      definirStatut("error", "errorNetwork", "Erreur réseau. Vérifiez votre connexion.");
     } else {
-      definirStatut("error", "composeStatusError", "Erreur de traduction", err.message || "réseau");
+      definirStatut("error", "composeStatusError", "Erreur de traduction");
     }
   } finally {
-    btnTranslate.disabled = false;
+    synchroniserBoutonTraduire(false);
   }
 }
 
@@ -461,69 +746,66 @@ async function executerRestauration() {
   }
 
   btnRestore.disabled = true;
+  btnRestore.setAttribute("aria-busy", "true");
   definirStatut("busy", "composeStatusRestoring", "Restauration en cours…");
 
   try {
     const cleCoffre = `compose_orig_${ongletActifId}`;
 
-    // 1. Restauration de la Sélection
-    if (etatOriginal.modeSelection && etatOriginal.selection) {
-      const texteOriginal = etatOriginal.selection;
-      await browser.scripting.executeScript({
+    if (etatOriginal.sujet !== null) {
+      await browser.compose.setComposeDetails(ongletActifId, { subject: etatOriginal.sujet });
+    }
+
+    if (Array.isArray(etatOriginal.extraitsCorps) && etatOriginal.extraitsCorps.length > 0) {
+      const nbRestaures = await injecterTraductionsCorpsEditeur(ongletActifId, etatOriginal.extraitsCorps);
+      if (nbRestaures === 0) {
+        throw new Error("RESTORE_FAILED");
+      }
+    } else if (etatOriginal.modeSelection && etatOriginal.selection) {
+      const remplaceOk = await browser.scripting.executeScript({
         target: { tabId: ongletActifId },
         func: (original) => {
-          const editor = document.querySelector("body[contenteditable='true']") || document.body;
-          if (editor && typeof editor.focus === "function") {
-            editor.focus();
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(original));
+            return true;
           }
-          const succes = document.execCommand("insertText", false, original);
-          if (!succes) {
-            const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0) {
-              const range = sel.getRangeAt(0);
-              range.deleteContents();
-              range.insertNode(document.createTextNode(original));
-            }
-          }
+          return false;
         },
-        args: [texteOriginal]
+        args: [etatOriginal.selection]
       });
-
-      etatOriginal.estTraduit = false;
-      await browser.storage.local.remove(cleCoffre);
-      btnRestore.disabled = true;
-      definirStatut("ready", "composeStatusRestored", "Texte d'origine restauré ✓");
-      return;
+      if (!remplaceOk || !remplaceOk[0] || !remplaceOk[0].result) {
+        throw new Error("RESTORE_FAILED");
+      }
     }
 
-    // 2. Restauration Globale (Objet + Corps)
-    const detailsRestauration = {};
-
-    if (etatOriginal.sujet !== null) {
-      detailsRestauration.subject = etatOriginal.sujet;
+    if (etatOriginal.modeSelection && etatOriginal.selection) {
+      texteSelectionne = etatOriginal.selection;
     }
 
-    if (Object.keys(detailsRestauration).length > 0) {
-      await browser.compose.setComposeDetails(ongletActifId, detailsRestauration);
-    }
+    etatOriginal = {
+      sujet: null,
+      extraitsCorps: null,
+      selection: null,
+      modeSelection: false,
+      estTraduit: false
+    };
+    await supprimerCoffreOnglet(cleCoffre);
 
-    if (etatOriginal.extraitsCorps && Array.isArray(etatOriginal.extraitsCorps)) {
-      await injecterTraductionsCorpsEditeur(ongletActifId, etatOriginal.extraitsCorps);
-    }
-
-    etatOriginal.estTraduit = false;
-    await browser.storage.local.remove(cleCoffre);
-
+    btnRestore.removeAttribute("aria-busy");
     btnRestore.disabled = true;
     definirStatut("ready", "composeStatusRestored", "Texte d'origine restauré ✓");
     const btnTranslate = document.getElementById("btn-translate");
-    if (btnTranslate) {
+    if (btnTranslate && !btnTranslate.disabled) {
       btnTranslate.focus();
     }
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la restauration :", err);
-    definirStatut("error", "composeStatusRestoreError", "Échec de la restauration (" + (err.message || "inconnu") + ")");
+    btnRestore.removeAttribute("aria-busy");
     btnRestore.disabled = false;
+    definirStatut("error", "composeStatusRestoreError", "Échec de la restauration.");
   }
 }
 
@@ -531,7 +813,6 @@ async function executerRestauration() {
 document.addEventListener("DOMContentLoaded", async () => {
   appliquerI18n();
 
-  // Identifier l'onglet de composition actif
   try {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true });
     if (tabs && tabs.length > 0) {
@@ -546,17 +827,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Charger le badge moteur en direct
   await chargerBadgeMoteur();
 
-  // Restaurer l'état de traduction si déjà effectué
+  if (browser.storage && browser.storage.onChanged) {
+    browser.storage.onChanged.addListener((_changements, zone) => {
+      if (zone === "local") {
+        chargerBadgeMoteur();
+      }
+    });
+  }
+
+  // Restaurer l'état de traduction si déjà effectué dans cet onglet
   try {
     const cleCoffre = `compose_orig_${ongletActifId}`;
-    const stockCoffre = await browser.storage.local.get(cleCoffre);
+    const sauvegarde = await lireCoffreOnglet(cleCoffre);
     const btnRestore = document.getElementById("btn-restore");
 
-    if (stockCoffre && stockCoffre[cleCoffre] && stockCoffre[cleCoffre].estTraduit) {
-      etatOriginal = stockCoffre[cleCoffre];
+    if (sauvegarde && sauvegarde.estTraduit) {
+      etatOriginal = sauvegarde;
       if (btnRestore) {
         btnRestore.disabled = false;
       }
@@ -587,14 +875,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (texteSelectionne && texteSelectionne.length > 0) {
     selectionBanner.classList.remove("is-hidden");
     const nbMots = texteSelectionne.split(/\s+/).filter(Boolean).length;
-    txtSelectionCount.textContent = `${t("composeSelectionActive", "Sélection active")} (${nbMots} ${nbMots > 1 ? "mots" : "mot"})`;
+    const cleMots = nbMots > 1 ? "composeSelectionCountPlural" : "composeSelectionCountSingular";
+    const defautMots = nbMots > 1
+      ? "Sélection active ({count} mots)"
+      : "Sélection active ({count} mot)";
+    txtSelectionCount.textContent = t(cleMots, defautMots, { count: nbMots });
 
     const chkSubject = document.getElementById("chk-subject");
     const chkBody = document.getElementById("chk-body");
     const majOptionsSelection = () => {
       const active = chkSelection.checked;
-      globalOptions.style.opacity = active ? "0.5" : "1";
-      globalOptions.style.pointerEvents = active ? "none" : "auto";
+      globalOptions.classList.toggle("is-disabled", active);
       if (chkSubject) chkSubject.disabled = active;
       if (chkBody) chkBody.disabled = active;
     };
@@ -602,20 +893,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     majOptionsSelection();
   }
 
-  // Écouteurs d'événements
   document.getElementById("btn-translate").addEventListener("click", executerTraduction);
   document.getElementById("btn-restore").addEventListener("click", executerRestauration);
 
-  // Inverser les langues
   const btnSwapLang = document.getElementById("btn-swap-lang");
   const selectSource = document.getElementById("select-source");
   const selectTarget = document.getElementById("select-target");
 
   const majBoutonSwap = () => {
-    const desactive = selectSource.value === "auto";
-    btnSwapLang.disabled = desactive;
-    btnSwapLang.style.opacity = desactive ? "0.4" : "1";
-    btnSwapLang.style.cursor = desactive ? "not-allowed" : "pointer";
+    btnSwapLang.disabled = selectSource.value === "auto";
   };
   selectSource.addEventListener("change", majBoutonSwap);
   majBoutonSwap();
@@ -629,7 +915,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Clic sur le badge moteur pour demander l'autorisation 1-clic ou ouvrir les options
   document.getElementById("btn-provider-badge").addEventListener("click", async () => {
     if (!aPermissionMoteur && origineRequise) {
       const accorde = await demanderAutorisation1Clic();
@@ -640,12 +925,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Filet de sécurité Opt-In 1-clic dans la popup de rédaction
   const btnConsentAccept = document.getElementById("btn-consent-accept");
+  const chkConsentMyMemory = document.getElementById("chk-consent-mymemory");
   if (btnConsentAccept) {
     btnConsentAccept.addEventListener("click", async () => {
+      if (btnConsentAccept.disabled) return;
+      btnConsentAccept.disabled = true;
       try {
+        const autoriserRelais = Boolean(!chkConsentMyMemory || chkConsentMyMemory.checked);
         const res = await browser.runtime.sendMessage({
           action: "acceptDefaultProvider",
-          enableMyMemoryFallback: true
+          enableMyMemoryFallback: autoriserRelais
         });
         if (res && res.success) {
           consentementRequis = false;
@@ -653,9 +942,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (consentBanner) consentBanner.classList.add("is-hidden");
           await chargerBadgeMoteur();
           await executerTraduction();
+        } else {
+          definirStatut("error", "composeStatusError", "Erreur d'activation");
         }
       } catch (err) {
         console.error("[MagicTranslator:Compose] Erreur activation 1-clic :", err);
+        definirStatut("error", "composeStatusError", "Erreur d'activation");
+      } finally {
+        btnConsentAccept.disabled = false;
       }
     });
   }

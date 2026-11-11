@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "scripts": {
     "lint": "eslint background.js mt-text.js mt-providers.js translator-injected.js setup/setup.js options/options.js compose/compose.js",
-    "lint:webext": "bash build.sh >/dev/null && (node ~/.cache/thunderbird-webext-linter/verify.js --warnings-as-errors \"$(readlink -f dist/magic-translator.xpi)\"; status=$?; rm -rf dist/xpi-review-*; exit $status)",
+    "lint:webext": "bash build.sh >/dev/null && (node ~/.cache/thunderbird-webext-linter/verify.js --warnings-as-errors \"$(readlink -f dist/magic-translator.xpi)\"; status=$?; rm -rf dist/xpi-review-* WEBEXT-LINTER-CACHE; exit $status)",
     "build": "bash build.sh",
     "test": "node --test test/*.test.js"
   },

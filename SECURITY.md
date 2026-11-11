@@ -25,19 +25,20 @@ des e-mails. Les hypothèses structurantes sont :
 2. Thunderbird **sandboxe le rendu** des e-mails (pas d'exécution de scripts du message, contenu
    distant bloqué par défaut). L'extension ne s'appuie pas *uniquement* là-dessus pour sa sûreté.
 3. La frontière de privilège est nette : seul `background.js` accède au réseau ; le script injecté
-   passe par message-passing.
+   passe par message-passing, et les actions sensibles d'administration (`testProvider`, `listGeminiModels`) vérifient strictement l'origine `options/options.html` de l'émetteur.
 
 ---
 
 ## Garanties de sécurité actuelles
 
 - ✅ **Aucune écriture HTML.** Toutes les insertions de texte (UI et contenu du message) passent par
-  `textContent` / `createTextNode`. Pas d'`innerHTML`, `outerHTML`, `insertAdjacentHTML`, ni `eval`.
+  `textContent` / `createTextNode` / `DOMParser`. Pas d'`innerHTML`, `outerHTML`, `insertAdjacentHTML`, ni `eval`.
   → un e-mail hostile **ne peut pas** exécuter de code via l'extension.
-- ✅ **Aucune persistance du contenu des e-mails.** Seules les préférences d'options et les clés d'API (ex: DeepL) sont stockées localement via `browser.storage.local`. Aucun historique ni cache de texte d'e-mail n'est conservé.
-- ✅ **Consentement explicite préalable (Opt-In — `provider: "none"` par défaut).** Aucun moteur de traduction ni relais de secours n'est activé avant le choix explicite de l'utilisateur (assistant de premier lancement `setup/setup.html` ou bandeau de consentement inline en 1 clic). Tant qu'aucun fournisseur n'est sélectionné, zéro requête réseau (`fetch`) n'est émise.
-- ✅ **HTTPS strictement imposé hors bouclage local.** Conformément aux règles de sécurité de Mozilla Thunderbird (`cleartext-transmission`), toute connexion vers un serveur distant ou une adresse IP de réseau local (LAN) exige obligatoirement le protocole chiffré `https://`. Le protocole `http://` est strictement restreint aux adresses de bouclage local (`localhost`, `127.0.0.1`, `[::1]`) sur la machine de l'utilisateur, et aucune clé d'API (`Authorization` / `api_key`) n'est jamais transmise sur `http://`.
-- ✅ **Isolation Shadow DOM** de l'interface utilisateur.
+- ✅ **Aucune persistance disque du contenu des e-mails.** Seules les préférences d'options et les clés d'API sont stockées localement via `browser.storage.local`. En mode rédaction, l'instantané d'annulation avant traduction (`compose_orig_<tabId>`) réside exclusivement en mémoire vive éphémère (`browser.storage.session`) et disparaît dès la restauration ou à la fermeture de Thunderbird.
+- ✅ **Consentement explicite préalable (Opt-In — `provider: "none"` par défaut).** Aucun moteur de traduction ni relais de secours n'est activé avant le choix explicite de l'utilisateur (assistant de premier lancement `setup/setup.html` ou bandeau de consentement inline en 1 clic, avec case optionnelle dédiée pour MyMemory). Tant qu'aucun fournisseur n'est sélectionné, zéro requête réseau (`fetch`) n'est émise (politique *fail-closed*).
+- ✅ **HTTPS strictement imposé hors bouclage local & CSP `connect-src`.** Conformément aux règles de sécurité de Mozilla Thunderbird (`cleartext-transmission`), toute connexion vers un serveur distant ou une adresse IP de réseau local (LAN) exige obligatoirement le protocole chiffré `https://`. Le protocole `http://` est strictement restreint aux adresses de bouclage local `localhost` et `127.0.0.1` (en parité 1:1 avec `host_permissions` et la directive CSP `connect-src https: http://localhost:* http://127.0.0.1:*`), et aucune clé d'API (`Authorization` / `api_key`) n'est jamais transmise sur `http://`.
+- ✅ **Cloisonnement contre l'injection de prompt LLM.** Pour Google Gemini et le Hub LLMs, le texte de l'e-mail est encapsulé dans des balises `<source_text>...</source_text>` avec consigne système explicite de ne jamais exécuter les instructions contenues dans le corps du message.
+- ✅ **Isolation Shadow DOM** de l'interface utilisateur dans le panneau de lecture.
 
 ---
 
@@ -52,14 +53,13 @@ Pour traduire, l'extension **transmet le texte de l'e-mail concerné uniquement 
 - Ces données transitent **directement** entre votre client Thunderbird et le service de traduction choisi ; elles ne passent par aucun serveur intermédiaire du projet.
 - **Seul le corps rendu est collecté** (`document.body` du document de contenu du message). Le bloc
   d'en-têtes géré par Thunderbird (de / à / sujet) est *hors* de ce document et n'est donc **pas**
-  transmis — vérifiable : le sujet affiché dans l'en-tête n'est jamais traduit.
-- La politique de confidentialité applicable pour le traitement linguistique est celle du fournisseur actif (Google, DeepL ou l'hébergeur de l'instance LibreTranslate).
+  transmis — vérifiable : le sujet affiché dans l'en-tête n'est jamais traduit en mode lecture.
+- La politique de confidentialité applicable pour le traitement linguistique est celle du fournisseur actif (Google, MyMemory, DeepL, OpenAI, Mistral, Groq ou l'hébergeur de l'instance LibreTranslate).
 - Aucune donnée de télémétrie, analytique ou publicitaire n'est collectée.
 
-> **Déclaration alignée (v2.0.10)** : le manifest déclare désormais
+> **Déclaration alignée (v2.0.10+)** : le manifest déclare
 > `data_collection_permissions: { required: ["personalCommunications"] }` — le contenu des messages
-> est transmis à un tiers (Google). Ceci remplace l'ancienne déclaration `["none"]`, qui ne reflétait
-> pas ce flux.
+> traduits est transmis au fournisseur choisi par l'utilisateur.
 
 ---
 
@@ -69,15 +69,14 @@ Les versions antérieures embarquaient un mécanisme de log de débogage (`remot
 `const DEBUG`) qui, lorsqu'il était activé (`DEBUG = true`), envoyait le **contenu des e-mails**
 (texte original et traduit, objet message complet) en HTTP non chiffré vers `http://localhost:9999`.
 
-Il a été **entièrement retiré** des deux scripts en **v2.0.9**. Le débogage passe désormais par
-`console.log` local uniquement. Aucun envoi réseau du contenu des messages n'existe plus en dehors de
-l'appel de traduction à Google.
+Il a été **entièrement retiré** des scripts en **v2.0.9**. Le débogage passe désormais par
+`console.log` local uniquement.
 
-**Garde-fous anti-régression** (si ce type de code était réintroduit) :
+**Garde-fous anti-régression** :
 
 - `build.sh` **refuse de packager** si `const DEBUG = true` est détecté.
-- La skill `/revue-securite-pre-release` vérifie l'absence de `DEBUG = true` et de `localhost`.
-- `*.log` est ignoré par Git pour empêcher tout commit de log contenant des PII.
+- `npm run lint:webext` exécute `thunderbird/webext-linter --warnings-as-errors` sur le `.xpi` compilé.
+- `*.log` et `.env*` sont ignorés par Git pour empêcher tout commit de log ou secret.
 
 ---
 
@@ -85,8 +84,7 @@ l'appel de traduction à Google.
 
 - Ne **jamais** logger le contenu des e-mails (`original`, `translated`, `text`, `message`) — seuls
   des compteurs/longueurs sont acceptables.
-- Ne **jamais** introduire d'écriture HTML à partir de contenu du message.
+- Ne **jamais** introduire d'écriture HTML non sanitisée à partir de contenu du message.
 - Toute évolution du flux de données (nouveau destinataire, nouvelle donnée envoyée) doit être
-  reflétée ici, dans le `README.md` et dans `data_collection_permissions`.
-- Exécuter le rituel de fin de sprint (`CONTRIBUTING.md`) avant tout commit ; la revue de sécurité
-  pré-release (`/revue-securite-pre-release`) avant toute publication.
+  reflétée ici, dans `PRIVACY_POLICY.md`, dans le `README.md` et dans `data_collection_permissions`.
+- Exécuter le rituel de fin de sprint (`CONTRIBUTING.md`) avant tout commit.

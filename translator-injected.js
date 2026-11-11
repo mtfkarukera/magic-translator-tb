@@ -50,9 +50,12 @@
   const I18N = {
     fr: {
       autoDetect:         "Auto-détection",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "DE",
       labelTo:            "VERS",
+      ariaSelectSource:   "Langue source",
+      ariaSelectTarget:   "Langue cible",
+      ariaConsentRegion:  "Consentement du moteur de traduction",
       btnTranslate:       "Traduire",
       btnRetranslate:     "Retraduire",
       btnOriginal:        "Original",
@@ -70,21 +73,33 @@
       errorServiceUnavailable: "Service de traduction indisponible. Réessayez plus tard.",
       errorTimeout:            "Délai dépassé. Vérifiez votre connexion.",
       errorNetwork:            "Erreur réseau. Vérifiez votre connexion.",
+      errorUnauthorized:       "Clé d'API manquante ou invalide. Cliquez sur le badge ⚙️ pour vérifier les réglages.",
       errorPermissionRequired: "Permission requise pour {provider} : Cliquez sur le badge ⚙️ pour ouvrir les réglages.",
       errorConsentRequired:    "Veuillez activer un moteur de traduction ci-dessus pour commencer.",
       errorCleartextForbidden: "Connexion HTTP non chiffrée refusée (politique Mozilla Thunderbird : HTTPS requis hors localhost).",
       consentPrompt:           "Aucun moteur de traduction n'est encore activé. La traduction envoie le texte de l'e-mail au fournisseur choisi :",
-      btnConsentAccept:        "✓ Activer Google (+ MyMemory) et traduire",
+      consentFallbackCheckbox: "Relais MyMemory en secours",
+      btnConsentAccept:        "✓ Activer Google et traduire",
       btnConsentOptions:       "⚙️ Autre moteur…",
       badgeUnconfigured:       "À activer",
+      badgeActiveTitle:        "Moteur actif : {provider} (Modifier dans les paramètres)",
+      badgeActiveAria:         "Paramètres du moteur : {provider}",
+      badgePermWarningTitle:   "Moteur actif : {provider} (Accès réseau requis — Cliquez pour ouvrir les réglages)",
+      badgePermWarningAria:    "Accès réseau requis pour {provider}",
+      badgeKeyWarningTitle:    "Moteur actif : {provider} (Clé d'API requise — Cliquez pour ouvrir les réglages)",
+      badgeKeyWarningAria:     "Clé d'API requise pour {provider}",
+      badgeFallbackSuffix:     " (secours)",
       statusAlreadyIn:         "Déjà en {lang}",
       statusTranslatedAlternate: "Traduit vers {lang} (cible d'alternance)"
     },
     en: {
       autoDetect:         "Auto-detect",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "FROM",
       labelTo:            "TO",
+      ariaSelectSource:   "Source language",
+      ariaSelectTarget:   "Target language",
+      ariaConsentRegion:  "Translation provider consent",
       btnTranslate:       "Translate",
       btnRetranslate:     "Retranslate",
       btnOriginal:        "Original",
@@ -102,21 +117,33 @@
       errorServiceUnavailable: "Translation service unavailable. Try again later.",
       errorTimeout:            "Request timed out. Check your connection.",
       errorNetwork:            "Network error. Check your connection.",
+      errorUnauthorized:       "Missing or invalid API key. Click the ⚙️ badge to check settings.",
       errorPermissionRequired: "Permission required for {provider}: Click the ⚙️ badge to open settings.",
       errorConsentRequired:    "Please enable a translation provider above to start.",
       errorCleartextForbidden: "Unencrypted HTTP connection refused (Mozilla Thunderbird policy: HTTPS required outside localhost).",
       consentPrompt:           "No translation provider is enabled yet. Translating sends the email text to the chosen provider:",
-      btnConsentAccept:        "✓ Enable Google (+ MyMemory) & translate",
+      consentFallbackCheckbox: "MyMemory fallback relay",
+      btnConsentAccept:        "✓ Enable Google & translate",
       btnConsentOptions:       "⚙️ Other provider…",
       badgeUnconfigured:       "Setup required",
+      badgeActiveTitle:        "Active provider: {provider} (Change in settings)",
+      badgeActiveAria:         "Provider settings: {provider}",
+      badgePermWarningTitle:   "Active provider: {provider} (Network access required — Click to open settings)",
+      badgePermWarningAria:    "Network access required for {provider}",
+      badgeKeyWarningTitle:    "Active provider: {provider} (API key required — Click to open settings)",
+      badgeKeyWarningAria:     "API key required for {provider}",
+      badgeFallbackSuffix:     " (fallback)",
       statusAlreadyIn:         "Already in {lang}",
       statusTranslatedAlternate: "Translated to {lang} (alternate target)"
     },
     es: {
       autoDetect:         "Auto-detectar",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "DE",
       labelTo:            "A",
+      ariaSelectSource:   "Idioma de origen",
+      ariaSelectTarget:   "Idioma de destino",
+      ariaConsentRegion:  "Consentimiento del motor de traducción",
       btnTranslate:       "Traducir",
       btnRetranslate:     "Retraducir",
       btnOriginal:        "Original",
@@ -134,21 +161,33 @@
       errorServiceUnavailable: "Servicio de traducción no disponible. Inténtalo más tarde.",
       errorTimeout:            "Tiempo de espera agotado. Comprueba tu conexión.",
       errorNetwork:            "Error de red. Comprueba tu conexión.",
+      errorUnauthorized:       "Clave API faltante o no válida. Haz clic en la insignia ⚙️ para revisar los ajustes.",
       errorPermissionRequired: "Permiso requerido para {provider}: Haz clic en la insignia ⚙️ para abrir los ajustes.",
       errorConsentRequired:    "Activa un proveedor de traducción arriba para comenzar.",
       errorCleartextForbidden: "Conexión HTTP sin cifrar rechazada (política de Mozilla Thunderbird: se requiere HTTPS fuera de localhost).",
       consentPrompt:           "Aún no hay ningún motor de traducción activo. Al traducir, el texto del correo se envía al proveedor elegido:",
-      btnConsentAccept:        "✓ Activar Google (+ MyMemory) y traducir",
+      consentFallbackCheckbox: "Relevo MyMemory de respaldo",
+      btnConsentAccept:        "✓ Activar Google y traducir",
       btnConsentOptions:       "⚙️ Otro motor…",
       badgeUnconfigured:       "Configurar",
+      badgeActiveTitle:        "Motor activo: {provider} (Cambiar en ajustes)",
+      badgeActiveAria:         "Ajustes del motor: {provider}",
+      badgePermWarningTitle:   "Motor activo: {provider} (Permiso de red requerido — Haz clic para abrir ajustes)",
+      badgePermWarningAria:    "Permiso de red requerido para {provider}",
+      badgeKeyWarningTitle:    "Motor activo: {provider} (Clave API requerida — Haz clic para abrir ajustes)",
+      badgeKeyWarningAria:     "Clave API requerida para {provider}",
+      badgeFallbackSuffix:     " (respaldo)",
       statusAlreadyIn:         "Ya en {lang}",
       statusTranslatedAlternate: "Traducido al {lang} (destino alternativo)"
     },
     de: {
       autoDetect:         "Automatische Erkennung",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "VON",
       labelTo:            "NACH",
+      ariaSelectSource:   "Quellsprache",
+      ariaSelectTarget:   "Zielsprache",
+      ariaConsentRegion:  "Zustimmung zum Übersetzungsdienst",
       btnTranslate:       "Übersetzen",
       btnRetranslate:     "Erneut übersetzen",
       btnOriginal:        "Original",
@@ -166,21 +205,33 @@
       errorServiceUnavailable: "Übersetzungsdienst nicht verfügbar. Versuchen Sie es später.",
       errorTimeout:            "Zeitüberschreitung. Prüfen Sie Ihre Verbindung.",
       errorNetwork:            "Netzwerkfehler. Prüfen Sie Ihre Verbindung.",
+      errorUnauthorized:       "Fehlender oder ungültiger API-Schlüssel. Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu prüfen.",
       errorPermissionRequired: "Berechtigung für {provider} erforderlich: Klicken Sie auf das ⚙️-Badge, um die Einstellungen zu öffnen.",
       errorConsentRequired:    "Bitte aktivieren Sie oben einen Übersetzungsdienst, um zu beginnen.",
       errorCleartextForbidden: "Unverschlüsselte HTTP-Verbindung abgelehnt (Mozilla Thunderbird-Richtlinie: HTTPS außerhalb von localhost erforderlich).",
       consentPrompt:           "Es ist noch kein Übersetzungsdienst aktiviert. Beim Übersetzen wird der E-Mail-Text an den gewählten Dienst gesendet:",
-      btnConsentAccept:        "✓ Google (+ MyMemory) aktivieren & übersetzen",
+      consentFallbackCheckbox: "MyMemory-Ersatzdienst",
+      btnConsentAccept:        "✓ Google aktivieren & übersetzen",
       btnConsentOptions:       "⚙️ Anderer Dienst…",
       badgeUnconfigured:       "Einrichten",
+      badgeActiveTitle:        "Aktiver Dienst: {provider} (In den Einstellungen ändern)",
+      badgeActiveAria:         "Diensteinstellungen: {provider}",
+      badgePermWarningTitle:   "Aktiver Dienst: {provider} (Netzwerkzugriff erforderlich — Klicken für Einstellungen)",
+      badgePermWarningAria:    "Netzwerkzugriff erforderlich für {provider}",
+      badgeKeyWarningTitle:    "Aktiver Dienst: {provider} (API-Schlüssel erforderlich — Klicken für Einstellungen)",
+      badgeKeyWarningAria:     "API-Schlüssel erforderlich für {provider}",
+      badgeFallbackSuffix:     " (Ersatz)",
       statusAlreadyIn:         "Bereits auf {lang}",
       statusTranslatedAlternate: "Übersetzt nach {lang} (Alternative)"
     },
     vi: {
       autoDetect:         "Tự động phát hiện",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "TỪ",
       labelTo:            "SANG",
+      ariaSelectSource:   "Ngôn ngữ nguồn",
+      ariaSelectTarget:   "Ngôn ngữ đích",
+      ariaConsentRegion:  "Đồng ý chọn công cụ dịch",
       btnTranslate:       "Dịch",
       btnRetranslate:     "Dịch lại",
       btnOriginal:        "Bản gốc",
@@ -198,21 +249,33 @@
       errorServiceUnavailable: "Dịch vụ dịch không khả dụng. Hãy thử lại sau.",
       errorTimeout:            "Hết thời gian chờ. Kiểm tra kết nối của bạn.",
       errorNetwork:            "Lỗi mạng. Kiểm tra kết nối của bạn.",
+      errorUnauthorized:       "Thiếu hoặc sai khóa API. Nhấp vào huy hiệu ⚙️ để kiểm tra cài đặt.",
       errorPermissionRequired: "Cần quyền cho {provider}: Nhấp vào huy hiệu ⚙️ để mở cài đặt.",
       errorConsentRequired:    "Vui lòng kích hoạt một công cụ dịch ở trên để bắt đầu.",
       errorCleartextForbidden: "Kết nối HTTP không mã hóa bị từ chối (chính sách Mozilla Thunderbird: bắt buộc HTTPS ngoài localhost).",
       consentPrompt:           "Chưa có công cụ dịch nào được bật. Việc dịch sẽ gửi nội dung email đến nhà cung cấp đã chọn:",
-      btnConsentAccept:        "✓ Bật Google (+ MyMemory) & dịch",
+      consentFallbackCheckbox: "Dự phòng qua MyMemory",
+      btnConsentAccept:        "✓ Bật Google & dịch",
       btnConsentOptions:       "⚙️ Công cụ khác…",
       badgeUnconfigured:       "Cần thiết lập",
+      badgeActiveTitle:        "Công cụ đang dùng: {provider} (Đổi trong cài đặt)",
+      badgeActiveAria:         "Cài đặt công cụ: {provider}",
+      badgePermWarningTitle:   "Công cụ đang dùng: {provider} (Cần quyền mạng — Nhấp để mở cài đặt)",
+      badgePermWarningAria:    "Cần quyền mạng cho {provider}",
+      badgeKeyWarningTitle:    "Công cụ đang dùng: {provider} (Cần khóa API — Nhấp để mở cài đặt)",
+      badgeKeyWarningAria:     "Cần khóa API cho {provider}",
+      badgeFallbackSuffix:     " (dự phòng)",
       statusAlreadyIn:         "Đã ở {lang}",
       statusTranslatedAlternate: "Đã dịch sang {lang} (ngôn ngữ thay thế)"
     },
     ja: {
       autoDetect:         "自動検出",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "差出語",
       labelTo:            "翻訳先",
+      ariaSelectSource:   "翻訳元の言語",
+      ariaSelectTarget:   "翻訳先の言語",
+      ariaConsentRegion:  "翻訳エンジンの同意設定",
       btnTranslate:       "翻訳",
       btnRetranslate:     "再翻訳",
       btnOriginal:        "原文",
@@ -230,21 +293,33 @@
       errorServiceUnavailable: "翻訳サービスを利用できません。後でもう一度お試しください。",
       errorTimeout:            "タイムアウトしました。接続を確認してください。",
       errorNetwork:            "ネットワークエラー。接続を確認してください。",
+      errorUnauthorized:       "APIキーが未入力または無効です。⚙️バッジをクリックして設定を確認してください。",
       errorPermissionRequired: "{provider}の権限が必要です：⚙️バッジをクリックして設定を開いてください。",
       errorConsentRequired:    "開始するには、上で翻訳エンジンを有効にしてください。",
       errorCleartextForbidden: "暗号化されていないHTTP接続は拒否されました（Mozilla Thunderbirdポリシー：localhost以外はHTTPS必須）。",
       consentPrompt:           "翻訳エンジンがまだ有効になっていません。翻訳を実行すると、メール本文が選択したプロバイダーに送信されます：",
-      btnConsentAccept:        "✓ Google（+ MyMemory）を有効にして翻訳",
+      consentFallbackCheckbox: "MyMemoryを予備として使用",
+      btnConsentAccept:        "✓ Googleを有効にして翻訳",
       btnConsentOptions:       "⚙️ 他のエンジン…",
       badgeUnconfigured:       "未設定",
+      badgeActiveTitle:        "使用中のエンジン: {provider}（設定で変更）",
+      badgeActiveAria:         "翻訳エンジンの設定: {provider}",
+      badgePermWarningTitle:   "使用中のエンジン: {provider}（ネットワーク権限が必要 — クリックして設定を開く）",
+      badgePermWarningAria:    "{provider}のネットワーク権限が必要です",
+      badgeKeyWarningTitle:    "使用中のエンジン: {provider}（APIキーが必要 — クリックして設定を開く）",
+      badgeKeyWarningAria:     "{provider}のAPIキーが必要です",
+      badgeFallbackSuffix:     "（予備）",
       statusAlreadyIn:         "すでに{lang}です",
       statusTranslatedAlternate: "{lang}へ翻訳（代替）"
     },
     pt: {
       autoDetect:         "Auto-detecção",
-      bannerTitle:        "Translator",
+      bannerTitle:        "Magic Translator",
       labelFrom:          "DE",
       labelTo:            "PARA",
+      ariaSelectSource:   "Idioma de origem",
+      ariaSelectTarget:   "Idioma de destino",
+      ariaConsentRegion:  "Consentimento do motor de tradução",
       btnTranslate:       "Traduzir",
       btnRetranslate:     "Traduzir novamente",
       btnOriginal:        "Original",
@@ -262,13 +337,22 @@
       errorServiceUnavailable: "Serviço de tradução indisponível. Tente mais tarde.",
       errorTimeout:            "Tempo esgotado. Verifique a sua ligação.",
       errorNetwork:            "Erro de rede. Verifique a sua ligação.",
+      errorUnauthorized:       "Chave de API em falta ou inválida. Clique no selo ⚙️ para verificar as definições.",
       errorPermissionRequired: "Permissão necessária para {provider}: Clique no selo ⚙️ para abrir as definições.",
       errorConsentRequired:    "Ative um motor de tradução acima para começar.",
       errorCleartextForbidden: "Ligação HTTP não encriptada recusada (política Mozilla Thunderbird: HTTPS obrigatório fora de localhost).",
       consentPrompt:           "Nenhum motor de tradução está ativo. A tradução envia o texto do e-mail para o fornecedor escolhido:",
-      btnConsentAccept:        "✓ Ativar Google (+ MyMemory) e traduzir",
+      consentFallbackCheckbox: "Retransmissão MyMemory de recurso",
+      btnConsentAccept:        "✓ Ativar Google e traduzir",
       btnConsentOptions:       "⚙️ Outro motor…",
       badgeUnconfigured:       "Configurar",
+      badgeActiveTitle:        "Motor ativo: {provider} (Alterar nas definições)",
+      badgeActiveAria:         "Definições do motor: {provider}",
+      badgePermWarningTitle:   "Motor ativo: {provider} (Permissão de rede necessária — Clique para abrir definições)",
+      badgePermWarningAria:    "Permissão de rede necessária para {provider}",
+      badgeKeyWarningTitle:    "Motor ativo: {provider} (Chave de API necessária — Clique para abrir definições)",
+      badgeKeyWarningAria:     "Chave de API necessária para {provider}",
+      badgeFallbackSuffix:     " (recurso)",
       statusAlreadyIn:         "Já em {lang}",
       statusTranslatedAlternate: "Traduzido para {lang} (destino alternativo)"
     }
@@ -354,18 +438,20 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color-scheme: light dark;
   
-  /* ── TOKENS DE DESIGN PREMIUM ── */
-  --mt-bg-glass: rgba(15, 23, 42, 0.75); /* Ardoise profond translucide */
-  --mt-border-glass: rgba(255, 255, 255, 0.08);
-  --mt-accent-indigo: #6366f1;
-  --mt-accent-indigo-hover: #818cf8;
-  --mt-accent-purple: #8b5cf6;
+  /* ── TOKENS DE DESIGN PREMIUM (WCAG AA >= 4.5:1 garanti même sur fond d'e-mail clair) ── */
+  --mt-bg-glass: rgba(15, 23, 42, 0.93);
+  --mt-border-glass: rgba(255, 255, 255, 0.12);
+  --mt-accent-indigo: #4f46e5;
+  --mt-accent-indigo-hover: #4338ca;
+  --mt-accent-purple: #6d28d9;
   --mt-accent-purple-hover: #a78bfa;
+  --mt-btn-gradient: linear-gradient(135deg, #6d28d9, #4f46e5);
+  --mt-btn-gradient-hover: linear-gradient(135deg, #5b21b6, #4338ca);
   --mt-text-primary: #f8fafc;
-  /* [M-A2] Contraste corrigé : #b0bec5 atteint ≥4.5:1 sur fond ardoise (depuis #94a3b8 ~3.8:1) */
+  /* [M-A2] Contraste corrigé : #b0bec5 atteint ≥4.5:1 sur fond ardoise */
   --mt-text-secondary: #b0bec5;
-  --mt-success: #10b981;
-  --mt-error: #f43f5e;
+  --mt-success: #34d399;
+  --mt-error: #fb7185;
   
   /* Tokens supplémentaires pour éliminer les valeurs hardcodées */
   /* [Mi-D3] Centralisation des valeurs de couleur utilisées dans plusieurs sélecteurs */
@@ -634,14 +720,14 @@
 }
 
 .mt-btn-translate {
-  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
-  color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  background: var(--mt-btn-gradient);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
 }
 
-.mt-btn-translate:hover {
-  background: linear-gradient(135deg, var(--mt-accent-purple-hover), var(--mt-accent-indigo-hover));
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+.mt-btn-translate:hover:not(:disabled) {
+  background: var(--mt-btn-gradient-hover);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
   transform: translateY(-1px);
 }
 
@@ -705,13 +791,12 @@
   box-shadow: none !important;
 }
 
-/* [B-A1] Focus visible : indicateur explicité pour TOUS les éléments interactifs.
- * outline:0 est défini sur .mt-btn et .mt-select ; :focus-visible ajoute l'indicateur
- * uniquement pour la navigation clavier, pas pour le clic souris. */
+/* [B-A1] Focus visible : indicateur explicité pour TOUS les éléments interactifs. */
 .mt-btn:focus-visible,
-.mt-pill:focus-visible,
+.mt-engine-badge:focus-visible,
 .mt-logo-icon:focus-visible,
-.mt-select:focus-visible {
+.mt-select:focus-visible,
+.mt-consent-checkbox:focus-visible {
   outline: 2px solid var(--mt-accent-purple-hover);
   outline-offset: 2px;
 }
@@ -723,15 +808,26 @@
   box-shadow: none;
 }
 
-/* Statut de chargement */
+/* Statut de chargement (maintenu dans l'arbre ARIA via .is-empty pour garantir la première annonce) */
 .mt-status {
   font-size: 11px;
   color: var(--mt-text-secondary);
-  /* [B-D1] Suppression de white-space:nowrap : évite le débordement en fenêtre étroite */
   white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 260px;
+}
+
+.mt-status.is-empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .mt-status.error   { color: var(--mt-error); }
@@ -741,7 +837,6 @@
   display: inline-block;
   width: 12px;
   height: 12px;
-  /* [Mi-D3] Utilisation du token --mt-accent-purple-dim */
   border: 2px solid var(--mt-accent-purple-dim);
   border-top-color: var(--mt-accent-purple-hover);
   border-radius: 50%;
@@ -754,6 +849,9 @@
 
 /* [M-D2] Responsive : en fenêtre très étroite, les contrôles passent en colonne */
 @media (max-width: 480px) {
+  .mt-separator {
+    display: none;
+  }
   .mt-controls {
     flex-direction: column;
     align-items: flex-start;
@@ -769,14 +867,12 @@
   }
 }
 
-/* [M-D1] Réduction de mouvement : désactive les animations pour les utilisateurs
- * ayant activé prefers-reduced-motion (accessibilité épilepsie/vertiges). */
+/* [M-D1] Réduction de mouvement : désactive les animations pour prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .mt-banner  { animation: none; opacity: 1; }
-  /* Le spinner devient un indicateur statique (tiret) plutot qu'une animation continue */
   .mt-spinner { animation: none; border-style: dashed; border-top-color: var(--mt-accent-purple-hover); }
   .mt-engine-dot.is-warning { animation: none; }
-  .mt-pill, .mt-btn, .mt-logo-icon, .mt-select {
+  .mt-engine-badge, .mt-btn, .mt-logo-icon, .mt-select {
     transition: none;
   }
 }
@@ -794,8 +890,8 @@
   padding: 8px 12px;
   margin-top: 2px;
   border-radius: var(--mt-radius-sm);
-  background: rgba(139, 92, 246, 0.14);
-  border: 1px solid rgba(139, 92, 246, 0.38);
+  background: rgba(109, 40, 217, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.4);
   font-size: 12px;
   color: var(--mt-text-primary);
 }
@@ -808,15 +904,43 @@
 .mt-consent-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
+.mt-consent-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--mt-text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.mt-consent-checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #6d28d9;
+}
+
 .mt-btn-consent-accept {
-  background: linear-gradient(135deg, var(--mt-accent-purple), var(--mt-accent-indigo));
+  background: var(--mt-btn-gradient);
   color: #ffffff;
   padding: 5px 12px;
   font-size: 11.5px;
+}
+
+.mt-btn-consent-accept:hover:not(:disabled) {
+  background: var(--mt-btn-gradient-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+}
+
+.mt-btn-consent-accept:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
 
 .mt-btn-consent-options {
@@ -825,6 +949,15 @@
   border: 1px solid var(--mt-btn-secondary-border);
   padding: 5px 10px;
   font-size: 11.5px;
+}
+
+.mt-btn-consent-options:hover:not(:disabled) {
+  background: var(--mt-bg-input-hover);
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.mt-btn-consent-options:active:not(:disabled) {
+  transform: scale(0.98);
 }
 `;
 
@@ -869,7 +1002,9 @@
       return {
         text: reponse.text,
         detectedLang: reponse.detectedLang || null,
-        providerLabel: reponse.providerLabel || null
+        providerLabel: reponse.providerLabel || null,
+        providerNom: reponse.providerNom || null,
+        usedFallback: Boolean(reponse.usedFallback)
       };
     }
     // [Mi-R3] Si sendMessage retourne undefined (listener background sans return Promise)
@@ -887,8 +1022,7 @@
     PERMISSION_REQUIRED: "errorPermissionRequired",
     CONSENT_REQUIRED:    "errorConsentRequired",
     CLEARTEXT_FORBIDDEN: "errorCleartextForbidden",
-    // [M-A5] Ajout des codes retournés par le background après les corrections de sécurité.
-    UNAUTHORIZED:        "errorServiceUnavailable",
+    UNAUTHORIZED:        "errorUnauthorized",
     INVALID_PAYLOAD:     "errorServiceUnavailable"
   };
 
@@ -908,8 +1042,42 @@
   /** Balises dont le contenu textuel ne doit jamais être traduit. */
   const BALISES_IGNOREES = new Set([
     "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
-    "EMBED", "SVG", "MATH", "CODE", "TEXTAREA"
+    "EMBED", "SVG", "MATH", "CODE", "TEXTAREA", "TEMPLATE"
   ]);
+
+  /**
+   * Vérifie si un élément ou l'un de ses ancêtres (jusqu'à `racine`) est ignoré ou masqué.
+   * @param {Element|null} parent
+   * @param {Element} racine
+   * @param {boolean} [exclureCitations=false]
+   * @returns {boolean}
+   */
+  const aAncetreIgnoreOuMasque = (parent, racine, exclureCitations = false) => {
+    let el = parent;
+    while (el && el !== racine) {
+      const nomBalise = (el.tagName || "").toUpperCase();
+      if (BALISES_IGNOREES.has(nomBalise)) {
+        return true;
+      }
+      if (el.hidden) {
+        return true;
+      }
+      if (el.style && typeof el.style.display === "string" && el.style.display.toLowerCase() === "none") {
+        return true;
+      }
+      if (exclureCitations) {
+        const classe = el.className || "";
+        if (
+          nomBalise === "BLOCKQUOTE" ||
+          (typeof classe === "string" && (classe.includes("moz-cite-prefix") || classe.includes("gmail_quote")))
+        ) {
+          return true;
+        }
+      }
+      el = el.parentElement;
+    }
+    return false;
+  };
 
   /**
    * Collecte tous les nœuds texte traduisibles dans un élément racine.
@@ -921,11 +1089,8 @@
     const noeuds = [];
     const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
       acceptNode: (noeud) => {
-        // Ignorer les nœuds vides (espaces, retours à la ligne isolés)
         if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
-
-        // Ignorer les nœuds dans des balises non-textuelles
-        if (noeud.parentElement && BALISES_IGNOREES.has(noeud.parentElement.tagName)) {
+        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, false)) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -951,23 +1116,8 @@
     const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
       acceptNode: (noeud) => {
         if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        if (!noeud.parentElement) return NodeFilter.FILTER_REJECT;
-        // Ignorer les balises non-textuelles
-        if (BALISES_IGNOREES.has(noeud.parentElement.tagName)) {
+        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, true)) {
           return NodeFilter.FILTER_REJECT;
-        }
-        // Ignorer les conteneurs de citations (blockquotes de réponse / fil de discussion)
-        let parent = noeud.parentElement;
-        while (parent && parent !== racine) {
-          const nomBalise = parent.tagName;
-          const classe = parent.className || "";
-          if (
-            nomBalise === "BLOCKQUOTE" ||
-            (typeof classe === "string" && (classe.includes("moz-cite-prefix") || classe.includes("gmail_quote")))
-          ) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          parent = parent.parentElement;
         }
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -979,7 +1129,8 @@
       if (extraits.length >= 60) break;
     }
 
-    const texteBrut = extraits.join(" ");
+    // Jointure par saut de ligne pour permettre le filtrage ligne-par-ligne des citations '>' et amorces
+    const texteBrut = extraits.join("\n");
     const nettoyer = (globalThis.MTText && globalThis.MTText.nettoyerTextePourDetection)
       ? globalThis.MTText.nettoyerTextePourDetection
       : (txt) => txt.replace(/\s+/g, " ").trim();
@@ -1034,11 +1185,12 @@
     const badgeMoteur = document.createElement("button");
     badgeMoteur.type = "button";
     badgeMoteur.className = "mt-engine-badge";
-    badgeMoteur.title = "Moteur actif : Google Translate (Modifier dans les paramètres)";
-    badgeMoteur.setAttribute("aria-label", "Paramètres du moteur de traduction");
+    badgeMoteur.title = t("badgeActiveTitle", { provider: "Google Translate" });
+    badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: "Google Translate" }));
 
     const badgeDot = document.createElement("span");
     badgeDot.className = "mt-engine-dot";
+    badgeDot.setAttribute("aria-hidden", "true");
     badgeMoteur.appendChild(badgeDot);
 
     const badgeMoteurLabel = document.createElement("span");
@@ -1068,7 +1220,7 @@
     const selectSource = document.createElement("select");
     selectSource.className = "mt-select";
     selectSource.id = "mt-select-source";
-    selectSource.setAttribute("aria-label", t("labelFrom"));
+    selectSource.setAttribute("aria-label", t("ariaSelectSource"));
     LANGUES.forEach((langue) => {
       const opt = document.createElement("option");
       opt.value = langue.code;
@@ -1089,7 +1241,7 @@
     const selectCible = document.createElement("select");
     selectCible.className = "mt-select";
     selectCible.id = "mt-select-cible";
-    selectCible.setAttribute("aria-label", t("labelTo"));
+    selectCible.setAttribute("aria-label", t("ariaSelectTarget"));
     // Le sélecteur cible n'inclut pas "auto" (pas de sens en cible)
     LANGUES.filter((l) => l.code !== "auto").forEach((langue) => {
       const opt = document.createElement("option");
@@ -1113,22 +1265,23 @@
 
     // ── Bouton « Traduire » ─────────────────────────────────────────
     const btnTraduire = document.createElement("button");
+    btnTraduire.type = "button";
     btnTraduire.className = "mt-btn mt-btn-translate";
     btnTraduire.textContent = t("btnTranslate");
     controles.appendChild(btnTraduire);
 
     // ── Bouton « Original » (masqué par défaut) ─────────────────────
     const btnOriginal = document.createElement("button");
+    btnOriginal.type = "button";
     btnOriginal.className = "mt-btn mt-btn-original mt-hidden";
     btnOriginal.textContent = t("btnOriginal");
     controles.appendChild(btnOriginal);
 
     bandeau.appendChild(controles);
 
-    // ── Zone de statut ──────────────────────────────────────────────
+    // ── Zone de statut (toujours présente dans l'arbre ARIA via .is-empty) ──
     const statut = document.createElement("span");
-    statut.className = "mt-status mt-hidden";
-    // Accessibilité : région live → les changements de statut sont annoncés aux lecteurs d'écran.
+    statut.className = "mt-status is-empty";
     statut.setAttribute("role", "status");
     statut.setAttribute("aria-live", "polite");
     statut.setAttribute("aria-atomic", "true");
@@ -1136,6 +1289,7 @@
 
     // ── Bouton « Replier » ──────────────────────────────────────────
     const btnReplier = document.createElement("button");
+    btnReplier.type = "button";
     btnReplier.className = "mt-btn mt-btn-collapse";
     btnReplier.textContent = "▴";
     btnReplier.title = t("tooltipCollapse");
@@ -1146,7 +1300,7 @@
     const consentBar = document.createElement("div");
     consentBar.className = "mt-consent-bar mt-hidden";
     consentBar.setAttribute("role", "region");
-    consentBar.setAttribute("aria-label", "Consentement du moteur de traduction");
+    consentBar.setAttribute("aria-label", t("ariaConsentRegion"));
 
     const consentText = document.createElement("span");
     consentText.className = "mt-consent-text";
@@ -1155,6 +1309,18 @@
 
     const consentActions = document.createElement("div");
     consentActions.className = "mt-consent-actions";
+
+    const lblConsentMyMemory = document.createElement("label");
+    lblConsentMyMemory.className = "mt-consent-checkbox-label";
+    const chkConsentMyMemory = document.createElement("input");
+    chkConsentMyMemory.type = "checkbox";
+    chkConsentMyMemory.className = "mt-consent-checkbox";
+    chkConsentMyMemory.checked = true;
+    const spanConsentMyMemory = document.createElement("span");
+    spanConsentMyMemory.textContent = t("consentFallbackCheckbox");
+    lblConsentMyMemory.appendChild(chkConsentMyMemory);
+    lblConsentMyMemory.appendChild(spanConsentMyMemory);
+    consentActions.appendChild(lblConsentMyMemory);
 
     const btnConsentAccept = document.createElement("button");
     btnConsentAccept.type = "button";
@@ -1190,43 +1356,50 @@
       btnReplier,
       consentBar,
       consentText,
+      chkConsentMyMemory,
+      spanConsentMyMemory,
       btnConsentAccept,
       btnConsentOptions
     };
   };
 
   // ═══════════════════════════════════════════════════════════════════════
-  // ÉTAT DE L'APPLICATION
-  // ═══════════════════════════════════════════════════════════════════════
-
-  /** Map<Text, string> — Sauvegarde des contenus originaux (null si non traduit) */
-  let contenusOriginaux = null;
-
-  /** Indique si le bandeau est actuellement déplié */
-  let estDeplie = false;
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // INITIALISATION
+  // INITIALISATION (ÉTAT ISOLÉ PAR INSTANCE)
   // ═══════════════════════════════════════════════════════════════════════
 
   async function initialiser() {
-    const instanceId = Date.now();
-    document.documentElement._mtActiveInstanceId = instanceId;
-
     // ── Nettoyage de l'instance précédente ───────────────────────────────
     nettoyerInstance();
-    contenusOriginaux = null;
-    estDeplie = false;
 
-    // ── Détection de la locale ────────────────────────────────────────────────
-    // detecterLocale() appelle browser.i18n.getUILanguage() de façon synchrone,
-    // ce qui évite tout round-trip async (et donc tout risque de « Promise rejected
-    // after context unloaded » lors d'une navigation rapide entre messages).
+    document.documentElement._mtSeq = (document.documentElement._mtSeq || 0) + 1;
+    const instanceId = document.documentElement._mtSeq;
+    document.documentElement._mtActiveInstanceId = instanceId;
+
+    /** Map<Text, string> — Sauvegarde des contenus originaux (null si non traduit) */
+    let contenusOriginaux = null;
+    /** Indique si le bandeau est actuellement déplié */
+    let estDeplie = false;
+    /** Indique si l'utilisateur a modifié manuellement la langue cible */
+    let cibleModifieeParUtilisateur = false;
+    /** Indique si getConfig a répondu au moins une fois */
+    let configChargee = false;
+
+    const timersActifs = new Set();
+    const planifierTimer = (fn, delai) => {
+      const id = setTimeout(() => {
+        timersActifs.delete(id);
+        fn();
+      }, delai);
+      timersActifs.add(id);
+      return id;
+    };
+
     LOCALE = detecterLocale();
 
     const ui = construireUI();
 
     let aPermissionMoteur = true;
+    let estMoteurConfigure = true;
     let consentementRequis = false;
     let origineRequise = "";
     let autoTraduire1Clic = false;
@@ -1236,6 +1409,22 @@
     let langueAlternance = "none";
     let cibleAvantAlternance = null;
     let sourceAvantAlternance = null;
+    let traductionEnCours = false;
+
+    const synchroniserEtatBoutonTraduire = () => {
+      if (traductionEnCours) return;
+      if (consentementRequis) {
+        ui.btnTraduire.disabled = true;
+        ui.btnTraduire.setAttribute("aria-disabled", "true");
+      } else {
+        ui.btnTraduire.disabled = false;
+        ui.btnTraduire.removeAttribute("aria-disabled");
+      }
+    };
+
+    ui.selectCible.addEventListener("change", () => {
+      cibleModifieeParUtilisateur = true;
+    });
 
     const languesSontEquivalentes = (l1, l2) => {
       if (!l1 || !l2) return false;
@@ -1257,10 +1446,6 @@
     ui.btnConsentOptions.addEventListener("click", ouvrirOptions);
 
     // ── Insertion dans le DOM ────────────────────────────────────────────
-    // On insère le conteneur en tout premier enfant du body pour que le
-    // bandeau apparaisse au-dessus du contenu du message.
-    // Le bandeau est masqué par défaut : l'UI n'apparaît
-    // qu'après un clic sur le bouton barre, le menu, ou le raccourci clavier.
     ui.bandeau.classList.add("mt-hidden");
 
     if (document.body) {
@@ -1269,46 +1454,163 @@
       document.documentElement.insertBefore(ui.conteneur, document.documentElement.firstChild);
     }
 
-    // ── Déplier / replier (Contrôle Manuel Exclusif) ─────────────────────
-    const deplier = () => {
+    // ── Déplier / replier ────────────────────────────────────────────────
+    const deplier = ({ focus = true } = {}) => {
       estDeplie = true;
       ui.bandeau.classList.remove("mt-hidden");
-      ui.selectSource.focus();
+      if (focus) {
+        if (consentementRequis && ui.btnConsentAccept) {
+          ui.btnConsentAccept.focus();
+        } else {
+          ui.selectSource.focus();
+        }
+      }
     };
 
-    const replier = () => {
+    const replier = ({ restaurerFocus = false } = {}) => {
       estDeplie = false;
       ui.bandeau.classList.add("mt-hidden");
+      if (restaurerFocus && document.body) {
+        try {
+          const avaitTabindex = document.body.hasAttribute("tabindex");
+          if (!avaitTabindex) {
+            document.body.setAttribute("tabindex", "-1");
+          }
+          document.body.focus({ preventScroll: true });
+          if (!avaitTabindex) {
+            document.body.removeAttribute("tabindex");
+          }
+        } catch { /* ignorer */ }
+      }
     };
 
-    // Le logo [MT] dans le bandeau est cliquable : referme le bandeau.
-    // Même effet que le bouton ▴, mais plus grande zone de clic et plus intuitif.
     ui.logoIcone.addEventListener("click", () => {
-      replier();
+      replier({ restaurerFocus: true });
     });
 
     ui.btnReplier.addEventListener("click", () => {
-      replier();
+      replier({ restaurerFocus: true });
     });
 
-    // [B-A4] Gestion de la touche Escape dans le bandeau : referme le bandeau.
     ui.bandeau.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        replier();
+        replier({ restaurerFocus: true });
       }
     });
 
-    let traductionEnCours = false;
+    // ── Synchronisation réactive de la configuration avec le background ──
+    const actualiserConfig = async () => {
+      try {
+        const res = await browser.runtime.sendMessage({ action: "getConfig" });
+        if (!res || !res.success || document.documentElement._mtActiveInstanceId !== instanceId) {
+          return false;
+        }
+        configChargee = true;
+
+        if (res.uiLanguage) {
+          const langUi = res.uiLanguage.split("-")[0].toLowerCase();
+          if (I18N[langUi] && LOCALE !== langUi) {
+            LOCALE = langUi;
+            ui.conteneur.setAttribute("lang", LOCALE);
+            ui.bandeau.setAttribute("aria-label", t("bannerTitle"));
+            ui.logoIcone.title = t("tooltipCollapse");
+            ui.selectSource.setAttribute("aria-label", t("ariaSelectSource"));
+            ui.selectCible.setAttribute("aria-label", t("ariaSelectTarget"));
+            ui.btnTraduire.textContent = contenusOriginaux ? t("btnRetranslate") : t("btnTranslate");
+            ui.btnOriginal.textContent = t("btnOriginal");
+            ui.btnReplier.title = t("tooltipCollapse");
+            ui.btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
+            ui.consentBar.setAttribute("aria-label", t("ariaConsentRegion"));
+            ui.consentText.textContent = t("consentPrompt");
+            ui.spanConsentMyMemory.textContent = t("consentFallbackCheckbox");
+            ui.btnConsentAccept.textContent = t("btnConsentAccept");
+            ui.btnConsentOptions.textContent = t("btnConsentOptions");
+            const optAuto = ui.selectSource.querySelector('option[value="auto"]');
+            if (optAuto) optAuto.textContent = t("autoDetect");
+          }
+          if (!cibleModifieeParUtilisateur && !contenusOriginaux) {
+            let langueCibleTrouvee = null;
+            if (LANGUES.some((l) => l.code === res.uiLanguage)) {
+              langueCibleTrouvee = res.uiLanguage;
+            } else if (LANGUES.some((l) => l.code === langUi)) {
+              langueCibleTrouvee = langUi;
+            }
+            if (langueCibleTrouvee) {
+              ui.selectCible.value = langueCibleTrouvee;
+            }
+          }
+        }
+
+        if (res.alternateTarget) {
+          langueAlternance = res.alternateTarget;
+        }
+        if (res.autoTranslateOnClick !== undefined) {
+          autoTraduire1Clic = Boolean(res.autoTranslateOnClick);
+        }
+        if (res.autoTranslateOnOpen !== undefined) {
+          autoTranslateOnOpen = Boolean(res.autoTranslateOnOpen);
+          autoTranslateMode = res.autoTranslateMode || "all_foreign";
+          autoTranslateLangs = Array.isArray(res.autoTranslateLangs) ? res.autoTranslateLangs : [];
+        }
+
+        if (res.consentRequired || res.provider === "none") {
+          consentementRequis = true;
+          estMoteurConfigure = false;
+          ui.consentBar.classList.remove("mt-hidden");
+          ui.badgeDot.classList.add("is-warning");
+          ui.badgeMoteurLabel.textContent = t("badgeUnconfigured");
+          ui.badgeMoteur.title = t("errorConsentRequired");
+          ui.badgeMoteur.setAttribute("aria-label", t("errorConsentRequired"));
+        } else {
+          consentementRequis = false;
+          estMoteurConfigure = res.isConfigured !== false;
+          ui.consentBar.classList.add("mt-hidden");
+          const nomLabel = res.providerLabel || "Google";
+          const nomComplet = res.providerNom || nomLabel;
+          ui.badgeMoteurLabel.textContent = nomLabel;
+
+          if (res.hasPermission === false) {
+            aPermissionMoteur = false;
+            origineRequise = res.requiredOrigin || "";
+            ui.badgeDot.classList.add("is-warning");
+            ui.badgeMoteur.title = t("badgePermWarningTitle", { provider: nomComplet });
+            ui.badgeMoteur.setAttribute("aria-label", t("badgePermWarningAria", { provider: nomComplet }));
+          } else if (!estMoteurConfigure) {
+            aPermissionMoteur = true;
+            origineRequise = "";
+            ui.badgeDot.classList.add("is-warning");
+            ui.badgeMoteur.title = t("badgeKeyWarningTitle", { provider: nomComplet });
+            ui.badgeMoteur.setAttribute("aria-label", t("badgeKeyWarningAria", { provider: nomComplet }));
+          } else {
+            aPermissionMoteur = true;
+            origineRequise = "";
+            ui.badgeDot.classList.remove("is-warning");
+            ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomComplet });
+            ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomComplet }));
+          }
+        }
+
+        synchroniserEtatBoutonTraduire();
+        return true;
+      } catch {
+        return false;
+      }
+    };
 
     const lancerTraduction = async (options = {}) => {
       if (traductionEnCours) return;
       const replierApres = Boolean(options && options.replierApres);
       const isAutoOnOpen = Boolean(options && options.isAutoOnOpen);
 
-      if (!estDeplie && !replierApres) deplier();
+      // Re-synchronisation de l'état si nécessaire (ex. retour depuis setup.html ou options.html)
+      if (!configChargee || consentementRequis || !aPermissionMoteur || !estMoteurConfigure) {
+        await actualiserConfig();
+        if (document.documentElement._mtActiveInstanceId !== instanceId) return;
+      }
 
-      // [Mi-R2] Guard : document.body peut être null si Thunderbird n'a pas fini de charger.
+      if (!estDeplie && !replierApres) deplier({ focus: !isAutoOnOpen });
+
       if (!document.body) {
         afficherStatut(ui.statut, t("errorNoText"), "error");
         return;
@@ -1316,8 +1618,11 @@
 
       // Garde-fou Opt-In ATN : afficher la barre de consentement si aucun moteur n'est configuré
       if (consentementRequis) {
-        if (ui.consentBar) ui.consentBar.classList.remove("mt-hidden");
+        ui.consentBar.classList.remove("mt-hidden");
         afficherStatut(ui.statut, t("errorConsentRequired"), "error");
+        if (!isAutoOnOpen && ui.btnConsentAccept) {
+          ui.btnConsentAccept.focus();
+        }
         return;
       }
 
@@ -1328,13 +1633,18 @@
         return;
       }
 
-      const source = ui.selectSource.value;
+      // Signalement explicite si la clé d'API manque
+      if (!estMoteurConfigure) {
+        afficherStatut(ui.statut, t("errorUnauthorized"), "error");
+        return;
+      }
+
+      let source = ui.selectSource.value;
       let cible  = ui.selectCible.value;
       let utiliseAlternance = false;
       let traductionsAppliquees = false;
 
       // ── Validation & Alternance directe si source explicite == cible ──────
-      // [Sécurité Zéro-Clic] L'alternance vers alternateTarget est strictement désactivée en automatique
       if (!isAutoOnOpen && languesSontEquivalentes(source, cible)) {
         if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, source)) {
           if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
@@ -1362,8 +1672,6 @@
       }
 
       // ── Verrouillage de l'interface pendant la traduction ─────────────
-      // [B-A3] Utilisation d'aria-busy + aria-disabled + disabled :
-      // le bouton annonce l'état de chargement et prévient tout double-clic concurrent.
       traductionEnCours = true;
       ui.btnTraduire.disabled  = true;
       ui.btnOriginal.disabled  = true;
@@ -1386,9 +1694,9 @@
         let SENTINEL;
         do {
           SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
-        } while (textContentTotal.includes(SENTINEL));
+        } while (textContentTotal.toUpperCase().includes(SENTINEL.toUpperCase()));
         const SEPARATEUR = "\n" + SENTINEL + "\n";
-        const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "g");
+        const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "gi");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         const TAILLE_MAX_LOT = 4000;
@@ -1421,28 +1729,24 @@
         // ── Traduction lot par lot ──────────────────────────────────────
         const traductions = new Map();
         let echecsNoeuds = 0;
+        let derniereErreurNoeud = null;
 
         for (let i = 0; i < lots.length; i++) {
           const lot = lots[i];
 
-          // [M-R2] Guard d'instance : si l'utilisateur a navigué vers un autre e-mail
-          // pendant la traduction, on stoppe immédiatement sans écrire dans le DOM.
           if (document.documentElement._mtActiveInstanceId !== instanceId) break;
 
-          // Indicateur de progression (seulement s'il y a plusieurs lots).
           if (lots.length > 1) {
             afficherStatut(ui.statut, t("statusTranslatingChunk", { i: i + 1, n: lots.length }), "loading");
           }
 
           // ── Nœud unique très long (> limite) : sous-découpage ───────────
-          // Sans cela, l'API tronque silencieusement et l'original serait détruit.
           if (lot.noeuds.length === 1 && lot.texte.length > TAILLE_MAX_LOT) {
             const entree = lot.noeuds[0];
             const morceaux = [];
             const segments = decouperLong(lot.texte, TAILLE_MAX_LOT);
             for (let sIdx = 0; sIdx < segments.length; sIdx++) {
               const seg = segments[sIdx];
-              // [M-R2] Guard intra-lot : vérification à chaque segment du sous-découpage.
               if (document.documentElement._mtActiveInstanceId !== instanceId) break;
               let r = await demanderTraduction(seg, source, cible);
               if (r.detectedLang) derniereLangDetectee = r.detectedLang;
@@ -1453,24 +1757,24 @@
                   if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
                   if (!sourceAvantAlternance) sourceAvantAlternance = ui.selectSource.value;
                   cible = source;
+                  source = derniereLangDetectee;
                   utiliseAlternance = true;
                   ui.selectCible.value = cible;
-                  ui.selectSource.value = derniereLangDetectee;
-                  r = await demanderTraduction(seg, derniereLangDetectee, cible);
+                  ui.selectSource.value = source;
+                  r = await demanderTraduction(seg, source, cible);
                   if (r.detectedLang) derniereLangDetectee = r.detectedLang;
                 } else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
                   if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
                   cible = langueAlternance;
+                  source = derniereLangDetectee;
                   utiliseAlternance = true;
                   ui.selectCible.value = cible;
-                  r = await demanderTraduction(seg, derniereLangDetectee, cible);
+                  r = await demanderTraduction(seg, source, cible);
                   if (r.detectedLang) derniereLangDetectee = r.detectedLang;
                 }
               }
               morceaux.push(r.text);
             }
-            // [M-R5] Suppression du .trim() final : préserve les \n de tête/fin des e-mails
-            // en texte brut (<pre>). Les espaces extérieurs sont gérés par entree.lead/.trail.
             traductions.set(entree.noeud, entree.lead + morceaux.join("") + entree.trail);
             continue;
           }
@@ -1483,62 +1787,54 @@
 
           // Inversion de sens ou bascule d'alternance si le texte est déjà dans la langue cible (mode manuel uniquement)
           if (!isAutoOnOpen && i === 0 && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
-            // Cas 1 : source explicite différente de la cible -> inversion directe vers la source !
             if (source !== "auto" && !languesSontEquivalentes(source, cible)) {
               if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
               if (!sourceAvantAlternance) sourceAvantAlternance = ui.selectSource.value;
               cible = source;
+              source = derniereLangDetectee;
               utiliseAlternance = true;
               ui.selectCible.value = cible;
-              ui.selectSource.value = derniereLangDetectee;
-              resultat = await demanderTraduction(lot.texte, derniereLangDetectee, cible);
+              ui.selectSource.value = source;
+              resultat = await demanderTraduction(lot.texte, source, cible);
               if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
-            }
-            // Cas 2 : source était "auto" -> repli sur alternateTarget si configuré
-            else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
+            } else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
               if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
               cible = langueAlternance;
+              source = derniereLangDetectee;
               utiliseAlternance = true;
               ui.selectCible.value = cible;
-              resultat = await demanderTraduction(lot.texte, derniereLangDetectee, cible);
+              resultat = await demanderTraduction(lot.texte, source, cible);
               if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
             }
           }
           if (resultat.providerLabel && ui.badgeMoteur) {
-            if (ui.badgeMoteurLabel) {
-              ui.badgeMoteurLabel.textContent = resultat.providerLabel;
-            }
-            ui.badgeMoteur.title = `Moteur actif : ${resultat.providerNom || resultat.providerLabel} (Modifier dans les paramètres)`;
+            const suffixeSecours = resultat.usedFallback ? t("badgeFallbackSuffix") : "";
+            const labelAffiche = resultat.providerLabel + suffixeSecours;
+            const nomAffiche = (resultat.providerNom || resultat.providerLabel) + suffixeSecours;
+            ui.badgeMoteurLabel.textContent = labelAffiche;
+            ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomAffiche });
+            ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomAffiche }));
           }
 
           if (lot.noeuds.length === 1) {
-            // ── Cas nœud unique ─────────────────────────────────────────
-            // On retire tout marqueur résiduel et l'espacement parasite ajouté par Google autour
-            // du cœur, puis on réattache les espaces d'origine du nœud. Les retours à la ligne
-            // INTERNES (e-mails en texte brut) sont conservés (trim n'enlève que l'extérieur).
             const entree = lot.noeuds[0];
             const coeurTraduit = resultat.text.replace(SEPARATEUR_RE, "").trim();
             traductions.set(entree.noeud, entree.lead + coeurTraduit + entree.trail);
           } else {
-            // ── Cas multi-nœuds ─────────────────────────────────────────
-            // On découpe le résultat sur notre séparateur unique et on
-            // réassigne chaque partie au nœud correspondant.
             const parties = resultat.text.split(SEPARATEUR_RE);
             if (parties.length !== lot.noeuds.length) {
               console.warn("[MagicTranslator] Separator mismatch, falling back to node-by-node translation for this chunk", parties.length, lot.noeuds.length);
               for (const entree of lot.noeuds) {
-                // [M-R3] Guards : vérification de l'instance ET de contenusOriginaux avant
-                // chaque nœud (nettoyerInstance() peut avoir mis contenusOriginaux à null
-                // entre deux await successifs dans le fallback).
                 if (!contenusOriginaux || document.documentElement._mtActiveInstanceId !== instanceId) break;
                 try {
-                  const origTxt = contenusOriginaux.get(entree.noeud);
+                  const origTxt = contenusOriginaux.get(entree.noeud) || "";
                   const res = await demanderTraduction(origTxt.trim(), source, cible);
                   traductions.set(entree.noeud, entree.lead + res.text.trim() + entree.trail);
                 } catch (e) {
                   echecsNoeuds++;
+                  derniereErreurNoeud = e;
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
-                  if (e.message === "RATE_LIMITED" || e.message === "NETWORK") {
+                  if (e.message === "RATE_LIMITED" || e.message === "NETWORK" || e.message === "UNAUTHORIZED" || e.message === "CONSENT_REQUIRED") {
                     throw e;
                   }
                 }
@@ -1553,10 +1849,15 @@
           }
         }
 
-        // ── Écriture atomique dans le DOM (tous les lots ont abouti) ──────
         if (document.documentElement._mtActiveInstanceId !== instanceId) {
           return;
         }
+
+        if (traductions.size === 0 && echecsNoeuds > 0) {
+          throw derniereErreurNoeud || new Error("SERVICE_UNAVAILABLE");
+        }
+
+        // ── Écriture atomique dans le DOM (tous les lots ont abouti) ──────
         traductions.forEach((texte, noeud) => {
           noeud.textContent = texte;
         });
@@ -1568,17 +1869,15 @@
         } else if (utiliseAlternance) {
           const nomLang = NOMS_LANGUES[cible] || cible;
           afficherStatut(ui.statut, "✓ " + t("statusTranslatedAlternate", { lang: nomLang }), "success");
-        } else if (source === "auto" && derniereLangDetectee && derniereLangDetectee === cible) {
-          // Auto-détection : la langue détectée est déjà la cible → rien d'utile à traduire.
+        } else if (ui.selectSource.value === "auto" && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
           if (isAutoOnOpen) {
-            // [Zéro-Clic] Faux positif résolu silencieusement : repli immédiat et remise à zéro neutre
             contenusOriginaux = null;
             replier();
             return;
           }
           const nomLang = NOMS_LANGUES[cible] || cible;
           afficherStatut(ui.statut, "✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
-        } else if (derniereLangDetectee && source === "auto") {
+        } else if (derniereLangDetectee && ui.selectSource.value === "auto") {
           const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
           afficherStatut(ui.statut, "✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
         } else {
@@ -1594,60 +1893,85 @@
 
       } catch (erreur) {
         console.error("[MagicTranslator] Erreur de traduction :", erreur);
+        if (document.documentElement._mtActiveInstanceId !== instanceId) {
+          return;
+        }
         if (!traductionsAppliquees) {
           contenusOriginaux = null;
         }
+        if (erreur && erreur.message === "CONSENT_REQUIRED") {
+          consentementRequis = true;
+          ui.consentBar.classList.remove("mt-hidden");
+          if (!isAutoOnOpen && ui.btnConsentAccept) {
+            ui.btnConsentAccept.focus();
+          }
+        }
         const cle = ERREURS_CONNUES[erreur.message];
-        const msg = cle ? t(cle) : t("errorGeneric", { msg: erreur.message });
+        const nomMoteur = (ui.badgeMoteurLabel && ui.badgeMoteurLabel.textContent) || "Google";
+        const msg = cle ? t(cle, { provider: nomMoteur }) : t("errorGeneric", { msg: erreur.message });
         afficherStatut(ui.statut, msg, "error");
       } finally {
         // ── Déverrouillage de l'interface ────────────────────────────────
         traductionEnCours = false;
-        ui.btnTraduire.disabled  = false;
-        ui.btnOriginal.disabled  = false;
-        ui.selectSource.disabled = false;
-        ui.selectCible.disabled  = false;
-        ui.btnTraduire.removeAttribute("aria-busy");
-        ui.btnTraduire.removeAttribute("aria-disabled");
-        if (estDeplie) {
-          ui.btnTraduire.focus();
+        if (document.documentElement._mtActiveInstanceId === instanceId) {
+          ui.btnOriginal.disabled  = false;
+          ui.selectSource.disabled = false;
+          ui.selectCible.disabled  = false;
+          ui.btnTraduire.removeAttribute("aria-busy");
+          synchroniserEtatBoutonTraduire();
+          if (estDeplie && !isAutoOnOpen && !consentementRequis) {
+            ui.btnTraduire.focus();
+          }
         }
       }
     };
 
     // ── Bouton « Traduire » ─────────────────────────────────────────────
-    ui.btnTraduire.addEventListener("click", lancerTraduction);
+    ui.btnTraduire.addEventListener("click", () => {
+      lancerTraduction();
+    });
 
     // ── Bouton d'activation 1-clic du filet de sécurité (Opt-In inline) ──
-    ui.btnConsentAccept.addEventListener("click", () => {
-      browser.runtime.sendMessage({
-        action: "acceptDefaultProvider",
-        enableMyMemoryFallback: true
-      }).then((res) => {
+    ui.btnConsentAccept.addEventListener("click", async () => {
+      if (ui.btnConsentAccept.disabled) return;
+      ui.btnConsentAccept.disabled = true;
+      try {
+        const autoriserRelais = Boolean(ui.chkConsentMyMemory && ui.chkConsentMyMemory.checked);
+        const res = await browser.runtime.sendMessage({
+          action: "acceptDefaultProvider",
+          enableMyMemoryFallback: autoriserRelais
+        });
         if (res && res.success) {
           consentementRequis = false;
+          estMoteurConfigure = true;
           aPermissionMoteur = true;
-          if (ui.consentBar) ui.consentBar.classList.add("mt-hidden");
-          if (ui.badgeDot) ui.badgeDot.classList.remove("is-warning");
-          if (ui.badgeMoteurLabel) ui.badgeMoteurLabel.textContent = res.providerLabel || "Google";
-          if (ui.badgeMoteur) {
-            ui.badgeMoteur.title = "Moteur actif : Google Translate (Modifier dans les paramètres)";
-          }
-          lancerTraduction();
+          ui.consentBar.classList.add("mt-hidden");
+          ui.badgeDot.classList.remove("is-warning");
+          const labelMoteur = res.providerLabel || "Google";
+          const nomMoteur = res.providerNom || "Google Translate";
+          ui.badgeMoteurLabel.textContent = labelMoteur;
+          ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomMoteur });
+          ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomMoteur }));
+          synchroniserEtatBoutonTraduire();
+          await lancerTraduction();
+        } else {
+          afficherStatut(ui.statut, t("errorServiceUnavailable"), "error");
         }
-      }).catch(() => {});
+      } catch {
+        afficherStatut(ui.statut, t("errorServiceUnavailable"), "error");
+      } finally {
+        ui.btnConsentAccept.disabled = false;
+      }
     });
 
     // ── Bouton « Original » — restauration du texte d'origine ───────────
     ui.btnOriginal.addEventListener("click", () => {
       if (traductionEnCours || !contenusOriginaux) return;
 
-      // Restauration de chaque nœud texte à son contenu original
       contenusOriginaux.forEach((texte, noeud) => {
         noeud.textContent = texte;
       });
 
-      // Rétablissement de la langue cible originale si une alternance avait eu lieu
       if (cibleAvantAlternance) {
         ui.selectCible.value = cibleAvantAlternance;
         cibleAvantAlternance = null;
@@ -1657,200 +1981,118 @@
         sourceAvantAlternance = null;
       }
 
-      // Réinitialisation de l'état
       contenusOriginaux = null;
       ui.btnOriginal.classList.add("mt-hidden");
       ui.btnTraduire.textContent = t("btnTranslate");
       afficherStatut(ui.statut, "", "");
-      ui.statut.classList.add("mt-hidden");
       ui.btnTraduire.focus();
     });
 
-    // ── Raccourci clavier ─────────────────────────────────────────────────
-    // Le raccourci (Alt+Shift+T par défaut, remappable) est déclaré dans le manifest
-    // (clé `commands`) et géré par background.js, qui envoie « toggleBanner ». Cela
-    // évite le conflit avec « rouvrir l'onglet » (Ctrl+Shift+T) et le rend visible et
-    // reconfigurable dans les paramètres de Thunderbird.
-
     // ── Écoute du message "toggleBanner" envoyé par background.js ─────────
-    // Déclenché par le clic sur le bouton barre (message_display_action)
-    // ou par le menu clic droit sur ce même bouton.
     const gererMessageBg = (message) => {
       if (message && message.action === "toggleBanner") {
         if (message.alternateTarget && message.alternateTarget !== "none") {
           langueAlternance = message.alternateTarget;
         }
         if (estDeplie) {
-          replier();
+          replier({ restaurerFocus: true });
         } else {
-          deplier();
-          // Traduire automatiquement seulement si le message n'est pas déjà traduit (!contenusOriginaux)
-          if ((message.autoTranslate || autoTraduire1Clic) && !contenusOriginaux) {
-            setTimeout(() => {
-              if (estDeplie && !traductionEnCours && !contenusOriginaux && document.documentElement._mtActiveInstanceId === instanceId) {
-                lancerTraduction();
-              }
-            }, 60);
-          }
+          actualiserConfig().then(() => {
+            if (document.documentElement._mtActiveInstanceId !== instanceId) return;
+            deplier({ focus: true });
+            if ((message.autoTranslate || autoTraduire1Clic) && !contenusOriginaux && !consentementRequis) {
+              planifierTimer(() => {
+                if (estDeplie && !traductionEnCours && !contenusOriginaux && document.documentElement._mtActiveInstanceId === instanceId) {
+                  lancerTraduction();
+                }
+              }, 60);
+            }
+          });
         }
+      }
+    };
+
+    // ── Écoute des changements de configuration en temps réel (storage.onChanged) ──
+    const gererChangementStorage = (changements, zone) => {
+      if (zone !== "local") return;
+      if (
+        changements.provider ||
+        changements.deeplApiKey ||
+        changements.geminiApiKey ||
+        changements.llmApiKey ||
+        changements.llmPreset ||
+        changements.llmBaseUrl ||
+        changements.libretranslateUrl ||
+        changements.alternateTarget ||
+        changements.autoTranslateOnClick ||
+        changements.autoTranslateOnOpen
+      ) {
+        actualiserConfig();
       }
     };
 
     document.documentElement._mtMessageListener = gererMessageBg;
     browser.runtime.onMessage.addListener(gererMessageBg);
-
-    // ── Actualisation de la configuration & Mode Zéro-Clic ───────────────
-    const chargerConfigEtInitialiser = () => {
-      try {
-        browser.runtime.sendMessage({ action: "getConfig" })
-          .then((res) => {
-            if (res && res.success && ui.badgeMoteur) {
-              // 1. Synchronisation de la langue UI de Thunderbird et de la cible par défaut
-              if (res.uiLanguage) {
-                const langUi = res.uiLanguage.split("-")[0].toLowerCase();
-                if (I18N[langUi] && LOCALE !== langUi) {
-                  LOCALE = langUi;
-                  if (ui.selectSource) ui.selectSource.setAttribute("aria-label", t("labelFrom"));
-                  if (ui.selectCible) ui.selectCible.setAttribute("aria-label", t("labelTo"));
-                  if (ui.btnTraduire) ui.btnTraduire.textContent = t("btnTranslate");
-                  if (ui.btnOriginal) ui.btnOriginal.textContent = t("btnOriginal");
-                  if (ui.btnReplier) {
-                    ui.btnReplier.title = t("tooltipCollapse");
-                    ui.btnReplier.setAttribute("aria-label", t("tooltipCollapse"));
-                  }
-                  if (ui.consentText) ui.consentText.textContent = t("consentPrompt");
-                  if (ui.btnConsentAccept) ui.btnConsentAccept.textContent = t("btnConsentAccept");
-                  if (ui.btnConsentOptions) ui.btnConsentOptions.textContent = t("btnConsentOptions");
-                  const optAuto = ui.selectSource ? ui.selectSource.querySelector('option[value="auto"]') : null;
-                  if (optAuto) optAuto.textContent = t("autoDetect");
-                }
-                let langueCibleTrouvee = null;
-                if (LANGUES.some((l) => l.code === res.uiLanguage)) {
-                  langueCibleTrouvee = res.uiLanguage;
-                } else if (LANGUES.some((l) => l.code === langUi)) {
-                  langueCibleTrouvee = langUi;
-                }
-                if (langueCibleTrouvee && ui.selectCible) {
-                  ui.selectCible.value = langueCibleTrouvee;
-                }
-              }
-
-              if (res.alternateTarget) {
-                langueAlternance = res.alternateTarget;
-              }
-              if (res.autoTranslateOnClick !== undefined) {
-                autoTraduire1Clic = Boolean(res.autoTranslateOnClick);
-              }
-
-              if (res.consentRequired || res.provider === "none") {
-                consentementRequis = true;
-                if (ui.consentBar) ui.consentBar.classList.remove("mt-hidden");
-                ui.badgeDot.classList.add("is-warning");
-                if (ui.badgeMoteurLabel) ui.badgeMoteurLabel.textContent = t("badgeUnconfigured");
-                ui.badgeMoteur.title = t("errorConsentRequired");
-                ui.badgeMoteur.setAttribute("aria-label", t("errorConsentRequired"));
-              } else {
-                consentementRequis = false;
-                if (ui.consentBar) ui.consentBar.classList.add("mt-hidden");
-                const nomLabel = res.providerLabel || "Google";
-                const nomComplet = res.providerNom || nomLabel;
-                if (ui.badgeMoteurLabel) {
-                  ui.badgeMoteurLabel.textContent = nomLabel;
-                }
-                if (res.hasPermission === false) {
-                  aPermissionMoteur = false;
-                  origineRequise = res.requiredOrigin;
-                  ui.badgeDot.classList.add("is-warning");
-                  ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (⚠️ Accès réseau requis — Cliquez pour ouvrir les réglages)`;
-                  ui.badgeMoteur.setAttribute("aria-label", `Accès réseau requis pour ${nomComplet}`);
-                } else {
-                  aPermissionMoteur = true;
-                  origineRequise = "";
-                  ui.badgeDot.classList.remove("is-warning");
-                  ui.badgeMoteur.title = `Moteur actif : ${nomComplet} (Modifier dans les paramètres)`;
-                  ui.badgeMoteur.setAttribute("aria-label", `Paramètres du moteur : ${nomComplet}`);
-                }
-              }
-
-              // Récupération des options Mode Zéro-Clic
-              if (res.autoTranslateOnOpen !== undefined) {
-                autoTranslateOnOpen = Boolean(res.autoTranslateOnOpen);
-                autoTranslateMode = res.autoTranslateMode || "all_foreign";
-                autoTranslateLangs = Array.isArray(res.autoTranslateLangs) ? res.autoTranslateLangs : [];
-              }
-
-              // ── Mode Zéro-Clic (Traduction automatique à l'ouverture) ───────────
-              const tenterAutoTraductionZeroClic = (tentative = 0) => {
-                if (consentementRequis || !autoTranslateOnOpen || !aPermissionMoteur || !document.body || contenusOriginaux) return;
-                if (document.documentElement._mtActiveInstanceId !== instanceId) return;
-
-                // Extraction propre : élimine les styles CSS, scripts et citations imbriquées
-                const texteEchantillon = extraireTextePourDetection(document.body);
-                if (texteEchantillon.length < 35) {
-                  // Le document est peut-être encore en cours de montage initial dans Thunderbird
-                  if (tentative < 3) {
-                    setTimeout(() => tenterAutoTraductionZeroClic(tentative + 1), 150);
-                  }
-                  return;
-                }
-
-                browser.runtime.sendMessage({
-                  action: "detectLanguage",
-                  text: texteEchantillon.slice(0, 1500)
-                }).then((detectRes) => {
-                  if (document.documentElement._mtActiveInstanceId !== instanceId || contenusOriginaux) return;
-
-                  if (detectRes && detectRes.success && detectRes.lang) {
-                    const cibleActuelle = ui.selectCible.value;
-
-                    // 1. Seuil de fiabilité strict pour le mode automatique :
-                    // Exige isReliable === true ET un score d'au moins 80% (0 appel réseau en cas d'ambiguïté)
-                    const estFortementFiable = Boolean(detectRes.isReliable) && (detectRes.percentage >= 80);
-                    if (!estFortementFiable) return;
-
-                    // 2. Veto anti-faux positif : si la langue de l'utilisateur (cibleActuelle) apparaît
-                    // dans les langues détectées avec un score >= 15%, on s'abstient immédiatement !
-                    const listeLangues = Array.isArray(detectRes.languages) ? detectRes.languages : [];
-                    const contientLangueUtilisateur = listeLangues.some(
-                      (l) => languesSontEquivalentes(l.lang, cibleActuelle) && l.percentage >= 15
-                    );
-                    if (contientLangueUtilisateur) return;
-
-                    const langDetectee = detectRes.lang;
-
-                    // 3. Si l'e-mail n'est pas déjà dans la langue cible
-                    if (!languesSontEquivalentes(langDetectee, cibleActuelle)) {
-                      let doitTraduire = false;
-                      if (autoTranslateMode === "selected") {
-                        doitTraduire = autoTranslateLangs.some((l) => languesSontEquivalentes(l, langDetectee));
-                      } else {
-                        // "all_foreign" : toute langue étrangère
-                        doitTraduire = true;
-                      }
-
-                      if (doitTraduire && document.documentElement._mtActiveInstanceId === instanceId && !contenusOriginaux) {
-                        lancerTraduction({ isAutoOnOpen: true });
-                      }
-                    }
-                  }
-                }).catch(() => {});
-              };
-
-              if (autoTranslateOnOpen && aPermissionMoteur) {
-                tenterAutoTraductionZeroClic();
-              }
-            }
-          })
-          .catch(() => {});
-      } catch { /* contexte non disponible */ }
+    if (browser.storage && browser.storage.onChanged) {
+      document.documentElement._mtStorageListener = gererChangementStorage;
+      browser.storage.onChanged.addListener(gererChangementStorage);
+    }
+    document.documentElement._mtCleanup = () => {
+      timersActifs.forEach((id) => clearTimeout(id));
+      timersActifs.clear();
     };
 
-    chargerConfigEtInitialiser();
+    // ── Mode Zéro-Clic (Traduction automatique à l'ouverture) ───────────
+    const tenterAutoTraductionZeroClic = (tentative = 0) => {
+      if (consentementRequis || !autoTranslateOnOpen || !aPermissionMoteur || !estMoteurConfigure || !document.body || contenusOriginaux) return;
+      if (document.documentElement._mtActiveInstanceId !== instanceId) return;
+
+      const texteEchantillon = extraireTextePourDetection(document.body);
+      if (texteEchantillon.length < 35) {
+        if (tentative < 3) {
+          planifierTimer(() => tenterAutoTraductionZeroClic(tentative + 1), 150);
+        }
+        return;
+      }
+
+      browser.runtime.sendMessage({
+        action: "detectLanguage",
+        text: texteEchantillon.slice(0, 1500)
+      }).then((detectRes) => {
+        if (document.documentElement._mtActiveInstanceId !== instanceId || contenusOriginaux) return;
+
+        if (detectRes && detectRes.success && detectRes.lang) {
+          const cibleActuelle = ui.selectCible.value;
+          const estFortementFiable = Boolean(detectRes.isReliable) && (detectRes.percentage >= 80);
+          if (!estFortementFiable) return;
+
+          const listeLangues = Array.isArray(detectRes.languages) ? detectRes.languages : [];
+          const contientLangueUtilisateur = listeLangues.some(
+            (l) => languesSontEquivalentes(l.lang, cibleActuelle) && l.percentage >= 15
+          );
+          if (contientLangueUtilisateur) return;
+
+          const langDetectee = detectRes.lang;
+          if (!languesSontEquivalentes(langDetectee, cibleActuelle)) {
+            const doitTraduire = (autoTranslateMode === "selected")
+              ? autoTranslateLangs.some((l) => languesSontEquivalentes(l, langDetectee))
+              : true;
+
+            if (doitTraduire && document.documentElement._mtActiveInstanceId === instanceId && !contenusOriginaux) {
+              lancerTraduction({ isAutoOnOpen: true });
+            }
+          }
+        }
+      }).catch(() => {});
+    };
+
+    actualiserConfig().then((ok) => {
+      if (ok && autoTranslateOnOpen && aPermissionMoteur && estMoteurConfigure && !consentementRequis) {
+        tenterAutoTraductionZeroClic();
+      }
+    });
 
     // ── MutationObserver — filet de sécurité ─────────────────────────────
-    // Si Thunderbird remplace le contenu du body (ou l'élément body lui-même)
-    // sans réinjecter le script, on détecte la disparition de notre conteneur
-    // et on réinitialise proprement.
     const observeur = new MutationObserver(() => {
       if (!document.body || !document.body.contains(ui.conteneur)) {
         observeur.disconnect();
@@ -1860,8 +2102,6 @@
     if (document.body) {
       observeur.observe(document.body, { childList: true });
     }
-    // Observe également document.documentElement pour intercepter le remplacement
-    // complet de l'élément <body> par Thunderbird.
     observeur.observe(document.documentElement, { childList: true });
     document.documentElement._mtObserver = observeur;
   }
@@ -1871,14 +2111,21 @@
   // ═══════════════════════════════════════════════════════════════════════
 
   /**
-   * Supprime l'ancienne instance de l'UI et débranche tous ses écouteurs.
-   * Appelée en début de chaque initialisation et lors du premier chargement.
+   * Supprime l'ancienne instance de l'UI, annule ses timers et débranche tous ses écouteurs.
    */
   function nettoyerInstance() {
+    document.documentElement._mtCleanup?.();
+    document.documentElement._mtCleanup = null;
     document.getElementById("magic-translator-root")?.remove();
     document.documentElement._mtObserver?.disconnect();
+    document.documentElement._mtObserver = null;
     if (document.documentElement._mtMessageListener) {
       browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
+      document.documentElement._mtMessageListener = null;
+    }
+    if (document.documentElement._mtStorageListener && browser.storage && browser.storage.onChanged) {
+      browser.storage.onChanged.removeListener(document.documentElement._mtStorageListener);
+      document.documentElement._mtStorageListener = null;
     }
   }
 
@@ -1887,39 +2134,30 @@
   // ═══════════════════════════════════════════════════════════════════════
 
   /**
-   * Met à jour la zone de statut dans le bandeau.
+   * Met à jour la zone de statut dans le bandeau tout en la gardant présente dans l'arbre ARIA.
    *
    * @param {HTMLElement} el      — Élément DOM du statut
-   * @param {string}      message — Message à afficher (vide = masquer)
+   * @param {string}      message — Message à afficher (vide = masquer visuellement via .is-empty)
    * @param {string}      type    — "loading" | "error" | "success" | ""
    */
   function afficherStatut(el, message, type) {
-    el.classList.remove("error", "success");
+    el.classList.remove("error", "success", "mt-hidden");
     el.textContent = "";
 
     if (!message) {
-      // [M-A4] visibility:hidden préserve la région aria-live dans l'arbre ARIA.
-      // display:none (via .mt-hidden) empêche l'occupation d'espace dans le layout.
-      el.classList.add("mt-hidden");
-      el.style.visibility = "hidden";
+      el.classList.add("is-empty");
       return;
     }
 
-    el.classList.remove("mt-hidden");
-    el.style.visibility = "";
+    el.classList.remove("is-empty");
 
     if (type === "loading") {
-      // [B-A2] Spinner aria-hidden : le spinner est décoratif, le texte suffit
-      // pour l'annonce sonore. aria-hidden évite une double annonce.
       const spinner = document.createElement("span");
       spinner.className = "mt-spinner";
       spinner.setAttribute("aria-hidden", "true");
       el.appendChild(spinner);
       el.appendChild(document.createTextNode(message));
     } else if (type === "error") {
-      // [M-A5] Icône ⚠ dans un <span> visible + span sr-only pour les lecteurs d'écran
-      // qui ignorer les émoji décoratifs (l'information n'est pas véhiculée
-      // uniquement par la couleur, conformité WCAG 1.4.1).
       const icone = document.createElement("span");
       icone.setAttribute("aria-hidden", "true");
       icone.textContent = "⚠ ";

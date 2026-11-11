@@ -11,15 +11,15 @@
   /* ── Thème Clair (par défaut) ────────────────────────────────────────── */
   --mt-bg-page: #f8fafc;
   --mt-bg-card: #ffffff;
-  --mt-bg-privacy: rgba(124, 58, 237, 0.05);
-  --mt-border: #e2e8f0;
-  --mt-border-accent: rgba(124, 58, 237, 0.35);
-  --mt-border-focus: #7c3aed;
+  --mt-bg-privacy: rgba(109, 40, 217, 0.05);
+  --mt-border: #cbd5e1;
+  --mt-border-accent: rgba(109, 40, 217, 0.35);
+  --mt-border-focus: #6d28d9;
   --mt-text-primary: #15141a;
   --mt-text-secondary: #475569;
-  --mt-accent-purple: #7c3aed;
-  --mt-accent-purple-hover: #6d28d9;
-  --mt-accent-purple-dim: rgba(124, 58, 237, 0.1);
+  --mt-accent-purple: #6d28d9;
+  --mt-accent-purple-hover: #5b21b6;
+  --mt-accent-purple-dim: rgba(109, 40, 217, 0.1);
   --mt-badge-text: #5b21b6;
   --mt-btn-sec-bg: #f1f5f9;
   --mt-btn-sec-hover: #e2e8f0;
@@ -28,7 +28,7 @@
   --mt-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
   --mt-success-bg: rgba(16, 185, 129, 0.12);
   --mt-success-text: #065f46;
-  --mt-success-border: rgba(16, 185, 129, 0.35);
+  --mt-success-border: rgba(16, 185, 129, 0.38);
   --mt-radius-sm: 6px;
   --mt-radius-md: 10px;
   --mt-radius-lg: 14px;
@@ -40,23 +40,23 @@
     --mt-bg-page: #1c1b22;
     --mt-bg-card: #2b2a33;
     --mt-bg-privacy: rgba(124, 58, 237, 0.14);
-    --mt-border: rgba(255, 255, 255, 0.12);
+    --mt-border: rgba(255, 255, 255, 0.14);
     --mt-border-accent: rgba(167, 139, 250, 0.45);
-    --mt-border-focus: #a78bfa;
+    --mt-border-focus: #c4b5fd;
     --mt-text-primary: #fbfbfe;
     --mt-text-secondary: #cfcfd8;
-    --mt-accent-purple: #7c3aed;
-    --mt-accent-purple-hover: #8b5cf6;
+    --mt-accent-purple: #6d28d9;
+    --mt-accent-purple-hover: #5b21b6;
     --mt-accent-purple-dim: rgba(124, 58, 237, 0.25);
     --mt-badge-text: #ddd6fe;
     --mt-btn-sec-bg: #383740;
     --mt-btn-sec-hover: #484752;
-    --mt-btn-sec-border: rgba(255, 255, 255, 0.16);
+    --mt-btn-sec-border: rgba(255, 255, 255, 0.18);
     --mt-btn-sec-text: #fbfbfe;
     --mt-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     --mt-success-bg: rgba(16, 185, 129, 0.18);
     --mt-success-text: #6ee7b7;
-    --mt-success-border: rgba(16, 185, 129, 0.4);
+    --mt-success-border: rgba(16, 185, 129, 0.42);
   }
 }
 
@@ -182,7 +182,7 @@ html, body {
 /* ── GRILLE DES CHOIX ── */
 .mt-choices-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 18px;
 }
 
@@ -261,6 +261,11 @@ html, body {
   cursor: pointer;
 }
 
+.mt-checkbox-row input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--mt-border-focus);
+  outline-offset: 2px;
+}
+
 .mt-checkbox-text {
   font-size: 12.5px;
   color: var(--mt-text-primary);
@@ -305,18 +310,24 @@ html, body {
   outline-offset: 2px;
 }
 
-.mt-btn:active {
+.mt-btn:active:not(:disabled) {
   transform: scale(0.99);
 }
 
+.mt-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .mt-btn-primary {
-  background: var(--mt-accent-purple);
+  background: linear-gradient(135deg, #6d28d9, #4338ca);
   color: #ffffff;
   border: 1px solid transparent;
 }
 
-.mt-btn-primary:hover {
-  background: var(--mt-accent-purple-hover);
+.mt-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5b21b6, #3730a3);
 }
 
 .mt-btn-secondary {
@@ -325,7 +336,7 @@ html, body {
   border: 1px solid var(--mt-btn-sec-border);
 }
 
-.mt-btn-secondary:hover {
+.mt-btn-secondary:hover:not(:disabled) {
   background: var(--mt-btn-sec-hover);
 }
 
@@ -336,6 +347,7 @@ html, body {
   background: var(--mt-bg-card);
   color: var(--mt-text-primary);
   border: 1px solid var(--mt-border);
+  flex-shrink: 0;
 }
 
 /* ── BANNIÈRE DE CONFIRMATION ── */
@@ -343,6 +355,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 14px;
   padding: 14px 18px;
   border-radius: var(--mt-radius-md);
@@ -352,6 +365,25 @@ html, body {
   font-weight: 600;
 }
 
-.mt-status-banner[hidden] {
+.mt-status-banner.is-empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.mt-btn[hidden] {
   display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

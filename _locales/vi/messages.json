@@ -318,7 +318,7 @@
     "message": "Tự động dịch khi mở thư (Chế độ Không cần nhấp)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Tự động dịch email đến ngay khi mở mà không cần nhấp chuột, và thu gọn vào thanh truy cập nhanh."
+    "message": "Tự động dịch email đến ngay khi mở mà không cần nhấp chuột, sau đó thu gọn gọn gàng thanh dịch."
   },
   "optModeAllForeign": {
     "message": "Tất cả email không phải bằng ngôn ngữ đích của tôi"
@@ -363,7 +363,7 @@
     "message": "Chưa có công cụ dịch nào được bật. Việc dịch sẽ gửi văn bản tới nhà cung cấp đã chọn:"
   },
   "composeBtnConsentAccept": {
-    "message": "✓ Bật Google (+ MyMemory) & dịch"
+    "message": "✓ Bật Google & dịch"
   },
   "composeBtnConsentOptions": {
     "message": "⚙️ Công cụ khác…"
@@ -433,5 +433,80 @@
   },
   "setupBtnCloseTab": {
     "message": "Đóng thẻ này"
+  },
+  "consentFallbackCheckbox": {
+    "message": "Cho phép dùng MyMemory dự phòng nếu Google bị quá tải"
+  },
+  "composeAriaConsentSection": {
+    "message": "Đồng ý chọn công cụ dịch"
+  },
+  "composeAriaLangSection": {
+    "message": "Chọn ngôn ngữ"
+  },
+  "composeAriaScopeSection": {
+    "message": "Phạm vi dịch"
+  },
+  "composeMagicSoftsTooltip": {
+    "message": "Khám phá bộ ứng dụng magic-softs"
+  },
+  "composeBadgePermWarningTitle": {
+    "message": "Thiếu quyền mạng cho {provider} — Nhấp để cấu hình"
+  },
+  "composeBadgeKeyWarningTitle": {
+    "message": "Chưa cấu hình khóa API cho {provider} — Nhấp để cấu hình"
+  },
+  "composeBadgeActiveTitle": {
+    "message": "Công cụ đang bật: {provider}"
+  },
+  "composeBadgeFallbackSuffix": {
+    "message": "dự phòng"
+  },
+  "composeSelectionCountSingular": {
+    "message": "({count} ký tự)"
+  },
+  "composeSelectionCountPlural": {
+    "message": "({count} ký tự)"
+  },
+  "composeStatusRestoreError": {
+    "message": "Không thể khôi phục thư gốc."
+  },
+  "errorUnauthorized": {
+    "message": "Yêu cầu không được phép."
+  },
+  "ariaShowKey": {
+    "message": "Hiện khóa API"
+  },
+  "ariaHideKey": {
+    "message": "Ẩn khóa API"
+  },
+  "legendZeroClickMode": {
+    "message": "Phạm vi chế độ Không cần nhấp"
+  },
+  "btnRefreshingModels": {
+    "message": "⏳ Đang tải…"
+  },
+  "statusGeminiModelsSynced": {
+    "message": "✓ Đã đồng bộ thành công {count} mô hình Gemini!"
+  },
+  "helpGeminiModelsSynced": {
+    "message": "✓ Đã đồng bộ {count} mô hình khả dụng với Google AI Studio."
+  },
+  "errorGeminiModelsSync": {
+    "message": "⚠️ Lỗi đồng bộ: {error}"
+  },
+  "errorInvalidUrl": {
+    "message": "URL đã nhập không hợp lệ."
+  },
+  "errorPermissionDenied": {
+    "message": "Quyền mạng bị từ chối. Hãy cấp quyền truy cập tên miền để tiếp tục."
+  },
+  "errorLoadPreferences": {
+    "message": "Không thể tải tùy chọn."
+  },
+  "setupStatusAlreadyActive": {
+    "message": "✓ Công cụ hiện đang bật: {provider}. Bạn có thể thay đổi lựa chọn bên dưới hoặc đóng thẻ này."
+  },
+  "setupBtnActivatedGoogle": {
+    "message": "✓ Đã bật Google Dịch (cập nhật tùy chọn)"
   }
 }

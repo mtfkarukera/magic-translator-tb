@@ -29,10 +29,16 @@
    * @returns {{lead: string, coeur: string, trail: string}}
    */
   const extraireEspaces = (txt) => {
-    const lead = txt.match(/^\s*/)[0];
-    const trail = txt.match(/\s*$/)[0];
-    const coeur = txt.slice(lead.length, txt.length - trail.length);
-    return { lead, coeur, trail };
+    if (!txt) return { lead: "", coeur: "", trail: "" };
+    const sansTete = txt.trimStart();
+    if (!sansTete) return { lead: txt, coeur: "", trail: "" };
+    const nbLead = txt.length - sansTete.length;
+    const coeur = sansTete.trimEnd();
+    return {
+      lead: txt.slice(0, nbLead),
+      coeur,
+      trail: txt.slice(nbLead + coeur.length)
+    };
   };
 
   /**
@@ -73,7 +79,7 @@
     // Ex: "On Wed, Oct 21... wrote:", "Le 21 oct... a écrit :", "----- Original Message -----"
     const motifsCitationsEntete = [
       /^-{3,}\s*(?:Original Message|Message d'origine)\s*-{3,}/im,
-      /^(?:On|Le)\s+[\w\s,.:\/-]+(?:wrote|a écrit)\s*:/im,
+      /^(?:On|Le)\s+[^\r\n]{1,250}(?:wrote|a écrit)\s*:/im,
       /^From:\s*.*$/im
     ];
     let textePropre = texte;
@@ -93,8 +99,9 @@
     // 3. Supprimer les URLs web complètes
     textePropre = textePropre.replace(/https?:\/\/\S+|www\.\S+/gi, " ");
 
-    // 4. Supprimer les adresses e-mails techniques
+    // 4. Supprimer les adresses e-mails techniques et jetons sentinelles internes
     textePropre = textePropre.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, " ");
+    textePropre = textePropre.replace(/\bMTSEP[0-9a-f]+\b/gi, " ");
 
     // 5. Normaliser les espaces et retours chariots
     return textePropre.replace(/\s+/g, " ").trim();

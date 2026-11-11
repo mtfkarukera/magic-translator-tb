@@ -63,16 +63,36 @@ test("nettoyerTextePourDetection : élimine les URLs et e-mails", () => {
   assert.equal(nettoye, "Consultez pour commander ou écrivez à merci.");
 });
 
-test("nettoyerTextePourDetection : élimine les citations '>' et amorces de thread", () => {
-  const source = `Bonjour Fred,
+test("extraireEspaces : temps linéaire O(N) anti-ReDoS sur grandes suites d'espaces", () => {
+  const piege = " ".repeat(120000) + "x";
+  const debut = Date.now();
+  const r = extraireEspaces(piege);
+  const duree = Date.now() - debut;
+  assert.equal(r.coeur, "x");
+  assert.equal(r.lead.length, 120000);
+  assert.equal(r.trail, "");
+  assert.ok(duree < 100, `extraireEspaces doit rester quasi instantané (${duree}ms)`);
+  assert.deepEqual(extraireEspaces("   "), { lead: "   ", coeur: "", trail: "" });
+});
 
-Voici les informations demandées.
+test("nettoyerTextePourDetection : élimine les citations '>' et amorces de thread (EN & FR accentué)", () => {
+  const source = `Bonjour Alice,
 
-> On Wed, Oct 21, 2026 at 14:55 PM, "Frédéric MOUTOU" <mtfredo@gmail.com> wrote:
-> Bonjour, pouvez-vous m'aider ?
+Voici les informations demandées concernant le dossier.
+
+> On Wed, Oct 21, 2026 at 14:55 PM, "Alice Martin" <alice.martin@example.com> wrote:
+> Hello, could you please help me with this request?
 `;
   const nettoye = nettoyerTextePourDetection(source);
-  assert.equal(nettoye, "Bonjour Fred, Voici les informations demandées.");
+  assert.equal(nettoye, "Bonjour Alice, Voici les informations demandées concernant le dossier.");
+
+  const sourceSansChevron = `Bonjour Claire, voici ma réponse détaillée avant l'historique cité.
+Le mer. 21 oct. 2026 à 14:55, "Claire Bernard" <claire@example.org> a écrit :
+Hello everyone, this long English quoted history must be ignored completely by CLD2.`;
+  assert.equal(
+    nettoyerTextePourDetection(sourceSansChevron),
+    "Bonjour Claire, voici ma réponse détaillée avant l'historique cité."
+  );
 });
 
 test("nettoyerTextePourDetection : gère les chaînes vides ou invalides", () => {

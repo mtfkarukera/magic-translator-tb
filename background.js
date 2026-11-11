@@ -23,42 +23,131 @@
 "use strict";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 1. ENREGISTREMENT DU SCRIPT DE CONTENU
+// 1. CYCLE DE VIE EVENT PAGE MV3 (SCRIPTS, MENUS & PURGE DES CLÉS ORPHELINES)
 // ═══════════════════════════════════════════════════════════════════════════
-// messageDisplay.registerScripts injecte automatiquement translator-injected.js
-// dans chaque message affiché dans le panneau de lecture natif de Thunderbird.
-// L'identifiant "magic-translator-v2" sert de clé unique pour cet enregistrement.
-// Si le script est déjà enregistré (ex: rechargement de l'extension), l'erreur
-// est interceptée silencieusement.
+// En Manifest V3 Thunderbird, l'Event Page s'endort après ~30s d'inactivité et
+// ré-exécute le top-level à chaque réveil. Les opérations lourdes ou destructrices
+// (unregisterScripts/registerScripts, recréation des menus, purge des clés de
+// rédaction) sont donc rattachées aux événements de cycle de vie (onInstalled /
+// onStartup), avec un filet de sécurité léger et non destructif au réveil.
 
-(async function enregistrerScript() {
-  const definition = {
-    id: "magic-translator-v2",
-    js: ["mt-text.js", "translator-injected.js"],
-    runAt: "document_idle"
-  };
-  // On désenregistre d'abord : garantit que la définition À JOUR (ordre + liste de
-  // fichiers) remplace une éventuelle version persistée d'un chargement précédent —
-  // sinon, après une mise à jour, mt-text.js ne serait pas injecté.
+const DEFINITION_SCRIPT_MESSAGE = {
+  id: "magic-translator-v2",
+  js: ["mt-text.js", "translator-injected.js"],
+  runAt: "document_idle"
+};
+
+function obtenirStockageSession() {
+  return (browser.storage && browser.storage.session) ? browser.storage.session : browser.storage.local;
+}
+
+/**
+ * Enregistre ou met à jour la définition des scripts injectés dans messageDisplay.
+ * @param {boolean} [forcerReenregistrement=false]
+ */
+async function assurerScriptsEnregistres(forcerReenregistrement = false) {
   try {
-    await messenger.scripting.messageDisplay.unregisterScripts({ ids: [definition.id] });
+    if (!forcerReenregistrement && browser.scripting.messageDisplay.getRegisteredScripts) {
+      const deja = await browser.scripting.messageDisplay.getRegisteredScripts({
+        ids: [DEFINITION_SCRIPT_MESSAGE.id]
+      });
+      if (Array.isArray(deja) && deja.length > 0) {
+        return;
+      }
+    }
+  } catch { /* repli sur réenregistrement complet */ }
+
+  try {
+    await browser.scripting.messageDisplay.unregisterScripts({ ids: [DEFINITION_SCRIPT_MESSAGE.id] });
   } catch { /* pas encore enregistré — normal au premier chargement */ }
+
   try {
-    await messenger.scripting.messageDisplay.registerScripts([definition]);
+    await browser.scripting.messageDisplay.registerScripts([DEFINITION_SCRIPT_MESSAGE]);
     console.log("[MagicTranslator] Script messageDisplay enregistré.");
   } catch (erreur) {
     console.log("[MagicTranslator] Note registerScripts :", erreur.message || erreur);
   }
+}
 
-  // ── Purge proactive des clés temporaires de session de rédaction orphelines ──
+/**
+ * Recrée proprement et séquentiellement les entrées de menu contextuel.
+ */
+async function initialiserMenusContextuels() {
+  const ids = ["toggle-translator", "open-options", "open-options-compose"];
+  for (const id of ids) {
+    try {
+      await browser.menus.remove(id);
+    } catch { /* absent */ }
+  }
+
   try {
-    const tout = await browser.storage.local.get(null);
-    const clefsASupprimer = Object.keys(tout).filter((k) => k.startsWith("compose_orig_"));
-    if (clefsASupprimer.length > 0) {
-      await browser.storage.local.remove(clefsASupprimer);
+    browser.menus.create({
+      id: "toggle-translator",
+      title: browser.i18n.getMessage("toggleTranslatorTitle"),
+      contexts: ["message_display_action"]
+    });
+    browser.menus.create({
+      id: "open-options",
+      title: browser.i18n.getMessage("menuOptionsTitle") || "Options",
+      contexts: ["message_display_action"]
+    });
+    browser.menus.create({
+      id: "open-options-compose",
+      title: browser.i18n.getMessage("menuOptionsTitle") || "Options",
+      contexts: ["compose_action"]
+    });
+  } catch (err) {
+    console.warn("[MagicTranslator] Note menus.create :", err.message || err);
+  }
+}
+
+/**
+ * Purge uniquement les clés temporaires `compose_orig_<tabId>` dont l'onglet
+ * de rédaction correspondant n'existe plus (sans jamais effacer un brouillon actif).
+ */
+async function purgerClesRedactionOrphelines() {
+  try {
+    const ongletsOuverts = await browser.tabs.query({});
+    const idsOuverts = new Set(ongletsOuverts.map((t) => `compose_orig_${t.id}`));
+
+    const zones = [obtenirStockageSession()];
+    if (zones[0] !== browser.storage.local) {
+      zones.push(browser.storage.local);
+    }
+
+    for (const zone of zones) {
+      const tout = await zone.get(null);
+      const orphelines = Object.keys(tout).filter(
+        (k) => k.startsWith("compose_orig_") && !idsOuverts.has(k)
+      );
+      if (orphelines.length > 0) {
+        await zone.remove(orphelines);
+      }
     }
   } catch { /* ignorer */ }
-})();
+}
+
+/**
+ * Ouvre l'assistant de premier lancement ou active l'onglet existant s'il est déjà ouvert.
+ */
+async function ouvrirOuActiverSetup() {
+  const urlSetup = browser.runtime.getURL("setup/setup.html");
+  try {
+    const onglets = await browser.tabs.query({});
+    const existant = onglets.find((t) => t.url && t.url.startsWith(urlSetup));
+    if (existant && existant.id !== undefined) {
+      await browser.tabs.update(existant.id, { active: true });
+      if (existant.windowId !== undefined && browser.windows && browser.windows.update) {
+        await browser.windows.update(existant.windowId, { focused: true }).catch(() => {});
+      }
+      return;
+    }
+  } catch { /* repli sur création simple */ }
+  await browser.tabs.create({ url: urlSetup });
+}
+
+// Filet léger au réveil de l'Event Page : vérifie que le script est bien enregistré sans rien purger
+assurerScriptsEnregistres(false).catch(() => {});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 2. ENVOI DU MESSAGE "toggleBanner" AVEC SECOURS INJECTION DYNAMIQUE
@@ -79,17 +168,17 @@ async function envoyerToggleBanner(tabId) {
     alternateTarget: config.alternateTarget || "none"
   };
   try {
-    await messenger.tabs.sendMessage(tabId, payload);
+    await browser.tabs.sendMessage(tabId, payload);
   } catch {
     console.log("[MagicTranslator] Le script de contenu ne répond pas. Injection manuelle de secours...");
     try {
-      await messenger.scripting.executeScript({
+      await browser.scripting.executeScript({
         target: { tabId: tabId },
         files: ["mt-text.js", "translator-injected.js"]
       });
       // Petit délai pour laisser le temps au script de s'initialiser et de s'enregistrer
       await new Promise((resolve) => setTimeout(resolve, 60));
-      await messenger.tabs.sendMessage(tabId, payload);
+      await browser.tabs.sendMessage(tabId, payload);
     } catch (errSecours) {
       console.error("[MagicTranslator] Échec de l'injection ou de l'envoi de secours :", errSecours.message || errSecours);
     }
@@ -99,44 +188,16 @@ async function envoyerToggleBanner(tabId) {
 // ═══════════════════════════════════════════════════════════════════════════
 // 3. BOUTON BARRE DE MESSAGE (message_display_action)
 // ═══════════════════════════════════════════════════════════════════════════
-// Un clic sur le bouton [T] dans la barre de message (aux côtés de Répondre,
-// Transférer, etc.) envoie l'action "toggleBanner" au script injecté dans
-// l'onglet courant, qui affiche ou masque le bandeau de traduction.
 
-messenger.messageDisplayAction.onClicked.addListener((tab) => {
+browser.messageDisplayAction.onClicked.addListener((tab) => {
   envoyerToggleBanner(tab.id).catch(console.error);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// 4. ÉCOUTEUR DU MENU CLIC DROIT SUR LE BOUTON BARRE
 // ═══════════════════════════════════════════════════════════════════════════
-// 4. MENU CLIC DROIT SUR LE BOUTON BARRE
-// ═══════════════════════════════════════════════════════════════════════════
-// Un clic droit sur le bouton [T] affiche un menu contextuel permettant
-// d'activer ou de désactiver le bandeau, ou d'ouvrir les options.
 
-messenger.menus.remove("toggle-translator").catch(() => {});
-messenger.menus.remove("open-options").catch(() => {});
-messenger.menus.remove("open-options-compose").catch(() => {});
-
-messenger.menus.create({
-  id: "toggle-translator",
-  title: messenger.i18n.getMessage("toggleTranslatorTitle"),
-  contexts: ["message_display_action"]
-});
-
-messenger.menus.create({
-  id: "open-options",
-  title: messenger.i18n.getMessage("menuOptionsTitle") || "Options",
-  contexts: ["message_display_action"]
-});
-
-messenger.menus.create({
-  id: "open-options-compose",
-  title: messenger.i18n.getMessage("menuOptionsTitle") || "Options",
-  contexts: ["compose_action"]
-});
-
-messenger.menus.onClicked.addListener((info, tab) => {
+browser.menus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "toggle-translator") {
     envoyerToggleBanner(tab.id).catch(console.error);
   } else if (info.menuItemId === "open-options" || info.menuItemId === "open-options-compose") {
@@ -145,17 +206,13 @@ messenger.menus.onClicked.addListener((info, tab) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 5. RACCOURCI CLAVIER (commands)
+// 5. RACCOURCI CLAVIER (commands) & FERMETURE D'ONGLET
 // ═══════════════════════════════════════════════════════════════════════════
-// Le raccourci (Alt+Shift+T par défaut, remappable dans les paramètres de Thunderbird)
-// envoie la même action "toggleBanner" à l'onglet actif. Déclaré dans le manifest sous
-// la clé "commands" — visible et reconfigurable par l'utilisateur, et sans collision avec
-// « rouvrir l'onglet » (Ctrl+Shift+T).
 
-messenger.commands.onCommand.addListener(async (commande) => {
+browser.commands.onCommand.addListener(async (commande) => {
   if (commande !== "toggle-translator") return;
   try {
-    const [onglet] = await messenger.tabs.query({ active: true, currentWindow: true });
+    const [onglet] = await browser.tabs.query({ active: true, currentWindow: true });
     if (onglet) {
       await envoyerToggleBanner(onglet.id);
     }
@@ -165,8 +222,10 @@ messenger.commands.onCommand.addListener(async (commande) => {
 });
 
 // Nettoyage automatique du coffre-fort de rédaction lors de la fermeture d'un onglet/fenêtre
-messenger.tabs.onRemoved.addListener((tabId) => {
-  browser.storage.local.remove(`compose_orig_${tabId}`).catch(() => {});
+browser.tabs.onRemoved.addListener((tabId) => {
+  const cle = `compose_orig_${tabId}`;
+  obtenirStockageSession().remove(cle).catch(() => {});
+  browser.storage.local.remove(cle).catch(() => {});
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -209,19 +268,58 @@ async function chargerConfiguration() {
   }
 }
 
-// Ouverture automatique de l'assistant de premier lancement (Opt-In explicite ATN)
-messenger.runtime.onInstalled.addListener(async (details) => {
+/**
+ * Vérifie si la configuration du moteur choisi possède les identifiants minimums requis.
+ * @param {typeof CONFIG_DEFAUT} config
+ * @returns {boolean}
+ */
+function verifierMoteurConfigure(config) {
+  if (!config || !config.provider || config.provider === "none") {
+    return false;
+  }
+  const f = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
+  if (!f || f.id === "none") {
+    return false;
+  }
+  if (config.provider === "deepl") {
+    return Boolean(config.deeplApiKey && config.deeplApiKey.trim());
+  }
+  if (config.provider === "gemini") {
+    return Boolean(config.geminiApiKey && config.geminiApiKey.trim());
+  }
+  if (config.provider === "llm") {
+    const preset = config.llmPreset || "openai";
+    if (preset === "openai" || preset === "groq" || preset === "mistral") {
+      return Boolean(config.llmApiKey && config.llmApiKey.trim());
+    }
+    if (preset === "custom") {
+      return Boolean(config.llmBaseUrl && config.llmBaseUrl.trim());
+    }
+    return true;
+  }
+  return true;
+}
+
+// Initialisation au démarrage de Thunderbird
+browser.runtime.onStartup.addListener(async () => {
+  await assurerScriptsEnregistres(true);
+  await initialiserMenusContextuels();
+  await purgerClesRedactionOrphelines();
+});
+
+// Initialisation et ouverture automatique de l'assistant au premier lancement (Opt-In explicite ATN)
+browser.runtime.onInstalled.addListener(async (details) => {
+  await assurerScriptsEnregistres(true);
+  await initialiserMenusContextuels();
+  await purgerClesRedactionOrphelines();
+
   try {
     if (details.reason === "install") {
-      await messenger.tabs.create({
-        url: messenger.runtime.getURL("setup/setup.html")
-      });
+      await ouvrirOuActiverSetup();
     } else if (details.reason === "update") {
       const stocke = await browser.storage.local.get(["provider", "onboardingShown"]);
       if ((!stocke.provider || stocke.provider === "none") && !stocke.onboardingShown) {
-        await messenger.tabs.create({
-          url: messenger.runtime.getURL("setup/setup.html")
-        });
+        await ouvrirOuActiverSetup();
       }
     }
   } catch (err) {
@@ -255,12 +353,16 @@ const CODES_ERREURS_CONNUS = new Set([
  * @returns {Promise<{lang: string|null, isReliable: boolean, percentage: number, languages: Array<{lang: string, percentage: number}>}>}
  */
 async function detecterLangueLocale(texte) {
-  if (!texte || typeof texte !== "string" || !texte.trim()) {
+  if (!texte || typeof texte !== "string") {
+    return { lang: null, isReliable: false, percentage: 0, languages: [] };
+  }
+  const texteEpure = texte.replace(/\bMTSEP[0-9a-f]+\b/gi, " ").trim();
+  if (!texteEpure) {
     return { lang: null, isReliable: false, percentage: 0, languages: [] };
   }
   try {
-    if (messenger.i18n && messenger.i18n.detectLanguage) {
-      const res = await messenger.i18n.detectLanguage(texte.slice(0, 1500));
+    if (browser.i18n && browser.i18n.detectLanguage) {
+      const res = await browser.i18n.detectLanguage(texteEpure.slice(0, 1500));
       if (res && Array.isArray(res.languages) && res.languages.length > 0) {
         const premier = res.languages[0];
         const code = (premier.language || "").split("-")[0].toLowerCase();
@@ -292,32 +394,37 @@ async function traiterMessage(message, expediteur) {
   if (!message) return { success: false, error: "INVALID_PAYLOAD" };
 
   // [M-S1] Validation de l'expéditeur : seul notre propre script ou page d'options est autorisé.
-  if (!expediteur || expediteur.id !== messenger.runtime.id) {
+  if (!expediteur || expediteur.id !== browser.runtime.id) {
     return { success: false, error: "UNAUTHORIZED" };
   }
 
-  // ── Action 1 : Demande de configuration active (avec vérification permission réelle) ──
+  const urlOptions = browser.runtime.getURL("options/options.html");
+  const vientDesOptions = Boolean(expediteur.url && expediteur.url.startsWith(urlOptions));
+
+  // ── Action 1 : Demande de configuration active (avec vérification permission & complétude) ──
   if (message.action === "getConfig") {
     const config = await chargerConfiguration();
-    const consentRequired = !config.provider || config.provider === "none";
     const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
+    const consentRequired = !config.provider || config.provider === "none" || fournisseur.id === "none";
+    const isConfigured = !consentRequired && verifierMoteurConfigure(config);
     const requiredOrigin = globalThis.MTProviders.obtenirPatternOrigine(config.provider, config);
-    let hasPermission = true;
+    let hasPermission = !consentRequired && Boolean(requiredOrigin);
     if (!consentRequired && requiredOrigin) {
       try {
-        if (messenger.permissions && messenger.permissions.contains) {
-          hasPermission = await messenger.permissions.contains({ origins: [requiredOrigin] });
+        if (browser.permissions && browser.permissions.contains) {
+          hasPermission = await browser.permissions.contains({ origins: [requiredOrigin] });
         }
       } catch {
-        hasPermission = true;
+        hasPermission = false;
       }
     }
     return {
       success: true,
-      provider: config.provider,
+      provider: consentRequired ? "none" : config.provider,
       providerLabel: fournisseur.label,
       providerNom: fournisseur.nomComplet,
       consentRequired,
+      isConfigured,
       enableMyMemoryFallback: Boolean(config.enableMyMemoryFallback),
       hasPermission: Boolean(hasPermission),
       requiredOrigin,
@@ -327,11 +434,11 @@ async function traiterMessage(message, expediteur) {
       autoTranslateOnOpen: Boolean(config.autoTranslateOnOpen),
       autoTranslateMode: config.autoTranslateMode || "all_foreign",
       autoTranslateLangs: Array.isArray(config.autoTranslateLangs) ? config.autoTranslateLangs : [],
-      uiLanguage: (messenger.i18n && messenger.i18n.getUILanguage) ? messenger.i18n.getUILanguage() : "fr"
+      uiLanguage: (browser.i18n && browser.i18n.getUILanguage) ? browser.i18n.getUILanguage() : "fr"
     };
   }
 
-  // ── Action 1b : Opt-In rapide 1-clic (Google Translate + MyMemory) ────────
+  // ── Action 1b : Opt-In rapide 1-clic (Google Translate + MyMemory optionnel) ──
   if (message.action === "acceptDefaultProvider") {
     const enableFallback = message.enableMyMemoryFallback !== false;
     await browser.storage.local.set({
@@ -344,44 +451,64 @@ async function traiterMessage(message, expediteur) {
       provider: "google",
       providerLabel: "Google",
       providerNom: "Google Translate",
+      isConfigured: true,
       enableMyMemoryFallback: enableFallback
     };
   }
 
-  // ── Action 1c : Ouverture de l'assistant de premier lancement (setup) ─────
+  // ── Action 1c : Ouverture de l'assistant de premier lancement (setup dédupliqué) ──
   if (message.action === "openSetup") {
     try {
-      await messenger.tabs.create({
-        url: messenger.runtime.getURL("setup/setup.html")
-      });
+      await ouvrirOuActiverSetup();
       return { success: true };
-    } catch (err) {
-      return { success: false, error: err.message };
+    } catch {
+      return { success: false, error: "SERVICE_UNAVAILABLE" };
     }
   }
 
-  // ── Action 2 : Test direct de connexion fournisseur (depuis options) ──────
+  // ── Action 2 : Test direct de connexion fournisseur (strictement réservé aux Options) ──
   if (message.action === "testProvider") {
-    return await globalThis.MTProviders.testerConnexion(message.config);
+    if (!vientDesOptions) {
+      return { success: false, error: "UNAUTHORIZED", message: "UNAUTHORIZED" };
+    }
+    const cfgTest = message.config || {};
+    const origineTest = globalThis.MTProviders.obtenirPatternOrigine(cfgTest.provider, cfgTest);
+    if (!origineTest) {
+      return { success: false, message: (!cfgTest.provider || cfgTest.provider === "none") ? "CONSENT_REQUIRED" : "INVALID_PAYLOAD" };
+    }
+    try {
+      if (browser.permissions && browser.permissions.contains) {
+        const permOk = await browser.permissions.contains({ origins: [origineTest] });
+        if (!permOk) {
+          return { success: false, message: "PERMISSION_REQUIRED" };
+        }
+      }
+    } catch {
+      return { success: false, message: "PERMISSION_REQUIRED" };
+    }
+    return await globalThis.MTProviders.testerConnexion(cfgTest);
   }
 
-  // ── Action 2b : Liste dynamique des modèles Google Gemini ────────────────
+  // ── Action 2b : Liste dynamique des modèles Google Gemini (strictement réservé aux Options) ──
   if (message.action === "listGeminiModels") {
+    if (!vientDesOptions) {
+      return { success: false, error: "UNAUTHORIZED", message: "UNAUTHORIZED" };
+    }
     try {
       const models = await globalThis.MTProviders.listerModelesGemini(message.apiKey);
       return { success: true, models };
     } catch (err) {
-      return { success: false, message: err.message || "Impossible de récupérer les modèles." };
+      return { success: false, message: err.message || "SERVICE_UNAVAILABLE" };
     }
   }
 
   // ── Action 2c : Ouverture directe de la page des options ──────────────────
   if (message.action === "openOptions") {
     try {
-      await messenger.runtime.openOptionsPage();
+      await browser.runtime.openOptionsPage();
       return { success: true };
-    } catch (err) {
-      return { success: false, error: err.message };
+    } catch {
+      return { success: false, error: "SERVICE_UNAVAILABLE" };
     }
   }
 
@@ -406,9 +533,10 @@ async function traiterMessage(message, expediteur) {
     }
 
     const config = await chargerConfiguration();
+    const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
 
     // Garde-fou strict Opt-In ATN : aucun appel réseau sans consentement explicite
-    if (!config.provider || config.provider === "none") {
+    if (!config.provider || config.provider === "none" || fournisseur.id === "none") {
       return {
         success: false,
         error: "CONSENT_REQUIRED"
@@ -442,11 +570,23 @@ async function traiterMessage(message, expediteur) {
       plan: config.deeplPlan
     };
 
-    // Vérification préventive des permissions réseau
+    // Vérification préventive des permissions réseau (fail-closed)
     const requiredOrigin = globalThis.MTProviders.obtenirPatternOrigine(config.provider, configProvider);
+    if (!requiredOrigin) {
+      // Vérifie s'il s'agit d'un rejet HTTP non-loopback pour remonter CLEARTEXT_FORBIDDEN
+      const urlCandidate = (url || "").trim();
+      if (urlCandidate) {
+        const checkUrl = globalThis.MTProviders.validerUrlSecurisee(urlCandidate);
+        if (!checkUrl.valide && checkUrl.erreur === "CLEARTEXT_FORBIDDEN") {
+          return { success: false, error: "CLEARTEXT_FORBIDDEN" };
+        }
+      }
+      return { success: false, error: "INVALID_PAYLOAD" };
+    }
+
     try {
-      if (messenger.permissions && messenger.permissions.contains) {
-        const hasPerm = await messenger.permissions.contains({ origins: [requiredOrigin] });
+      if (browser.permissions && browser.permissions.contains) {
+        const hasPerm = await browser.permissions.contains({ origins: [requiredOrigin] });
         if (!hasPerm) {
           return {
             success: false,
@@ -456,7 +596,11 @@ async function traiterMessage(message, expediteur) {
         }
       }
     } catch {
-      // Ignore si non supporté
+      return {
+        success: false,
+        error: "PERMISSION_REQUIRED",
+        requiredOrigin
+      };
     }
 
     // Détection locale préalable si source === "auto"
@@ -474,6 +618,13 @@ async function traiterMessage(message, expediteur) {
       sourceEffective = langueLocaleDetectee;
     }
 
+    // Maintien en éveil de l'Event Page MV3 pendant les requêtes locales longues (jusqu'à 60s)
+    const keepAliveTimer = setInterval(() => {
+      if (browser.runtime && browser.runtime.getPlatformInfo) {
+        browser.runtime.getPlatformInfo().catch(() => {});
+      }
+    }, 20000);
+
     try {
       let res;
       try {
@@ -488,21 +639,28 @@ async function traiterMessage(message, expediteur) {
         }
       }
 
-      const fournisseur = globalThis.MTProviders.obtenirFournisseur(config.provider, config);
       const detectedLangFinal = res.detectedLang || langueLocaleDetectee || null;
+      const providerFinal = res.effectiveProvider || config.provider;
+      const labelFinal = res.effectiveLabel || fournisseur.label;
+      const nomFinal = res.effectiveNom || fournisseur.nomComplet;
 
       return {
         success: true,
         text: res.text,
         detectedLang: detectedLangFinal,
-        provider: config.provider,
-        providerLabel: fournisseur.label
+        provider: providerFinal,
+        configuredProvider: config.provider,
+        usedFallback: Boolean(res.effectiveProvider && res.effectiveProvider !== config.provider),
+        providerLabel: labelFinal,
+        providerNom: nomFinal
       };
     } catch (erreur) {
       return {
         success: false,
         error: CODES_ERREURS_CONNUS.has(erreur.message) ? erreur.message : "SERVICE_UNAVAILABLE"
       };
+    } finally {
+      clearInterval(keepAliveTimer);
     }
   }
 
@@ -512,13 +670,14 @@ async function traiterMessage(message, expediteur) {
 // Écouteur synchrone officiel pour WebExtensions Thunderbird MV3 :
 // La fonction listener n'est pas async, retourne true pour maintenir le canal ouvert,
 // et répond via sendResponse() une fois la promesse résolue.
-messenger.runtime.onMessage.addListener((message, expediteur, sendResponse) => {
+browser.runtime.onMessage.addListener((message, expediteur, sendResponse) => {
   traiterMessage(message, expediteur)
     .then((reponse) => {
       sendResponse(reponse);
     })
     .catch((err) => {
-      sendResponse({ success: false, error: err.message || "SERVICE_UNAVAILABLE" });
+      const code = (err && CODES_ERREURS_CONNUS.has(err.message)) ? err.message : "SERVICE_UNAVAILABLE";
+      sendResponse({ success: false, error: code });
     });
   return true;
 });

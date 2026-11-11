@@ -15,7 +15,7 @@
     }
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src https: http://localhost:* http://127.0.0.1:*"
   },
   "icons": {
     "128": "icon.png"
@@ -62,7 +62,6 @@
   ],
   "host_permissions": [
     "https://translate-pa.googleapis.com/*",
-    "https://translate.googleapis.com/*",
     "https://api.mymemory.translated.net/*",
     "https://api-free.deepl.com/*",
     "https://api.deepl.com/*",

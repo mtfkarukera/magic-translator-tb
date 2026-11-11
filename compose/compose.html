@@ -11,27 +11,31 @@
     <!-- En-tête -->
     <header class="compose-header">
       <div class="compose-brand">
-        <img src="../icon.png" alt="Magic Translator Logo" class="compose-logo" width="24" height="24">
+        <img src="../icon.png" alt="" class="compose-logo" width="24" height="24">
         <h1 class="compose-app-name" data-i18n="extName">Magic Translator</h1>
       </div>
-      <button type="button" id="btn-provider-badge" class="provider-badge" title="Modifier le moteur de traduction" data-i18n-title="composeOpenSettingsTooltip" aria-label="Paramètres du moteur">
-        <span class="provider-dot"></span>
+      <button type="button" id="btn-provider-badge" class="provider-badge" title="Modifier le moteur de traduction" data-i18n-title="composeOpenSettingsTooltip" aria-label="Paramètres du moteur" data-i18n-aria-label="composeOpenSettingsTooltip">
+        <span class="provider-dot" aria-hidden="true"></span>
         <span id="txt-provider-label">Google</span>
         <span class="provider-gear" aria-hidden="true">⚙️</span>
       </button>
     </header>
 
     <!-- Filet de sécurité Opt-In (affiché uniquement si aucun moteur n'est encore activé) -->
-    <section id="consent-banner" class="consent-banner is-hidden" aria-label="Activation du moteur de traduction">
+    <section id="consent-banner" class="consent-banner is-hidden" aria-label="Activation du moteur de traduction" data-i18n-aria-label="composeAriaConsentSection">
       <p class="consent-text" data-i18n="composeConsentPrompt">Aucun moteur n'est encore activé. La traduction envoie le texte au fournisseur choisi :</p>
+      <label class="consent-checkbox-label">
+        <input type="checkbox" id="chk-consent-mymemory" class="consent-checkbox" checked>
+        <span data-i18n="consentFallbackCheckbox">Relais MyMemory en secours</span>
+      </label>
       <div class="consent-actions">
-        <button type="button" id="btn-consent-accept" class="btn-consent-accept" data-i18n="composeBtnConsentAccept">✓ Activer Google (+ MyMemory) et traduire</button>
+        <button type="button" id="btn-consent-accept" class="btn-consent-accept" data-i18n="composeBtnConsentAccept">✓ Activer Google et traduire</button>
         <button type="button" id="btn-consent-options" class="btn-consent-options" data-i18n="composeBtnConsentOptions">⚙️ Autre moteur…</button>
       </div>
     </section>
 
     <!-- Sélecteurs de Langues -->
-    <section class="lang-section" aria-label="Sélection des langues">
+    <section class="lang-section" aria-label="Sélection des langues" data-i18n-aria-label="composeAriaLangSection">
       <div class="lang-field">
         <label for="select-source" class="field-label" data-i18n="composeSourceLangLabel">Source</label>
         <div class="select-wrapper">
@@ -75,7 +79,7 @@
         </div>
       </div>
 
-      <button type="button" id="btn-swap-lang" class="btn-icon-swap" title="Inverser les langues" data-i18n-title="composeSwapLangsTooltip" aria-label="Inverser les langues">
+      <button type="button" id="btn-swap-lang" class="btn-icon-swap" title="Inverser les langues" data-i18n-title="composeSwapLangsTooltip" aria-label="Inverser les langues" data-i18n-aria-label="composeSwapLangsTooltip">
         ⇄
       </button>
 
@@ -123,7 +127,7 @@
     </section>
 
     <!-- Zone Périmètre & Options -->
-    <section class="scope-section" aria-label="Périmètre de traduction">
+    <section class="scope-section" aria-label="Périmètre de traduction" data-i18n-aria-label="composeAriaScopeSection">
       <!-- Bannière de Sélection Détectée (visible uniquement si sélection) -->
       <div id="selection-banner" class="selection-banner is-hidden">
         <div class="selection-badge">
@@ -131,8 +135,8 @@
           <span id="txt-selection-count" class="selection-label" data-i18n="composeSelectionActive">Sélection active</span>
         </div>
         <label class="toggle-control toggle-highlight">
-          <input type="checkbox" id="chk-selection" checked>
-          <span class="toggle-switch"></span>
+          <input type="checkbox" role="switch" id="chk-selection" checked>
+          <span class="toggle-switch" aria-hidden="true"></span>
           <span class="toggle-text" data-i18n="composeTranslateSelectionOnly">Traduire uniquement la sélection</span>
         </label>
       </div>
@@ -140,13 +144,13 @@
       <!-- Options Globales (Objet + Corps) -->
       <div id="global-options" class="global-options">
         <label class="toggle-control">
-          <input type="checkbox" id="chk-subject" checked>
-          <span class="toggle-switch"></span>
+          <input type="checkbox" role="switch" id="chk-subject" checked>
+          <span class="toggle-switch" aria-hidden="true"></span>
           <span class="toggle-text" data-i18n="composeTranslateSubject">Objet (Sujet du message)</span>
         </label>
         <label class="toggle-control">
-          <input type="checkbox" id="chk-body" checked>
-          <span class="toggle-switch"></span>
+          <input type="checkbox" role="switch" id="chk-body" checked>
+          <span class="toggle-switch" aria-hidden="true"></span>
           <span class="toggle-text" data-i18n="composeTranslateBody">Corps du message</span>
         </label>
       </div>
@@ -166,14 +170,15 @@
 
     <!-- Barre d'état & Footer Promotionnel -->
     <footer class="compose-footer">
-      <div id="status-bar" class="status-bar status-ready" role="status" aria-live="polite">
-        <span id="status-indicator" class="status-indicator"></span>
+      <div id="status-bar" class="status-bar status-ready" role="status" aria-live="polite" aria-atomic="true">
+        <span id="status-indicator" class="status-indicator" aria-hidden="true"></span>
         <span id="status-text" class="status-text" data-i18n="composeStatusReady">Prêt</span>
       </div>
-      <a href="https://magic-clipper.mtfk.fr/" target="_blank" rel="noopener noreferrer" class="magic-softs-link" title="Découvrir la suite logicielle magic-softs">magic-softs</a>
+      <a href="https://mtfk.fr/" target="_blank" rel="noopener noreferrer" class="magic-softs-link" title="Découvrir la suite logicielle magic-softs" data-i18n-title="composeMagicSoftsTooltip">magic-softs</a>
     </footer>
   </div>
 
+  <script src="../mt-text.js"></script>
   <script src="compose.js"></script>
 </body>
 </html>

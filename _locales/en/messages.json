@@ -318,7 +318,7 @@
     "message": "Automatic translation on open (Zero-Click Mode)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Automatically translates incoming emails as soon as they are opened without requiring any click, and collapses into the quick access pill."
+    "message": "Automatically translates incoming emails as soon as they are opened without requiring any click, then discreetly collapses the translation bar."
   },
   "optModeAllForeign": {
     "message": "All emails not written in my target language"
@@ -363,7 +363,7 @@
     "message": "No translation engine is enabled yet. Translating sends the text to the chosen provider:"
   },
   "composeBtnConsentAccept": {
-    "message": "✓ Enable Google (+ MyMemory) & translate"
+    "message": "✓ Enable Google & translate"
   },
   "composeBtnConsentOptions": {
     "message": "⚙️ Other provider…"
@@ -433,5 +433,80 @@
   },
   "setupBtnCloseTab": {
     "message": "Close this tab"
+  },
+  "consentFallbackCheckbox": {
+    "message": "Allow MyMemory fallback if Google is rate-limited"
+  },
+  "composeAriaConsentSection": {
+    "message": "Translation engine consent"
+  },
+  "composeAriaLangSection": {
+    "message": "Language selection"
+  },
+  "composeAriaScopeSection": {
+    "message": "Translation scope"
+  },
+  "composeMagicSoftsTooltip": {
+    "message": "Discover the magic-softs suite"
+  },
+  "composeBadgePermWarningTitle": {
+    "message": "Missing network permission for {provider} — Click to configure"
+  },
+  "composeBadgeKeyWarningTitle": {
+    "message": "API key missing for {provider} — Click to configure"
+  },
+  "composeBadgeActiveTitle": {
+    "message": "Active engine: {provider}"
+  },
+  "composeBadgeFallbackSuffix": {
+    "message": "fallback"
+  },
+  "composeSelectionCountSingular": {
+    "message": "({count} char)"
+  },
+  "composeSelectionCountPlural": {
+    "message": "({count} chars)"
+  },
+  "composeStatusRestoreError": {
+    "message": "Failed to restore original message."
+  },
+  "errorUnauthorized": {
+    "message": "Unauthorized request."
+  },
+  "ariaShowKey": {
+    "message": "Show API key"
+  },
+  "ariaHideKey": {
+    "message": "Hide API key"
+  },
+  "legendZeroClickMode": {
+    "message": "Zero-Click mode scope"
+  },
+  "btnRefreshingModels": {
+    "message": "⏳ Loading…"
+  },
+  "statusGeminiModelsSynced": {
+    "message": "✓ {count} Gemini models synchronized successfully!"
+  },
+  "helpGeminiModelsSynced": {
+    "message": "✓ {count} available models synchronized with Google AI Studio."
+  },
+  "errorGeminiModelsSync": {
+    "message": "⚠️ Synchronization error: {error}"
+  },
+  "errorInvalidUrl": {
+    "message": "The entered URL is invalid."
+  },
+  "errorPermissionDenied": {
+    "message": "Network permission denied. Grant domain access to continue."
+  },
+  "errorLoadPreferences": {
+    "message": "Unable to load preferences."
+  },
+  "setupStatusAlreadyActive": {
+    "message": "✓ Currently active engine: {provider}. You can change your choice below or close this tab."
+  },
+  "setupBtnActivatedGoogle": {
+    "message": "✓ Google Translate enabled (update option)"
   }
 }

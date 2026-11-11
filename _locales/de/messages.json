@@ -318,7 +318,7 @@
     "message": "Automatische Übersetzung beim Öffnen (Null-Klick-Modus)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Übersetzt eingehende E-Mails automatisch beim Öffnen ohne Klick und klappt sich in die Schnellzugriff-Pille zusammen."
+    "message": "Übersetzt eingehende E-Mails automatisch beim Öffnen ohne Klick und klappt danach die Übersetzungsleiste dezent ein."
   },
   "optModeAllForeign": {
     "message": "Alle E-Mails, die nicht in meiner Zielsprache verfasst sind"
@@ -363,7 +363,7 @@
     "message": "Es ist noch kein Übersetzungsdienst aktiviert. Beim Übersetzen wird der Text an den gewählten Dienst gesendet:"
   },
   "composeBtnConsentAccept": {
-    "message": "✓ Google (+ MyMemory) aktivieren & übersetzen"
+    "message": "✓ Google aktivieren & übersetzen"
   },
   "composeBtnConsentOptions": {
     "message": "⚙️ Anderer Dienst…"
@@ -433,5 +433,80 @@
   },
   "setupBtnCloseTab": {
     "message": "Tab schließen"
+  },
+  "consentFallbackCheckbox": {
+    "message": "MyMemory als Ersatz erlauben, falls Google ausgelastet ist"
+  },
+  "composeAriaConsentSection": {
+    "message": "Zustimmung zum Übersetzungsdienst"
+  },
+  "composeAriaLangSection": {
+    "message": "Sprachauswahl"
+  },
+  "composeAriaScopeSection": {
+    "message": "Übersetzungsbereich"
+  },
+  "composeMagicSoftsTooltip": {
+    "message": "Die magic-softs-Suite entdecken"
+  },
+  "composeBadgePermWarningTitle": {
+    "message": "Fehlende Netzwerkfreigabe für {provider} — Zum Konfigurieren klicken"
+  },
+  "composeBadgeKeyWarningTitle": {
+    "message": "API-Schlüssel fehlt für {provider} — Zum Konfigurieren klicken"
+  },
+  "composeBadgeActiveTitle": {
+    "message": "Aktiver Dienst: {provider}"
+  },
+  "composeBadgeFallbackSuffix": {
+    "message": "Ersatz"
+  },
+  "composeSelectionCountSingular": {
+    "message": "({count} Zeichen)"
+  },
+  "composeSelectionCountPlural": {
+    "message": "({count} Zeichen)"
+  },
+  "composeStatusRestoreError": {
+    "message": "Originalnachricht konnte nicht wiederhergestellt werden."
+  },
+  "errorUnauthorized": {
+    "message": "Nicht autorisierte Anfrage."
+  },
+  "ariaShowKey": {
+    "message": "API-Schlüssel anzeigen"
+  },
+  "ariaHideKey": {
+    "message": "API-Schlüssel verbergen"
+  },
+  "legendZeroClickMode": {
+    "message": "Bereich des Null-Klick-Modus"
+  },
+  "btnRefreshingModels": {
+    "message": "⏳ Laden…"
+  },
+  "statusGeminiModelsSynced": {
+    "message": "✓ {count} Gemini-Modelle erfolgreich synchronisiert!"
+  },
+  "helpGeminiModelsSynced": {
+    "message": "✓ {count} verfügbare Modelle mit Google AI Studio synchronisiert."
+  },
+  "errorGeminiModelsSync": {
+    "message": "⚠️ Synchronisierungsfehler: {error}"
+  },
+  "errorInvalidUrl": {
+    "message": "Die eingegebene URL ist ungültig."
+  },
+  "errorPermissionDenied": {
+    "message": "Netzwerkzugriff abgelehnt. Bitte Zugriff auf die Domain erlauben."
+  },
+  "errorLoadPreferences": {
+    "message": "Einstellungen konnten nicht geladen werden."
+  },
+  "setupStatusAlreadyActive": {
+    "message": "✓ Aktuell aktiver Dienst: {provider}. Sie können Ihre Auswahl unten ändern oder diesen Tab schließen."
+  },
+  "setupBtnActivatedGoogle": {
+    "message": "✓ Google Translate aktiviert (Option aktualisieren)"
   }
 }

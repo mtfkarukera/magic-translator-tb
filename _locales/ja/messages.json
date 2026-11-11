@@ -318,7 +318,7 @@
     "message": "開封時の自動翻訳（ゼロクリックモード）"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "受信メールを開くとクリック不要で即座に自動翻訳し、クイックアクセスピルに折りたたみます。"
+    "message": "受信メールを開くとクリック不要で即座に自動翻訳し、翻訳バーを控えめに折りたたみます。"
   },
   "optModeAllForeign": {
     "message": "翻訳先言語以外のすべてのメール"
@@ -363,7 +363,7 @@
     "message": "翻訳エンジンがまだ有効になっていません。翻訳するとテキストが選択したプロバイダーに送信されます："
   },
   "composeBtnConsentAccept": {
-    "message": "✓ Google（+ MyMemory）を有効にして翻訳"
+    "message": "✓ Google を有効にして翻訳"
   },
   "composeBtnConsentOptions": {
     "message": "⚙️ 他のエンジン…"
@@ -433,5 +433,80 @@
   },
   "setupBtnCloseTab": {
     "message": "このタブを閉じる"
+  },
+  "consentFallbackCheckbox": {
+    "message": "Google が制限された場合に MyMemory へのフォールバックを許可"
+  },
+  "composeAriaConsentSection": {
+    "message": "翻訳エンジンの同意"
+  },
+  "composeAriaLangSection": {
+    "message": "言語の選択"
+  },
+  "composeAriaScopeSection": {
+    "message": "翻訳範囲"
+  },
+  "composeMagicSoftsTooltip": {
+    "message": "magic-softs スイートを見る"
+  },
+  "composeBadgePermWarningTitle": {
+    "message": "{provider} のネットワーク権限がありません — クリックして設定"
+  },
+  "composeBadgeKeyWarningTitle": {
+    "message": "{provider} の API キーが未設定です — クリックして設定"
+  },
+  "composeBadgeActiveTitle": {
+    "message": "有効なエンジン: {provider}"
+  },
+  "composeBadgeFallbackSuffix": {
+    "message": "代替"
+  },
+  "composeSelectionCountSingular": {
+    "message": "（{count} 文字）"
+  },
+  "composeSelectionCountPlural": {
+    "message": "（{count} 文字）"
+  },
+  "composeStatusRestoreError": {
+    "message": "元の文面を復元できませんでした。"
+  },
+  "errorUnauthorized": {
+    "message": "認証されていないリクエストです。"
+  },
+  "ariaShowKey": {
+    "message": "API キーを表示"
+  },
+  "ariaHideKey": {
+    "message": "API キーを隠す"
+  },
+  "legendZeroClickMode": {
+    "message": "ゼロクリックモードの対象範囲"
+  },
+  "btnRefreshingModels": {
+    "message": "⏳ 読み込み中…"
+  },
+  "statusGeminiModelsSynced": {
+    "message": "✓ {count} 個の Gemini モデルを同期しました！"
+  },
+  "helpGeminiModelsSynced": {
+    "message": "✓ Google AI Studio から {count} 個の利用可能なモデルを同期しました。"
+  },
+  "errorGeminiModelsSync": {
+    "message": "⚠️ 同期エラー: {error}"
+  },
+  "errorInvalidUrl": {
+    "message": "入力された URL が正しくありません。"
+  },
+  "errorPermissionDenied": {
+    "message": "ネットワーク権限が拒否されました。続行するにはドメインアクセスを許可してください。"
+  },
+  "errorLoadPreferences": {
+    "message": "設定を読み込めませんでした。"
+  },
+  "setupStatusAlreadyActive": {
+    "message": "✓ 現在有効なエンジン: {provider}。下で変更するか、このタブを閉じることができます。"
+  },
+  "setupBtnActivatedGoogle": {
+    "message": "✓ Google 翻訳が有効です（設定を更新）"
   }
 }

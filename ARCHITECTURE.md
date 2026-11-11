@@ -8,255 +8,120 @@ le rituel de fin de sprint, voir **`CONTRIBUTING.md`**.
 ## 1. Vue d'ensemble
 
 Magic Translator est une **extension Thunderbird Manifest V3** qui traduit le contenu d'un e-mail
-*in situ*, dans le panneau de lecture, de manière réversible. Elle se compose de **deux scripts** et
-d'aucune dépendance runtime (pas de bundler, pas de framework, pas d'Experiment API).
+*in situ* dans le panneau de lecture ainsi que les brouillons dans la fenêtre de rédaction, de manière réversible. Elle ne comporte aucune dépendance runtime externe (pas de bundler, pas de framework, pas d'Experiment API).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Thunderbird                                                           │
+│  Thunderbird (Manifest V3)                                             │
 │                                                                        │
-│   ┌───────────────────────┐            ┌──────────────────────────┐   │
-│   │  background.js        │            │  translator-injected.js  │   │
-│   │  (contexte privilégié)│◄──────────►│  (script de contenu,     │   │
-│   │                       │  runtime   │   DOM du message)        │   │
-│   │  • registerScripts    │  message   │                          │   │
-│   │  • bouton + menu      │  passing   │  • UI Shadow DOM         │   │
-│   │  • mt-providers.js    │            │  • badge moteur          │   │
-│   │    ├─ Google (défaut) │            │  • collecte/réinjection  │   │
-│   │    │  └─ Fallback auto│            └──────────────────────────┘   │
-│   │    │     MyMemory     │                                           │
-│   │    ├─ MyMemory (libre)│                                           │
-│   │    ├─ DeepL API       │                                           │
-│   │    ├─ Google Gemini   │                                           │
-│   │    ├─ LLM Hub OpenAI  │                                           │
-│   │    └─ LibreTranslate  │                                           │
-│   └───────────┬───────────┘                                           │
-│               │ fetch direct (HTTPS / local)                          │
-└───────────────┼───────────────────────────────────────────────────────┘
+│   ┌─────────────────────────┐          ┌──────────────────────────┐    │
+│   │  background.js          │          │  translator-injected.js  │    │
+│   │  (Event Page privilégié)│◄────────►│  (script de contenu,     │    │
+│   │                         │ runtime  │   DOM du message)        │    │
+│   │  • registerScripts      │ message  │                          │    │
+│   │  • bouton + menu        │ passing  │  • UI Shadow DOM         │    │
+│   │  • keep-alive MV3 (20s) │          │  • Opt-In inline 1-clic  │    │
+│   │  • mt-providers.js      │          │  • badge moteur temps    │    │
+│   │    ├─ none (défaut ATN) │          │    réel                  │    │
+│   │    ├─ Google Translate  │          │  • collecte/réinjection  │    │
+│   │    │  └─ Fallback opt.  │          └──────────────────────────┘    │
+│   │    │     MyMemory       │                                          │
+│   │    ├─ MyMemory          │          ┌──────────────────────────┐    │
+│   │    ├─ DeepL API         │◄────────►│  compose/compose.js      │    │
+│   │    ├─ Google Gemini     │          │  options/options.js      │    │
+│   │    ├─ LLM Hub OpenAI    │          │  setup/setup.js          │    │
+│   │    └─ LibreTranslate    │          └──────────────────────────┘    │
+│   └───────────┬─────────────┘                                          │
+│               │ fetch direct (HTTPS / localhost & 127.0.0.1)           │
+└───────────────┼────────────────────────────────────────────────────────┘
                 ▼
-   Endpoints de Traduction / IA
+   Endpoints de Traduction / IA (après consentement explicite Opt-In)
    (Google Translate-PA, MyMemory, DeepL, Google AI Studio, OpenAI, Groq, Mistral, Ollama, LM Studio...)
 ```
 
 ---
 
-## 2. Les deux contextes d'exécution
+## 2. Contextes d'exécution
 
-### 2.1 `background.js` — contexte privilégié
+### 2.1 `background.js` — Event Page privilégiée
 
-S'exécute dans le processus principal de Thunderbird. Seul contexte autorisé à faire un `fetch`
-cross-origin vers Google (déclaré dans `host_permissions`).
+S'exécute dans le processus principal d'extension de Thunderbird. Seul contexte autorisé à émettre des requêtes réseau `fetch` vers les fournisseurs configurés.
 
 Responsabilités :
 
-1. **Enregistrement du script de contenu** via `messenger.scripting.messageDisplay.registerScripts`
-   (id `magic-translator-v2`). C'est ce qui injecte `translator-injected.js` dans chaque message
-   affiché. *Cette API exige les permissions `scripting` ET `messagesRead`.*
-2. **Bouton de barre de message** (`message_display_action`) : un clic envoie
-   `{ action: "toggleBanner" }` à l'onglet courant.
-3. **Menu clic-droit** sur ce bouton (Activer / Désactiver), via l'API `menus`. Le menu est
-   `remove()` puis `create()` à chaque démarrage du background pour survivre aux rechargements.
-4. **Proxy de traduction** : écoute `runtime.onMessage`, et sur `{ action: "translate" }`, appelle
-   `traduireTexte()` qui interroge Google et renvoie `{ success, text, detectedLang }`.
+1. **Cycle de vie MV3 non destructif** :
+   - Sur `runtime.onInstalled` et `runtime.onStartup` : enregistrement propre de `mt-text.js` + `translator-injected.js` via `messenger.scripting.messageDisplay.registerScripts` (`magic-translator-v2`), recréation séquentielle des menus clic-droit (`menus.remove` puis `menus.create`), et purge sélective des clés orphelines de rédaction en excluant les onglets ouverts (`browser.tabs.query({})`).
+   - Sur simple réveil d'Event Page : vérification légère et non destructive (`getRegisteredScripts`) sans désenregistrement inutile.
+2. **Maintien en éveil (Keep-Alive MV3)** : pendant tout appel `MTProviders.traduire` potentiellement long (jusqu'à 60 s sur LLM local / CPU), un battement de cœur interne toutes les 20 s (`runtime.getPlatformInfo`) empêche la suspension prématurée de l'Event Page.
+3. **Contrôle d'accès inter-contextes** : les actions d'administration (`testProvider`, `listGeminiModels`) vérifient que `sender.url` provient exclusivement de `options/options.html` et que l'origine réseau est couverte par `browser.permissions.contains`.
+4. **Déduplication de l'assistant d'accueil** : `ouvrirOuActiverSetup()` réutilise et active tout onglet `setup/setup.html` déjà ouvert au lieu d'empiler des doublons.
 
 ### 2.2 `translator-injected.js` — script de contenu (Mode Lecture)
 
-IIFE injectée dans le document du panneau de lecture. **N'a PAS** accès à `browser.i18n` ni au
-réseau cross-origin ; communique avec le Hub **uniquement** en passant par le background.
+IIFE injectée dans le document du panneau de lecture. **N'a PAS** accès à `browser.i18n` ni au réseau cross-origin ; communique avec `background.js` par messages.
 
-Responsabilités : construction de l'UI Shadow DOM, collecte du texte, découpage/envoi,
-réinjection in situ, restauration et nettoyage d'instance.
+Responsabilités : construction de l'UI isolée dans un **Shadow DOM**, filet de sécurité d'Opt-In inline (`.mt-consent-bar` avec case optionnelle MyMemory), synchronisation temps réel de la configuration (`storage.onChanged`), collecte textuelle excluant toute chaîne d'ancêtres ignorée ou masquée, découpage par lots atomiques et restauration fidèle.
 
 ### 2.3 `compose/` — popup du Mode Rédaction (Compose Mode)
 
-Module popup dédié (`compose.html`, `compose.js`, `compose.css`) s'exécutant lors du clic sur le
-bouton `compose_action` dans la fenêtre de composition d'e-mails.
+Module popup dédié (`compose.html`, `compose.js`, `compose.css` + `mt-text.js`) s'exécutant lors du clic sur `compose_action` dans la fenêtre de composition.
 
 Responsabilités :
-- Lecture du brouillon via l'API native `messenger.compose.getComposeDetails()`.
-- Détection intelligente de la sélection active dans l'éditeur.
-- Interface Glassmorphism adaptative (thème clair / sombre) et multilingue via `browser.i18n`.
-- Traduction de l'Objet et/ou du Corps (HTML ou texte brut) via `background.js`.
-- Réinjection propre et sans pollution DOM via `messenger.compose.setComposeDetails()`.
-- Mémorisation de l'état initial pour restauration en un clic.
+- Lecture du brouillon via `messenger.compose.getComposeDetails()`.
+- Détection de la sélection active dans l'éditeur avec découpage par lots (`MTText.decouperLong`).
+- Regroupement atomique Objet + Corps en une seule passe via sentinelle `MTSEP` lorsque les deux portées sont cochées, et support de la langue d'alternance (`alternateTarget`).
+- Stockage éphémère en mémoire vive (`browser.storage.session`, avec repli `storage.local`) d'un instantané complet avant traduction (y compris lors d'une traduction de sélection) permettant une restauration 100 % déterministe en un clic, sans laisser de brouillon sur disque après fermeture de Thunderbird.
 
 ### 2.4 `options/` — page de préférences
 
-Page d'options intégrée (`options.html`, `options.js`, `options.css`) permettant de configurer et
-tester en direct l'ensemble des moteurs de traduction et clés d'API, 100% internationalisée en 7 langues.
+Page d'options intégrée (`options.html`, `options.js`, `options.css`) 100 % internationalisée en 7 langues : validation stricte des champs obligatoires (`aria-invalid`), politique *fail-closed* sur les permissions d'hôtes (`assurerPermissionsHote`), conservation des modèles Gemini dynamiques, et interrogation de la liste Gemini uniquement lorsque Gemini est le moteur actif.
 
 ### 2.5 `setup/` — assistant de premier lancement & consentement explicite (Opt-In)
 
-Page d'accueil dédiée (`setup.html`, `setup.js`, `setup.css`) ouverte automatiquement à l'installation (`runtime.onInstalled` lorsque `provider === "none"` et `!onboardingShown`).
-- Informe clairement l'utilisateur des données transmises (corps du message ou brouillon) avant tout appel réseau.
-- Permet d'activer **Google Translate** en 1 clic (avec case à cocher explicite pour le relais de secours **MyMemory**, cochée par défaut sur la carte) via l'action `acceptDefaultProvider`, ou d'ouvrir la page complète des Options (`runtime.openOptionsPage()`).
-- Si l'utilisateur ferme cet onglet sans faire de choix (`provider === "none"`), un **filet de sécurité inline** (`.mt-consent-bar` dans `translator-injected.js` et `#consent-banner` dans `compose/compose.html`) intercepte le clic sur « Traduire » et propose d'activer Google (+ MyMemory) et de lancer immédiatement la traduction en 1 clic, garantissant zéro frustration UX et zéro transmission réseau sans consentement explicite.
+Page d'accueil dédiée (`setup.html`, `setup.js`, `setup.css`) ouverte automatiquement à la première installation (`provider === "none"` et `!onboardingShown`) :
+- Informe clairement l'utilisateur des données transmises avant tout appel réseau.
+- Permet d'activer **Google Translate** en 1 clic avec case à cocher optionnelle pour le relais de secours **MyMemory**, ou d'ouvrir la page complète des Options.
+- Affiche dynamiquement l'état réel si un moteur est déjà actif lors d'une réouverture ultérieure.
+- Si l'utilisateur ferme cet onglet sans faire de choix (`provider === "none"`), le **filet de sécurité inline** (`.mt-consent-bar` en lecture et `#consent-banner` en rédaction) propose la même activation 1 clic + case optionnelle MyMemory au moment où l'utilisateur clique sur « Traduire ».
 
 ---
 
-## 3. Flux de traduction détaillé
+## 3. Protocole de messages & Hub Multi-Fournisseurs
 
-```
-1. [Activation]  bouton barre / menu / raccourci (Alt+Shift+T, commands → background)
-       → toggleBanner (avec autoTranslate si mode 1-clic actif) → le bandeau s'ouvre
-       → si mode 1-clic actif : déclenchement immédiat de lancerTraduction()
-
-2. [Collecte]    collecterNoeudsTexte(document.body)
-       TreeWalker SHOW_TEXT, ignore SCRIPT/STYLE/CODE/… et les nœuds vides
-       → tableau de nœuds Text
-
-3. [Sauvegarde]  contenusOriginaux : Map<Text, string>
-       (uniquement à la 1re traduction, pour la restauration)
-
-4. [Découpage & Alternance] lots de ≤ 4000 caractères
-       nœuds joints par un SÉPARATEUR unique "\n<SENTINEL>\n"
-       SENTINEL = jeton alphanumérique long et aléatoire (vérifié absent du corps)
-       • Si source === cible ou si langue détectée === cible et alternateTarget !== "none" :
-         bascule automatique vers la cible d'alternance (Dual Translation).
-
-5. [Traduction]  pour chaque lot (statut « Traduction… (i/N) » si plusieurs lots) :
-       runtime.sendMessage({action:"translate", text, source, target})
-       → background fetch Google / LibreTranslate / etc. → texte traduit
-       • nœud unique > 4000 car. : sous-découpé en segments, traduits puis recollés
-
-6. [Réinjection ATOMIQUE]
-       Traductions accumulées sans toucher au DOM, puis écrites toutes en fin de
-       boucle. Si un lot échoue, RIEN n'est écrit → l'e-mail reste intact (jamais
-       « à moitié traduit »).
-       • lot mono-nœud  : cœur traduit + espaces d'origine réattachés
-       • lot multi-nœuds: split sur SEPARATEUR_RE, réassignation 1:1
-       • si #segments ≠ #nœuds : FALLBACK nœud-par-nœud (1 requête par nœud)
-
-7. [Statut]      "✓ Traduit depuis <langue>" ou "✓ Traduit vers <langue> (alternance)"
-       (ou "⚠ Traduit partiellement")
-
-8. [Restauration] bouton « Original » : restaure chaque nœud depuis contenusOriginaux
-```
-
-### Protocole de message (background ↔ injected)
+### Protocole de messages (`background.js` ↔ contextes UI)
 
 | Sens | Message | Réponse |
 |------|---------|---------|
 | background → injected | `{ action: "toggleBanner", autoTranslate?: boolean }` | — (ouvre/ferme l'UI et traduit si 1-clic) |
-| injected → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom, consentementRequis, enableMyMemoryFallback, autoTranslateOnClick, alternateTarget, autoTranslateOnOpen, autoTranslateMode, autoTranslateLangs, preferLocalDetection }` |
-| setup / injected / compose → background | `{ action: "acceptDefaultProvider", enableMyMemoryFallback?: boolean }` | `{ success: true, config }` (active `provider: "google"` et met à jour le badge) |
-| options → background | `{ action: "openSetup" }` | `{ success: true }` (ouvre `setup/setup.html` dans un nouvel onglet) |
-| injected → background | `{ action: "detectLanguage", text }` | `{ success: true, language: string }` (CLD2 local hors-ligne) |
-| options → background | `{ action: "testProvider", config }` | `{ success: boolean, message: string }` |
-| injected → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel }` ou `{ success: false, error }` (`CONSENT_REQUIRED`, `CLEARTEXT_FORBIDDEN`, etc.) |
+| injected / compose → background | `{ action: "getConfig" }` | `{ success: true, provider, providerLabel, providerNom, consentRequired, consentementRequis, isConfigured, enableMyMemoryFallback, autoTranslateOnClick, alternateTarget, autoTranslateOnOpen, autoTranslateMode, autoTranslateLangs, preferLocalDetection }` |
+| setup / injected / compose → background | `{ action: "acceptDefaultProvider", enableMyMemoryFallback?: boolean }` | `{ success: true, config }` (active `provider: "google"` avec le choix `enableMyMemoryFallback`) |
+| options → background | `{ action: "openSetup" }` | `{ success: true }` (ouvre ou active l'onglet unique `setup/setup.html`) |
+| injected → background | `{ action: "detectLanguage", text }` | `{ success: true, language, isReliable, languages }` (CLD2 local hors-ligne, sentinelles `MTSEP` purgées) |
+| options → background | `{ action: "testProvider", config }` | `{ success: boolean, message: string }` (restreint à `options/options.html`, sans fallback MyMemory) |
+| options → background | `{ action: "listGeminiModels", apiKey }` | `{ success: boolean, models }` (restreint à `options/options.html`) |
+| injected / compose → background | `{ action: "translate", text, source, target }` | `{ success: true, text, detectedLang, provider, providerLabel, providerNom, usedFallback }` ou `{ success: false, error }` (`CONSENT_REQUIRED`, `CLEARTEXT_FORBIDDEN`, `SERVICE_UNAVAILABLE`, etc.) |
 
-### 3.1 Hub Multi-Fournisseurs (`mt-providers.js`)
+### Hub Multi-Fournisseurs (`mt-providers.js`)
 
-Le module `mt-providers.js` encapsule la communication avec les différents services de traduction avec des **timeouts différenciés** :
-- `TIMEOUT_CLOUD_MS = 10000` (10 secondes) pour les services Cloud ultra-rapides (Google, DeepL, MyMemory, Gemini, OpenAI, Groq, Mistral).
-- `TIMEOUT_LOCAL_MS = 60000` (60 secondes) pour LibreTranslate et les moteurs locaux (Ollama, LM Studio, serveurs personnalisés sur CPU/Docker).
-
-Garde-fous de conformité ATN (`data-exfiltration` & `cleartext-transmission`) :
-- **Garde-fou `CONSENT_REQUIRED`** : Par défaut à l'installation, `CONFIG_DEFAUT.provider = "none"` et `enableMyMemoryFallback = false`. Si `traduireAvecFournisseur()` est appelé alors que `provider === "none"`, il lève immédiatement `new Error("CONSENT_REQUIRED")` sans émettre la moindre requête réseau.
-- **Validation HTTPS stricte hors loopback (`estHoteLoopback` & `validerUrlSecurisee`)** : Toute URL personnalisée (LibreTranslate ou Hub LLM) est inspectée par `validerUrlSecurisee(urlBrute)`. Les URLs en `https://` sont autorisées partout. Les URLs en `http://` sont **strictement restreintes** aux hôtes de bouclage local (`localhost`, `*.localhost`, `127.0.0.0/8`, `[::1]`, `0.0.0.0`, conformément à `isLoopback()` de `thunderbird/webext-linter`). Toute adresse `http://` distante ou LAN (ex: `http://192.168.1.50:5000`) est bloquée avec l'erreur `CLEARTEXT_FORBIDDEN`. De plus, sur `http://` loopback, aucun en-tête `Authorization` ni paramètre `api_key` n'est jamais transmis.
-
-Détail des fournisseurs :
-- **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA&params.client=gtx&sl=<src>&tl=<tgt>&q=<texte>`. Gratuit et sans clé d'API. Uniquement si l'utilisateur a explicitement activé `config.enableMyMemoryFallback === true`, une bascule automatique de secours (*fallback*) s'effectue vers **MyMemory** en cas d'erreur Google (`RATE_LIMITED` 429, indisponibilité serveur ou coupure réseau).
-- **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get?q=<texte>&langpair=<src>|<tgt>[&de=<email>]`. Service gratuit sans clé d'API (quota de base de 5 000 car./jour par IP, étendu à 50 000 car./jour en renseignant un e-mail dans les options). Gère automatiquement en interne le sous-découpage en tranches de ≤ 450 caractères (respect des sauts de ligne, de la ponctuation et des sentinelles `\nMTSEP...\n`) pour respecter la limite stricte de 500 caractères par requête, avec nettoyage des balises XLIFF MateCat et entités HTML. Utilisable en moteur principal ou en relais de secours explicite.
-- **DeepL API (`deepl`)** : `POST https://api-free.deepl.com/v2/translate` ou `https://api.deepl.com/v2/translate` avec en-tête `Authorization: DeepL-Auth-Key <clé>` et corps JSON `{ text: [...], target_lang: "..." }`.
-- **Google Gemini API (`gemini`)** : `POST https://generativelanguage.googleapis.com/v1beta/models/<model>:generateContent` avec en-tête `x-goog-api-key` et prompt système étanche.
-- **Hub LLMs OpenAI-Compatible (`llm`)** : `POST <baseUrl>/v1/chat/completions` (OpenAI, Groq, Mistral, Ollama, LM Studio) avec prompt système étanche et nettoyage du texte brut. Timeout local à 60s pour Ollama/LM Studio. Exige `https://` hors `localhost`/`127.0.0.1`.
-- **LibreTranslate (`libretranslate`)** : `POST <url>/translate` avec corps JSON `{ q, source, target, format: "text" }`. Normalisation automatique de l'URL (nettoyage de tout suffixe `/translate` ou `/translate/` accidentellement saisi). Timeout étendu à 60s pour les calculs neuronaux CPU. Supporte `http://` uniquement sur `localhost` / `127.0.0.1` et exige `https://` pour tout serveur distant ou LAN.
-
-### 3.2 Détection Linguistique Locale & Mode Zéro-Clic
-
-Thunderbird intègre nativement l'API `messenger.i18n.detectLanguage(text)` (moteur Compact Language Detector v2 / CLD2 en C++).
-- **100% Hors-ligne & Zéro Latence** : L'analyse des 1 500 premiers caractères du message s'exécute en local en moins d'une milliseconde, sans envoyer le moindre octet sur le réseau.
-- **Mode Zéro-Clic (`autoTranslateOnOpen`)** : Dès l'ouverture de l'e-mail dans le panneau de lecture, la détection locale analyse le message. S'il est rédigé dans une langue étrangère (ou dans l'une des langues configurées par l'utilisateur), la traduction est déclenchée automatiquement. Le bandeau s'affiche au sommet du message avec l'indication claire du statut (« ✓ Traduit depuis [Langue] ») et le bouton « Original » immédiatement disponible en 1 clic direct pour restaurer le message natif.
-- **Protection Budgétaire & Filtrage NLP Anti-Faux Positifs** :
-  - **Échantillonnage épuré** : L'analyse CLD2 est précédée par `extraireTextePourDetection()` et `MTText.nettoyerTextePourDetection()` qui ignorent les balises techniques (`STYLE`, `SCRIPT`), les blocs de citation (`BLOCKQUOTE`, `.moz-cite-prefix`) et éliminent par regex les URLs et adresses e-mails. L'analyse s'effectue exclusivement sur la prose humaine rédigée.
-  - **Seuil de confiance asymétrique** : Exige `isReliable: true` ET `percentage >= 80%`.
-  - **Veto anti-faux positif** : Si la langue maternelle de l'utilisateur figure à $\ge 15\%$ dans les langues détectées, le système s'abstient immédiatement (0 requête réseau et 0 consommation de quota/token).
-  - **Désactivation du Reverse Translate en Automatique** : La double traduction / langue d'alternance (`alternateTarget`) est strictement neutralisée lors de l'ouverture automatique pour prévenir toute traduction non désirée de messages français vers l'anglais.
-  - **Repli silencieux** : Si le moteur de traduction distant détecte en cours de traitement que le message est en réalité `Déjà en [Langue Cible]`, le bandeau est immédiatement masqué sans trace résiduelle.
-- **Résolution pour LibreTranslate et LLMs Locaux** : Lorsque l'option `preferLocalDetection` est cochée (ou en mode automatique avec LibreTranslate), la langue source est résolue localement via CLD2 au lieu d'envoyer `source: "auto"`, évitant les erreurs 400 sur les serveurs ne supportant pas l'auto-détection distante.
+- **Timeouts différenciés** : `TIMEOUT_CLOUD_MS = 10000` (10 s) pour les services Cloud ; `TIMEOUT_LOCAL_MS = 60000` (60 s) pour LibreTranslate et les moteurs locaux (Ollama, LM Studio, serveurs personnalisés).
+- **Politique *fail-closed* stricte** :
+  - `obtenirFournisseur("none")` ou identifiant inconnu retourne `null` ; `traduireAvecFournisseur()` lève `CONSENT_REQUIRED` sans émettre la moindre requête réseau.
+  - `obtenirPatternOrigine()` retourne `""` sur URL invalide ou HTTP hors loopback ; `FournisseurLibreTranslate` et `FournisseurOpenAICompatible` refusent les URLs vides (`INVALID_URL`).
+- **Parité 1:1 HTTPS & Loopback (`estHoteLoopback` & `validerUrlSecurisee`)** :
+  - Les URLs `https://` sont autorisées partout (avec `optional_host_permissions: ["https://*/*"]`).
+  - Les URLs `http://` sont strictement restreintes à `localhost` et `127.0.0.1`, en parité exacte avec `host_permissions` et la directive CSP `connect-src https: http://localhost:* http://127.0.0.1:*` de `manifest.json`. Toute adresse LAN ou distante en `http://` lève `CLEARTEXT_FORBIDDEN`. Aucune clé d'API n'est jamais transmise sur `http://`.
+- **Découpage UTF-8 en octets (`decouperParOctetsUtf8`)** :
+  - **Google Translate (`google`)** : `GET https://translate-pa.googleapis.com/v1/translate?key=<PUBLIC_CLIENT_KEY>&params.client=gtx&...`, sous-découpé par octets UTF-8 (`<= 3600` octets) pour prévenir toute erreur HTTP 414 sur les textes CJK/cyrilliques/arabes. Relais optionnel vers MyMemory uniquement si `enableMyMemoryFallback === true` (et désactivé lors de `testerConnexion`), en remontant `effectiveProvider: "mymemory"` et `usedFallback: true`.
+  - **MyMemory (`mymemory`)** : `GET https://api.mymemory.translated.net/get`, sous-découpé par octets UTF-8 (`<= 450` octets) pour respecter la limite serveur de 500 octets (`QUERY LENGTH LIMIT` normalisé en `SERVICE_UNAVAILABLE`).
+  - **Google Gemini (`gemini`) & Hub LLMs (`llm`)** : encapsulation du message dans `<source_text>...</source_text>` avec indication explicite de la langue source et nettoyage symétrique dans `nettoyerReponseLLM`.
 
 ---
 
-## 4. Interface utilisateur
+## 4. Cycle de vie, Accessibilité & Sécurité DOM
 
-L'interface est injectée dans un **Shadow DOM** (isolation CSS totale) :
-
-- **Bandeau de traduction** (sémantiquement taggué par `role="region" aria-label="Translator"`) : `[MT Translator | Badge | DE [auto] → VERS [fr] [Traduire] [Original] [▴]]`.
-- **Zéro élément résiduel** : Dès que le bandeau est refermé (bouton ▴, logo [MT], touche Escape ou bouton de la barre d'outils), aucun élément ne flotte sur le corps de l'e-mail, garantissant une lisibilité 100% propre du premier au dernier caractère.
-
-Transitions et navigation au clavier :
-*   `Clic bouton barre [Traduire] / Raccourci (Alt+Shift+T) → toggleBanner` : Le bandeau s'affiche ou se masque.
-*   `logo MT / bouton ▴ (aria-label="Replier") / Escape → replier` : Le bandeau se masque proprement.
-*   Le focus clavier est immédiatement transféré sur le premier contrôle interactif (sélecteur source) à l'ouverture.
-
-Le raccourci est déclaré via la clé `commands` du manifest (remappable) ; `background.js` reçoit
-`commands.onCommand` et envoie `toggleBanner` à l'onglet actif. Le statut est une
-région `aria-live` annoncée aux lecteurs d'écran. Les sélecteurs de langue disposent de balises `<label>`
-liées sémantiquement par leur attribut `for`.
-
-Tout le CSS est dans une balise `<style>` du Shadow DOM (template string) avec des classes préfixées `mt-`. Design moderne en **glassmorphism** (fond translucide `backdrop-filter: blur(16px)` ardoise profond, bordure cristalline et courbe d'animation cubic-bezier) avec des contrastes d'éléments interactifs conformes aux exigences WCAG 2.1 AA (indigo/violet adoucis).
-
----
-
-## 5. Internationalisation (i18n)
-
-Deux mécanismes **distincts**, à ne pas confondre :
-
-| Cible | Source | Pourquoi |
-|-------|--------|----------|
-| **Champs du manifest** (nom, description, titres bouton/menu) | `_locales/<lang>/messages.json` + `__MSG_clé__` | API i18n standard du manifest |
-| **Textes de l'UI du bandeau** | dictionnaire `I18N` **embarqué** dans `translator-injected.js` | `browser.i18n.getMessage()` **indisponible** dans le contexte messageDisplay |
-
-Langues d'UI : `fr, en, es, de, vi, ja, pt`. Détection : `browser.i18n.getUILanguage()` →
-`navigator.language` → fallback **`en`**. Les noms de langues affichés (statut « Traduit depuis… »)
-viennent de la table `NOMS_LANGUES`.
-
----
-
-## 6. Cycle de vie et robustesse
-
-- **Réinjection** : Thunderbird réutilise le même document HTML entre messages ; le script est
-  réinjecté et appelle `nettoyerInstance()` en premier (supprime l'UI, déconnecte le
-  `MutationObserver`, retire le listener `runtime.onMessage`).
-- **`MutationObserver`** (`_mtObserver`) : filet de sécurité — si le conteneur UI disparaît du
-  `body` ou si `body` est remplacé, l'observateur double (sur `document.body` pour les mutations internes et `document.documentElement` pour le remplacement complet du body, sans `subtree: true`) détecte la disparition, se déconnecte et relance `initialiser()`.
-- **Injection dynamique de secours** : Lors du clic sur le bouton barre, le menu ou l'utilisation du raccourci, si le script de contenu ne répond pas (iframe recréée ou contexte invalidé), `background.js` utilise `scripting.executeScript` pour le réinjecter à la volée avant de transmettre l'action.
-- **Verrouillage UI** pendant la traduction (boutons/sélecteurs `disabled`).
-- **Protection Anti-Race Condition** : Lors de chaque initialisation, un identifiant unique d'instance
-  `instanceId` (Date.now()) est stocké dans `document.documentElement._mtActiveInstanceId`. Avant d'effectuer
-  l'écriture de la traduction dans le DOM, le script injecté vérifie la correspondance de cet identifiant,
-  bloquant les écritures asynchrones tardives issues d'e-mails précédents consultés rapidement.
-- **Fuites de mémoire** : Le timer asynchrone de repli automatique `_mtTimerRepli` est systématiquement nettoyé
-  (`clearTimeout`) lors de l'appel à `nettoyerInstance()`, libérant les closures et références associées.
-- **Résilience aux limitations de débit** : Durant le traitement en mode fallback (nœud par nœud),
-  la boucle de requêtes est immédiatement interrompue en cas d'erreur de débit `RATE_LIMITED` ou réseau `NETWORK`
-  pour éviter les vagues de requêtes bloquées et préserver l'adresse IP de l'utilisateur.
-- **Garde-fous algorithmiques** : La fonction `decouperLong(texte, maxLen)` dispose d'un garde-fou rejetant
-  les valeurs de longueur invalides (`maxLen <= 0`) pour prémunir le thread principal Thunderbird de toute boucle infinie.
-
----
-
-## 7. Sécurité (résumé)
-
-Voir **`SECURITY.md`** pour le détail. Points structurants :
-
-- **Aucune écriture HTML** : tout passe par `textContent`/`createTextNode`. Pas d'`innerHTML`,
-  d'`eval`, ni d'`insertAdjacentHTML`. Le contenu d'e-mail (hostile) ne peut donc pas exécuter de
-  code via l'extension.
-- **Frontière de privilège** : seul `background.js` accède au réseau ; le script injecté passe par
-  message-passing.
-- **Politique CSP Manifest V3 & HTTPS Strict Hors Loopback** : La clé `content_security_policy: { extension_pages: "script-src 'self'" }`
-  est déclarée dans `manifest.json` afin d'autoriser les connexions `http://` strictement vers les serveurs locaux tournant sur la machine (`localhost`, `127.0.0.1`, `[::1]`) pour Ollama, LM Studio ou LibreTranslate local, tout en maintenant une isolation stricte d'exécution de scripts (`script-src 'self'`). Toute connexion hors bouclage local (serveur distant ou réseau local LAN) exige obligatoirement **`https://`** (`validerUrlSecurisee()` dans `mt-providers.js` et `optional_host_permissions: ["https://*/*"]`).
-- **Consentement Explicite Préalable (Opt-In)** : Aucun moteur n'est actif par défaut (`provider: "none"`). Le corps des e-mails traduits n'est envoyé qu'après accord explicite de l'utilisateur au fournisseur sélectionné. Aucune autre exfiltration : le harnais de débogage `remoteLog`/`DEBUG` a été **retiré en v2.0.9**.
-- **Aucune persistance** : rien n'est stocké en `storage` ni mis en cache.
-
----
-
-## 8. Limites connues
-
-- **Incompatibilité Thunderbird Conversations** (architecture iframe) — voir `README.md`.
-- **API Google `gtx` non officielle** : pas de garantie de service, peut casser sans préavis.
-- **Tests** : les helpers de texte purs (`mt-text.js` — `decouperLong`, `extraireEspaces`) sont
-  couverts par `test/text.test.js` (`npm test`, `node:test`). La logique UI/DOM (Shadow DOM,
-  injection) reste testée manuellement dans Thunderbird.
+- **État isolé par instance (`_mtSeq`)** : dans `translator-injected.js`, l'ensemble de l'état et des timers (`timersInstance`) vit dans la portée de chaque instance et est intégralement annulé par `nettoyerInstance()` lors du passage rapide d'un e-mail à un autre.
+- **Collecte DOM exhaustive** : `collecterNoeudsTexte` et `extraireTextePourDetection` remontent toute la chaîne d'ancêtres jusqu'à `racine` pour exclure `SCRIPT`, `STYLE`, `NOSCRIPT`, `TEMPLATE`, `CODE`, `PRE` (hors message texte brut), ainsi que tout ancêtre `[hidden]`, `[aria-hidden="true"]` ou `display: none`.
+- **Accessibilité WCAG 2.1 AA** :
+  - Contrastes vérifiés `>= 4.5:1` sur tous les boutons primaires (`#6d28d9` / `#4f46e5`), bandeaux glassmorphism (`rgba(15, 23, 42, 0.93)`), interrupteurs `role="switch"` en thème clair et sombre, et contours `:focus-visible`.
+  - Régions `role="status" aria-live="polite"` maintenues dans l'arbre ARIA dès le montage initial, absence de vol de focus en Mode Zéro-Clic, et restitution du focus clavier à la fermeture par `Escape` ou repli.
+- **Sécurité DOM stricte** : zéro `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `eval` ou `new Function`. Manipulation exclusive via `textContent`, `createTextNode` et `DOMParser`.

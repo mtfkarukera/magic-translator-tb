@@ -68,15 +68,20 @@ test("obtenirEndpointDeepL : détection Free vs Pro", () => {
   );
 });
 
-test("obtenirFournisseur : récupération, état 'none' et fallback par défaut", () => {
+test("obtenirFournisseur : récupération et politique fail-closed sur 'none' ou inconnu", async () => {
   assert.equal(obtenirFournisseur("google"), FOURNISSEURS.google);
   assert.equal(obtenirFournisseur("deepl"), FOURNISSEURS.deepl);
   assert.equal(obtenirFournisseur("libretranslate"), FOURNISSEURS.libretranslate);
-  // État non configuré (Opt-In requis)
+  // État non configuré ou inconnu -> fail-closed strict (aucune exfiltration vers Google)
   assert.equal(obtenirFournisseur("none").id, "none");
-  // Fournisseur inconnu -> fallback sur Google
-  assert.equal(obtenirFournisseur("inconnu"), FOURNISSEURS.google);
-  assert.equal(obtenirFournisseur(null), FOURNISSEURS.google);
+  assert.equal(obtenirFournisseur("inconnu").id, "none");
+  assert.equal(obtenirFournisseur(null).id, "none");
+  await assert.rejects(
+    async () => {
+      await traduire({ provider: "inconnu" }, "Bonjour", "fr", "en");
+    },
+    { message: "CONSENT_REQUIRED" }
+  );
 });
 
 test("DeepL : rejet immédiat si clé API absente", async () => {
@@ -137,6 +142,21 @@ test("LibreTranslate : URL loopback autorisée en HTTP, rejet LAN/distant en HTT
       },
       { message: "CLEARTEXT_FORBIDDEN" }
     );
+
+    // Rejet fail-closed d'une URL malformée (aucune redirection silencieuse vers libretranslate.com)
+    urlAppelee = "";
+    await assert.rejects(
+      async () => {
+        await traduire(
+          { provider: "libretranslate", url: "not-a-valid-url" },
+          "Bonjour",
+          "fr",
+          "en"
+        );
+      },
+      { message: "INVALID_PAYLOAD" }
+    );
+    assert.equal(urlAppelee, "");
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -319,9 +339,9 @@ test("construireEndpointLLM : normalisation des suffixes /v1 et URLs", () => {
 });
 
 test("obtenirPatternOrigine : patterns d'hôtes WebExtension par moteur", () => {
-  // Google Translate par défaut
+  // Google Translate explicite vs moteur inconnu (fail-closed)
   assert.equal(obtenirPatternOrigine("google"), "https://translate-pa.googleapis.com/*");
-  assert.equal(obtenirPatternOrigine("inconnu"), "https://translate-pa.googleapis.com/*");
+  assert.equal(obtenirPatternOrigine("inconnu"), "");
 
   // MyMemory API
   assert.equal(obtenirPatternOrigine("mymemory"), "https://api.mymemory.translated.net/*");
@@ -453,14 +473,23 @@ test("FournisseurGoogle : bascule sur MyMemory si erreur 429 UNIQUEMENT lorsque 
     assert.equal(appels.length, 1);
     assert.ok(appels[0].includes("translate-pa.googleapis.com"));
 
-    // 2. Avec enableMyMemoryFallback: true explicite : bascule vers MyMemory
+    // 2. Avec enableMyMemoryFallback: true explicite : bascule vers MyMemory et expose effectiveProvider
     appels = [];
     const res = await FOURNISSEURS.google.traduire("Bonjour", "fr", "en", { enableMyMemoryFallback: true });
     assert.equal(res.success, true);
     assert.equal(res.text, "Hello from MyMemory");
+    assert.equal(res.effectiveProvider, "mymemory");
+    assert.equal(res.effectiveLabel, "MyMemory");
     assert.equal(appels.length, 2);
     assert.ok(appels[0].includes("translate-pa.googleapis.com"));
     assert.ok(appels[1].includes("api.mymemory.translated.net"));
+
+    // 3. testerConnexion() désactive le secours MyMemory pour ne pas masquer une panne Google
+    appels = [];
+    const testGoogle = await testerConnexion({ provider: "google", enableMyMemoryFallback: true });
+    assert.equal(testGoogle.success, false);
+    assert.equal(testGoogle.message, "RATE_LIMITED");
+    assert.equal(appels.length, 1);
   } finally {
     globalThis.fetch = fetchOriginal;
   }
@@ -488,13 +517,15 @@ test("Opt-In explicite ATN : rejet CONSENT_REQUIRED si provider est 'none' ou ab
 });
 
 test("Sécurité HTTPS vs Loopback (estHoteLoopback & validerUrlSecurisee)", () => {
-  // Hôtes loopback autorisés en HTTP
+  // Hôtes loopback strictement alignés sur manifest.json (http://localhost/* et http://127.0.0.1/*)
   assert.equal(estHoteLoopback("localhost"), true);
-  assert.equal(estHoteLoopback("ollama.localhost"), true);
   assert.equal(estHoteLoopback("127.0.0.1"), true);
-  assert.equal(estHoteLoopback("127.10.20.30"), true);
-  assert.equal(estHoteLoopback("[::1]"), true);
-  assert.equal(estHoteLoopback("0.0.0.0"), true);
+
+  // Variantes hors match patterns de manifest.json (bloquées de façon homogène)
+  assert.equal(estHoteLoopback("ollama.localhost"), false);
+  assert.equal(estHoteLoopback("127.10.20.30"), false);
+  assert.equal(estHoteLoopback("[::1]"), false);
+  assert.equal(estHoteLoopback("0.0.0.0"), false);
 
   // Hôtes LAN et distants non-loopback
   assert.equal(estHoteLoopback("192.168.1.50"), false);
@@ -604,8 +635,43 @@ test("FournisseurGemini : utilisation du header x-goog-api-key et systemInstruct
     assert.equal(res.text, "Bonjour monde");
     assert.equal(headersRecus["x-goog-api-key"], "AIzaSyTest123");
     assert.ok(bodyRecu.systemInstruction, "systemInstruction doit être présent");
-    assert.ok(bodyRecu.systemInstruction.parts[0].text.includes("French"));
-    assert.equal(bodyRecu.contents[0].parts[0].text, "Hello world");
+    assert.ok(bodyRecu.systemInstruction.parts[0].text.includes("from English into French"));
+    assert.equal(bodyRecu.contents[0].parts[0].text, "<source_text>\nHello world\n</source_text>");
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test("FournisseurMyMemory : sous-découpage UTF-8 en octets pour les textes CJK multi-octets", async () => {
+  const fetchOriginal = globalThis.fetch;
+  const encodeur = new TextEncoder();
+  const appels = [];
+
+  globalThis.fetch = async (url) => {
+    appels.push(url);
+    const parsedUrl = new URL(url);
+    const q = parsedUrl.searchParams.get("q") || "";
+    const octets = encodeur.encode(q).length;
+    assert.ok(octets <= 450, `Le paramètre q (${octets} octets UTF-8) dépasse la limite de 450 octets`);
+    return {
+      ok: true,
+      json: async () => ({
+        responseData: { translatedText: "Translated CJK segment." },
+        matches: [{ source: "ja-JP" }]
+      })
+    };
+  };
+
+  try {
+    // 320 caractères japonais (~960 octets UTF-8, bien que length <= 450)
+    const phraseJa = "これは日本語のメール本文のテスト文章です。"; // 21 caractères = 63 octets UTF-8
+    const texteJa = phraseJa.repeat(16); // 336 caractères = 1 008 octets UTF-8
+    assert.ok(texteJa.length < 450);
+    assert.ok(encodeur.encode(texteJa).length > 900);
+
+    const res = await FOURNISSEURS.mymemory.traduire(texteJa, "ja", "fr");
+    assert.equal(res.success, true);
+    assert.ok(appels.length >= 3, `Attendu >= 3 sous-requêtes UTF-8, reçu : ${appels.length}`);
   } finally {
     globalThis.fetch = fetchOriginal;
   }

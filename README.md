@@ -7,10 +7,10 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ## ✨ Fonctionnalités
 
-### 🛡️ 0. Consentement Explicite (Opt-In) & Sécurité Réseau (Nouveau en v2.5.0)
-- **Assistant de Premier Lancement (`setup/`)** — À l'installation, aucun moteur de traduction n'est activé par défaut (`provider: "none"`). Une page d'accueil transparente présente les données transmises et permet d'activer **Google Translate** en 1 clic (avec case à cocher explicite pour le relais de secours **MyMemory**) ou de configurer le moteur de votre choix.
-- **Filet de Sécurité en 1 Clic** — Si vous fermez l'assistant d'accueil sans choisir de moteur, le premier clic sur **Traduire** (en lecture ou en rédaction) affiche un bandeau d'autorisation intégré : cliquez sur **`✓ Activer Google (+ MyMemory) et traduire`** pour enregistrer votre consentement et lancer immédiatement votre traduction sans perdre une seconde.
-- **Chiffrement HTTPS Strict Hors Bouclage Local** — Conformément aux règles de sécurité de Mozilla Thunderbird, le protocole chiffré **`https://`** est strictement imposé pour tout serveur distant ou situé sur le réseau local (LAN). Le protocole non chiffré `http://` est réservé exclusivement à votre propre machine locale (`localhost` / `127.0.0.1`).
+### 🛡️ 0. Consentement Explicite (Opt-In) & Sécurité Réseau (v2.5.0)
+- **Assistant de Premier Lancement (`setup/`)** — À l'installation, aucun moteur de traduction n'est activé par défaut (`provider: "none"`). Une page d'accueil transparente présente les données transmises et permet d'activer **Google Translate** en 1 clic (avec case à cocher optionnelle pour le relais de secours **MyMemory**) ou de configurer le moteur de votre choix.
+- **Filet de Sécurité en 1 Clic** — Si vous fermez l'assistant d'accueil sans choisir de moteur, le premier clic sur **Traduire** (en lecture ou en rédaction) affiche un bandeau d'autorisation intégré avec case optionnelle pour le relais MyMemory : cliquez sur **`✓ Activer Google et traduire`** pour enregistrer votre consentement et lancer immédiatement votre traduction sans perdre une seconde.
+- **Chiffrement HTTPS Strict Hors Bouclage Local** — Conformément aux règles de sécurité de Mozilla Thunderbird, le protocole chiffré **`https://`** est strictement imposé pour tout serveur distant ou situé sur le réseau local (LAN). Le protocole non chiffré `http://` est réservé exclusivement à votre propre machine locale (`localhost` / `127.0.0.1`), renforcé par la politique CSP `connect-src`.
 
 ### 📖 1. Mode Lecture (Panneau de Message)
 - **Bouton dédié dans la barre de message** — bouton **Traduire** aux côtés de Répondre, Transférer, Archiver…
@@ -152,7 +152,7 @@ Clic « Traduire »
     ↓
 browser.runtime.sendMessage({ action: "translate", ... })
     ↓
-background.js → fetch() → Google Translate API (gtx)
+background.js → fetch() → Fournisseur choisi (ex: Google Translate-PA)
     ↓
 Réponse { success, text, detectedLang }
     ↓

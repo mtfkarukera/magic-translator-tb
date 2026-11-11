@@ -24,9 +24,11 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Temporary files
+# Temporary files & secrets
 *.bak
 *.tmp
+.env
+.env.*
 
 # Private files — locaux, NON publiés (ni dans Git, ni dans le XPI)
 AGENTS.md

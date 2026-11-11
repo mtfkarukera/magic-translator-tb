@@ -11,16 +11,22 @@
     <!-- En-tête de bienvenue -->
     <header class="mt-setup-header">
       <div class="mt-logo-row">
-        <img src="../icon.png" alt="Magic Translator" class="mt-logo-icon" width="44" height="44">
+        <img src="../icon.png" alt="" class="mt-logo-icon" width="44" height="44">
         <div class="mt-title-group">
           <div class="mt-title-line">
             <h1 data-i18n="setupWelcomeTitle">Bienvenue dans Magic Translator</h1>
-            <span class="mt-version-badge">v2.5.0</span>
+            <span id="setup-version-badge" class="mt-version-badge">v2.5.0</span>
           </div>
           <p class="mt-subtitle" data-i18n="setupWelcomeSubtitle">Traduction d'e-mails réversible et respectueuse de votre consentement dans Thunderbird.</p>
         </div>
       </div>
     </header>
+
+    <!-- Zone de retour visuel (moteur déjà actif ou confirmation d'activation) -->
+    <div id="setup-status" class="mt-status-banner is-empty">
+      <span id="setup-status-text" class="mt-status-text" role="status" aria-live="polite"></span>
+      <button type="button" id="btn-close-tab" class="mt-btn mt-btn-small" data-i18n="setupBtnCloseTab" hidden>Fermer cet onglet</button>
+    </div>
 
     <!-- Encadré de transparence & consentement (Exigence Mozilla ATN) -->
     <section class="mt-privacy-card" aria-labelledby="privacy-heading">
@@ -49,7 +55,7 @@
 
         <div class="mt-card-actions">
           <button type="button" id="btn-activate-google" class="mt-btn mt-btn-primary">
-            <span data-i18n="setupBtnActivateGoogle">✓ Activer Google Translate et commencer</span>
+            <span id="btn-activate-google-label" data-i18n="setupBtnActivateGoogle">✓ Activer Google Translate et commencer</span>
           </button>
         </div>
       </section>
@@ -72,12 +78,6 @@
           </button>
         </div>
       </section>
-    </div>
-
-    <!-- Zone de retour visuel après activation -->
-    <div id="setup-status" class="mt-status-banner" role="status" aria-live="polite" hidden>
-      <span id="setup-status-text" class="mt-status-text"></span>
-      <button type="button" id="btn-close-tab" class="mt-btn mt-btn-small" data-i18n="setupBtnCloseTab">Fermer cet onglet</button>
     </div>
   </main>
 

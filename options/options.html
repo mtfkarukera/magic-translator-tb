@@ -44,7 +44,7 @@
             <span data-i18n="optActiveProviderLabel">Fournisseur de traduction actif</span>
             <span class="mt-badge-info" id="provider-badge" data-i18n="badgeDefault">Par défaut</span>
           </label>
-          <select id="select-provider" class="mt-select">
+          <select id="select-provider" class="mt-select" aria-describedby="help-provider">
             <option value="none" data-i18n="optProviderNone">— Choisissez un fournisseur de traduction —</option>
             <option value="google" data-i18n="optProviderGoogle">Google Translate (Gratuit — Sans clé d'API)</option>
             <option value="mymemory" data-i18n="optProviderMyMemory">MyMemory (Gratuit — Sans clé, 5 000 à 50 000 car./jour)</option>
@@ -59,12 +59,12 @@
         </div>
 
         <!-- Encadré de Transparence & Confidentialité (Exigence Mozilla ATN) -->
-        <div id="privacy-disclosure-box" class="mt-provider-section" style="margin-bottom: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <p class="mt-help-text" style="margin: 0; flex: 1 1 260px;" data-i18n="optionsPrivacyDisclosure">
+        <div id="privacy-disclosure-box" class="mt-provider-section mt-privacy-box">
+          <div class="mt-privacy-row">
+            <p class="mt-help-text mt-privacy-help" data-i18n="optionsPrivacyDisclosure">
               🛡️ Confidentialité : lorsque vous traduisez un e-mail ou un brouillon, le texte à traduire est transmis via HTTPS au fournisseur sélectionné ci-dessus (ou traité sur votre machine via localhost). Aucun envoi n'a lieu tant qu'aucun fournisseur n'est choisi.
             </p>
-            <button type="button" id="btn-open-setup" class="mt-btn mt-btn-secondary" style="padding: 5px 10px; font-size: 12px; min-height: auto;" data-i18n="btnOpenSetupWizard">
+            <button type="button" id="btn-open-setup" class="mt-btn mt-btn-secondary mt-btn-inline" data-i18n="btnOpenSetupWizard">
               🧭 Assistant d'accueil
             </button>
           </div>
@@ -76,14 +76,14 @@
             <div class="mt-toggle-row">
               <div class="mt-toggle-info">
                 <label for="enable-mymemory-fallback" class="mt-toggle-title" data-i18n="labelEnableMyMemoryFallback">Relais automatique vers MyMemory en cas d'indisponibilité</label>
-                <p class="mt-help-text" data-i18n="helpEnableMyMemoryFallback">
+                <p id="help-mymemory-fallback" class="mt-help-text" data-i18n="helpEnableMyMemoryFallback">
                   Si Google Translate est temporairement saturé (erreur 429 ou panne réseau), autorise l'envoi du texte à traduire vers l'API MyMemory (api.mymemory.translated.net) en secours.
                 </p>
               </div>
-              <label class="mt-toggle-switch" for="enable-mymemory-fallback">
-                <input type="checkbox" id="enable-mymemory-fallback" role="switch" class="mt-toggle-input">
-                <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
-              </label>
+              <span class="mt-toggle-switch">
+                <input type="checkbox" id="enable-mymemory-fallback" role="switch" aria-describedby="help-mymemory-fallback" class="mt-toggle-input">
+                <span class="mt-toggle-track" aria-hidden="true"><span class="mt-toggle-thumb"></span></span>
+              </span>
             </div>
           </div>
         </div>
@@ -93,10 +93,10 @@
           <div class="mt-field-group">
             <label for="deepl-api-key" class="mt-label" data-i18n="labelDeeplKey">Clé d'API DeepL (Auth-Key)</label>
             <div class="mt-input-password-wrapper">
-              <input type="password" id="deepl-api-key" class="mt-input" placeholder="Ex: 12345678-abcd-ef01-2345-6789abcdef01:fx" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
+              <input type="password" id="deepl-api-key" class="mt-input" placeholder="Ex: 12345678-abcd-ef01-2345-6789abcdef01:fx" autocomplete="off" spellcheck="false" aria-describedby="help-deepl-key">
+              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
-            <p class="mt-help-text">
+            <p id="help-deepl-key" class="mt-help-text">
               <span data-i18n="helpDeeplKey">Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur</span> <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer" class="mt-link">deepl.com/pro-api</a>.
             </p>
           </div>
@@ -116,20 +116,20 @@
           <div class="mt-field-group">
             <label for="gemini-api-key" class="mt-label" data-i18n="labelGeminiKey">Clé d'API Google AI Studio (Gemini API Key)</label>
             <div class="mt-input-password-wrapper">
-              <input type="password" id="gemini-api-key" class="mt-input" placeholder="Ex: AIzaSy..." autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
+              <input type="password" id="gemini-api-key" class="mt-input" placeholder="Ex: AIzaSy..." autocomplete="off" spellcheck="false" aria-describedby="help-gemini-key">
+              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
-            <p class="mt-help-text">
+            <p id="help-gemini-key" class="mt-help-text">
               <span data-i18n="helpGeminiKey">Obtenez une clé gratuite sur</span> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="mt-link">aistudio.google.com</a>.
             </p>
           </div>
 
           <div class="mt-field-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label for="gemini-model" class="mt-label" style="margin-bottom: 0;" data-i18n="labelGeminiModel">Modèle Gemini</label>
-              <button type="button" id="btn-refresh-gemini-models" class="mt-btn mt-btn-secondary" style="padding: 2px 8px; font-size: 11px; min-height: auto;" title="Interroger la liste officielle des modèles Google en direct" data-i18n="btnRefreshModels" data-i18n-title="titleRefreshModels">🔄 Actualiser les modèles</button>
+            <div class="mt-field-header-row">
+              <label for="gemini-model" class="mt-label mt-label-inline" data-i18n="labelGeminiModel">Modèle Gemini</label>
+              <button type="button" id="btn-refresh-gemini-models" class="mt-btn mt-btn-secondary mt-btn-tiny" title="Interroger la liste officielle des modèles Google en direct" data-i18n="btnRefreshModels" data-i18n-title="titleRefreshModels">🔄 Actualiser les modèles</button>
             </div>
-            <select id="gemini-model" class="mt-select">
+            <select id="gemini-model" class="mt-select" aria-describedby="help-gemini-models">
               <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Recommandé — Ultra-rapide &amp; économique)</option>
               <option value="gemini-3.7-flash">gemini-3.7-flash (Nouveau modèle phare août 2026)</option>
               <option value="gemini-2.5-flash">gemini-2.5-flash</option>
@@ -159,7 +159,7 @@
 
           <div class="mt-field-group">
             <label for="llm-base-url" class="mt-label" data-i18n="labelLlmBaseUrl">URL de Base de l'API (Base URL)</label>
-            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com ou http://localhost:11434" spellcheck="false">
+            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com ou http://localhost:11434" spellcheck="false" aria-describedby="help-llm-url">
             <p class="mt-help-text" id="help-llm-url" data-i18n="helpLlmBaseUrl">
               Endpoint standard (/v1/chat/completions ajouté automatiquement). Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire hors de votre machine locale (http:// est autorisé uniquement sur localhost / 127.0.0.1).
             </p>
@@ -168,8 +168,8 @@
           <div class="mt-field-group" id="group-llm-key">
             <label for="llm-api-key" class="mt-label" data-i18n="labelLlmApiKey">Clé d'API (Bearer Token)</label>
             <div class="mt-input-password-wrapper">
-              <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" data-i18n-placeholder="placeholderLlmApiKey" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
+              <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" data-i18n-placeholder="placeholderLlmApiKey" autocomplete="off" spellcheck="false" aria-describedby="help-llm-key">
+              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
             <p class="mt-help-text" id="help-llm-key" data-i18n="helpLlmApiKey">
               Clé d'authentification pour le service distant.
@@ -186,8 +186,8 @@
         <div id="section-libretranslate" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
             <label for="libretranslate-url" class="mt-label" data-i18n="labelLibreTranslateUrl">URL de l'instance LibreTranslate</label>
-            <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false">
-            <p class="mt-help-text" data-i18n="helpLibreTranslateUrl">
+            <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false" aria-describedby="help-lt-url">
+            <p id="help-lt-url" class="mt-help-text" data-i18n="helpLibreTranslateUrl">
               Indiquez l'URL de votre instance LibreTranslate. Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire pour tout serveur distant ou réseau local (LAN) ; http:// n'est autorisé que sur votre machine locale (localhost / 127.0.0.1).
             </p>
           </div>
@@ -196,7 +196,7 @@
             <label for="libretranslate-api-key" class="mt-label" data-i18n="labelLibreTranslateKey">Clé d'API LibreTranslate (Optionnel)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" data-i18n-placeholder="placeholderLtKey" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé" data-i18n-aria-label="ariaToggleKey">👁️</button>
+              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
           </div>
         </div>
@@ -205,8 +205,8 @@
         <div id="section-mymemory" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
             <label for="mymemory-email" class="mt-label" data-i18n="labelMyMemoryEmail">Adresse e-mail (Optionnel — Quota étendu)</label>
-            <input type="email" id="mymemory-email" class="mt-input" placeholder="Ex: vous@domaine.com" spellcheck="false">
-            <p class="mt-help-text" data-i18n="helpMyMemoryEmail">
+            <input type="email" id="mymemory-email" class="mt-input" placeholder="Ex: vous@domaine.com" spellcheck="false" aria-describedby="help-mymemory-email">
+            <p id="help-mymemory-email" class="mt-help-text" data-i18n="helpMyMemoryEmail">
               Renseigner une adresse e-mail permet de porter gratuitement votre quota de 5 000 à 50 000 caractères par jour, sans carte bancaire.
             </p>
           </div>
@@ -221,14 +221,14 @@
           <div class="mt-toggle-row">
             <div class="mt-toggle-info">
               <label for="auto-translate-on-click" class="mt-toggle-title" data-i18n="labelAutoTranslateOnClick">Traduction automatique en 1 clic</label>
-              <p class="mt-help-text" data-i18n="helpAutoTranslateOnClick">
+              <p id="help-auto-click" class="mt-help-text" data-i18n="helpAutoTranslateOnClick">
                 Traduit immédiatement l'e-mail au clic sur le bouton de la barre d'outils ou via le raccourci Alt+Shift+T, sans nécessiter de second clic dans le bandeau.
               </p>
             </div>
-            <label class="mt-toggle-switch" for="auto-translate-on-click">
-              <input type="checkbox" id="auto-translate-on-click" role="switch" class="mt-toggle-input">
-              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
-            </label>
+            <span class="mt-toggle-switch">
+              <input type="checkbox" id="auto-translate-on-click" role="switch" aria-describedby="help-auto-click" class="mt-toggle-input">
+              <span class="mt-toggle-track" aria-hidden="true"><span class="mt-toggle-thumb"></span></span>
+            </span>
           </div>
         </div>
 
@@ -236,28 +236,31 @@
           <div class="mt-toggle-row">
             <div class="mt-toggle-info">
               <label for="auto-translate-on-open" class="mt-toggle-title" data-i18n="labelAutoTranslateOnOpen">Traduction automatique à l'ouverture (Mode Zéro-Clic)</label>
-              <p class="mt-help-text" data-i18n="helpAutoTranslateOnOpen">
-                Traduit automatiquement les e-mails reçus dès leur ouverture sans aucun clic, et replie l'interface dans la pilule d'accès direct.
+              <p id="help-auto-open" class="mt-help-text" data-i18n="helpAutoTranslateOnOpen">
+                Traduit automatiquement les e-mails reçus dès leur ouverture sans aucun clic, puis replie discrètement le bandeau de traduction.
               </p>
             </div>
-            <label class="mt-toggle-switch" for="auto-translate-on-open">
-              <input type="checkbox" id="auto-translate-on-open" role="switch" class="mt-toggle-input">
-              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
-            </label>
+            <span class="mt-toggle-switch">
+              <input type="checkbox" id="auto-translate-on-open" role="switch" aria-expanded="false" aria-controls="zero-click-suboptions" aria-describedby="help-auto-open" class="mt-toggle-input">
+              <span class="mt-toggle-track" aria-hidden="true"><span class="mt-toggle-thumb"></span></span>
+            </span>
           </div>
 
           <!-- Sous-options Zéro-Clic (conditionnelles) -->
           <div id="zero-click-suboptions" class="mt-suboptions-box mt-hidden">
-            <div class="mt-radio-group">
-              <label class="mt-radio-label">
-                <input type="radio" name="auto-translate-mode" value="all_foreign" id="mode-all-foreign" checked>
-                <span data-i18n="optModeAllForeign">Tous les e-mails qui ne sont pas dans ma langue cible</span>
-              </label>
-              <label class="mt-radio-label">
-                <input type="radio" name="auto-translate-mode" value="selected" id="mode-selected">
-                <span data-i18n="optModeSelected">Uniquement depuis les langues sélectionnées ci-dessous :</span>
-              </label>
-            </div>
+            <fieldset class="mt-radio-fieldset">
+              <legend class="mt-sr-only" data-i18n="legendZeroClickMode">Périmètre du mode Zéro-Clic</legend>
+              <div class="mt-radio-group">
+                <label class="mt-radio-label">
+                  <input type="radio" name="auto-translate-mode" value="all_foreign" id="mode-all-foreign" checked>
+                  <span data-i18n="optModeAllForeign">Tous les e-mails qui ne sont pas dans ma langue cible</span>
+                </label>
+                <label class="mt-radio-label">
+                  <input type="radio" name="auto-translate-mode" value="selected" id="mode-selected">
+                  <span data-i18n="optModeSelected">Uniquement depuis les langues sélectionnées ci-dessous :</span>
+                </label>
+              </div>
+            </fieldset>
 
             <div id="zero-click-langs-grid" class="mt-langs-grid mt-hidden">
               <label class="mt-lang-chip"><input type="checkbox" value="en" class="mt-lang-chk"> English</label>
@@ -280,20 +283,20 @@
           <div class="mt-toggle-row">
             <div class="mt-toggle-info">
               <label for="prefer-local-detection" class="mt-toggle-title" data-i18n="labelPreferLocalDetection">Préférer la détection linguistique locale (moteur intégré Thunderbird)</label>
-              <p class="mt-help-text" data-i18n="helpPreferLocalDetection">
+              <p id="help-local-detect" class="mt-help-text" data-i18n="helpPreferLocalDetection">
                 Analyse la langue source en local sur votre ordinateur avant tout appel réseau (100% hors-ligne). Idéal pour LibreTranslate ou les modèles locaux (Ollama/LLMs) dépourvus de module d'auto-détection.
               </p>
             </div>
-            <label class="mt-toggle-switch" for="prefer-local-detection">
-              <input type="checkbox" id="prefer-local-detection" role="switch" class="mt-toggle-input">
-              <span class="mt-toggle-track"><span class="mt-toggle-thumb"></span></span>
-            </label>
+            <span class="mt-toggle-switch">
+              <input type="checkbox" id="prefer-local-detection" role="switch" aria-describedby="help-local-detect" class="mt-toggle-input">
+              <span class="mt-toggle-track" aria-hidden="true"><span class="mt-toggle-thumb"></span></span>
+            </span>
           </div>
         </div>
 
         <div class="mt-field-group">
           <label for="select-alternate-target" class="mt-label" data-i18n="labelAlternateTarget">Langue cible d'alternance (Double traduction)</label>
-          <select id="select-alternate-target" class="mt-select">
+          <select id="select-alternate-target" class="mt-select" aria-describedby="help-alternate-target">
             <option value="none" data-i18n="optAlternateNone">Aucune (Désactivé par défaut)</option>
             <option value="en">English</option>
             <option value="fr">Français</option>
@@ -326,13 +329,13 @@
             <option value="ms">Bahasa Melayu</option>
             <option value="th">ไทย</option>
           </select>
-          <p class="mt-help-text" data-i18n="helpAlternateTarget">
+          <p id="help-alternate-target" class="mt-help-text" data-i18n="helpAlternateTarget">
             Optionnel. Si l'e-mail reçu est déjà rédigé dans la langue cible principale (ex: déjà en français), bascule automatiquement vers cette langue d'alternance.
           </p>
         </div>
 
-        <!-- Zone de Statut & Feedback -->
-        <div id="status-container" class="mt-status-container mt-hidden" role="status" aria-live="polite">
+        <!-- Zone de Statut & Feedback (maintenue dans l'arbre ARIA) -->
+        <div id="status-container" class="mt-status-container is-empty" role="status" aria-live="polite">
           <span id="status-icon" class="mt-status-icon" aria-hidden="true"></span>
           <span id="status-text" class="mt-status-text"></span>
         </div>

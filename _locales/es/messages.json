@@ -318,7 +318,7 @@
     "message": "Traducción automática al abrir (Modo Cero Clics)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Traduce automáticamente los correos entrantes al abrirlos sin necesidad de hacer clic y se pliega en la píldora de acceso rápido."
+    "message": "Traduce automáticamente los correos entrantes al abrirlos sin necesidad de hacer clic y pliega discretamente la barra de traducción."
   },
   "optModeAllForeign": {
     "message": "Todos los correos que no estén en mi idioma de destino"
@@ -363,7 +363,7 @@
     "message": "Aún no hay ningún motor activado. La traducción envía el texto al proveedor elegido:"
   },
   "composeBtnConsentAccept": {
-    "message": "✓ Activar Google (+ MyMemory) y traducir"
+    "message": "✓ Activar Google y traducir"
   },
   "composeBtnConsentOptions": {
     "message": "⚙️ Otro motor…"
@@ -433,5 +433,80 @@
   },
   "setupBtnCloseTab": {
     "message": "Cerrar esta pestaña"
+  },
+  "consentFallbackCheckbox": {
+    "message": "Permitir MyMemory como respaldo si Google está saturado"
+  },
+  "composeAriaConsentSection": {
+    "message": "Consentimiento del motor de traducción"
+  },
+  "composeAriaLangSection": {
+    "message": "Selección de idiomas"
+  },
+  "composeAriaScopeSection": {
+    "message": "Alcance de la traducción"
+  },
+  "composeMagicSoftsTooltip": {
+    "message": "Descubrir la suite magic-softs"
+  },
+  "composeBadgePermWarningTitle": {
+    "message": "Falta permiso de red para {provider} — Haz clic para configurar"
+  },
+  "composeBadgeKeyWarningTitle": {
+    "message": "Falta clave API para {provider} — Haz clic para configurar"
+  },
+  "composeBadgeActiveTitle": {
+    "message": "Motor activo: {provider}"
+  },
+  "composeBadgeFallbackSuffix": {
+    "message": "respaldo"
+  },
+  "composeSelectionCountSingular": {
+    "message": "({count} car.)"
+  },
+  "composeSelectionCountPlural": {
+    "message": "({count} car.)"
+  },
+  "composeStatusRestoreError": {
+    "message": "Error al restaurar el mensaje original."
+  },
+  "errorUnauthorized": {
+    "message": "Solicitud no autorizada."
+  },
+  "ariaShowKey": {
+    "message": "Mostrar clave API"
+  },
+  "ariaHideKey": {
+    "message": "Ocultar clave API"
+  },
+  "legendZeroClickMode": {
+    "message": "Alcance del modo Cero Clics"
+  },
+  "btnRefreshingModels": {
+    "message": "⏳ Cargando…"
+  },
+  "statusGeminiModelsSynced": {
+    "message": "✓ ¡{count} modelos Gemini sincronizados con éxito!"
+  },
+  "helpGeminiModelsSynced": {
+    "message": "✓ {count} modelos disponibles sincronizados con Google AI Studio."
+  },
+  "errorGeminiModelsSync": {
+    "message": "⚠️ Error de sincronización: {error}"
+  },
+  "errorInvalidUrl": {
+    "message": "La URL introducida no es válida."
+  },
+  "errorPermissionDenied": {
+    "message": "Permiso de red denegado. Autoriza el acceso al dominio para continuar."
+  },
+  "errorLoadPreferences": {
+    "message": "No se pudieron cargar las preferencias."
+  },
+  "setupStatusAlreadyActive": {
+    "message": "✓ Motor actualmente activo: {provider}. Puedes cambiar tu elección abajo o cerrar esta pestaña."
+  },
+  "setupBtnActivatedGoogle": {
+    "message": "✓ Google Translate activado (actualizar opción)"
   }
 }
