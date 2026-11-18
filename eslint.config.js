@@ -35,6 +35,7 @@ export default [
 
       // ── Bonnes pratiques ─────────────────────────────────────────────
       "eqeqeq": ["warn", "always"],
+      "no-alert": "error",
       "no-eval": "error",
       "no-implied-eval": "error",
       "no-with": "error",

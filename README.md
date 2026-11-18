@@ -8,8 +8,8 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 ## ✨ Fonctionnalités
 
 ### 🛡️ 0. Consentement Explicite (Opt-In) & Sécurité Réseau (v2.5.0)
-- **Assistant de Premier Lancement (`setup/`)** — À l'installation, aucun moteur de traduction n'est activé par défaut (`provider: "none"`). Une page d'accueil transparente présente les données transmises et permet d'activer **Google Translate** en 1 clic (avec case à cocher optionnelle pour le relais de secours **MyMemory**) ou de configurer le moteur de votre choix.
-- **Filet de Sécurité en 1 Clic** — Si vous fermez l'assistant d'accueil sans choisir de moteur, le premier clic sur **Traduire** (en lecture ou en rédaction) affiche un bandeau d'autorisation intégré avec case optionnelle pour le relais MyMemory : cliquez sur **`✓ Activer Google et traduire`** pour enregistrer votre consentement et lancer immédiatement votre traduction sans perdre une seconde.
+- **Assistant de Premier Lancement (`setup/`)** — À l'installation, aucun moteur de traduction n'est activé par défaut (`provider: "none"`). Une page d'accueil transparente présente les données transmises et permet d'activer **Google Translate** en 1 clic (avec case à cocher optionnelle, décochée par défaut, pour le relais de secours **MyMemory**) ou de configurer le moteur de votre choix.
+- **Filet de Sécurité en 1 Clic** — Si vous fermez l'assistant d'accueil sans choisir de moteur, dès l'ouverture du bandeau en lecture (ou du popup en rédaction), la barre de consentement intégrée s'affiche avec la case optionnelle MyMemory (décochée par défaut) : cliquez sur **`✓ Activer Google et traduire`** pour enregistrer votre consentement et lancer immédiatement votre traduction.
 - **Chiffrement HTTPS Strict Hors Bouclage Local** — Conformément aux règles de sécurité de Mozilla Thunderbird, le protocole chiffré **`https://`** est strictement imposé pour tout serveur distant ou situé sur le réseau local (LAN). Le protocole non chiffré `http://` est réservé exclusivement à votre propre machine locale (`localhost` / `127.0.0.1`), renforcé par la politique CSP `connect-src`.
 
 ### 📖 1. Mode Lecture (Panneau de Message)
@@ -20,20 +20,20 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 - **Badge Moteur Interactif & Statut Réel** — Visualisation immédiate du moteur actif, statut réel connecté (voyant vert `●` ou alerte orange `●`), et autorisation réseau en 1 clic.
 - **Menu clic-droit** sur le bouton **Traduire** — Activer / Désactiver le traducteur et accès direct aux **Options**.
 - **Flux UX épuré** — Traduction in situ réversible sans élément résiduel obstruant la lecture.
-- **Raccourci clavier** — `Alt+Shift+T` par défaut (remappable).
+- **Raccourci clavier en lecture** — `Alt+Shift+T` par défaut (remappable).
 
 ### ✍️ 2. Mode Rédaction (Fenêtre de Composition)
-- **Bouton MT dédié** dans la barre d'outils de rédaction (aux côtés de LanguageTool, Envoyer, etc.).
+- **Bouton MT dédié** dans la barre d'outils de rédaction (ou raccourci **`Alt+Shift+M`** par défaut, remappable).
 - **Popup Glassmorphism adaptatif** — Interface fluide s'ajustant automatiquement au thème clair ou sombre de Thunderbird.
 - **Traduction de l'Objet et/ou du Corps** — Choix du périmètre de traduction avec cases à cocher dédiées et détection d'erreurs sécurisée.
-- **Traduction de la Sélection active** — Détection automatique du texte surligné dans l'éditeur pour un remplacement chirurgical in situ.
-- **Réversibilité totale** — Bouton **Restaurer l'original** pour retrouver l'état initial en un clic.
+- **Traduction de la Sélection active** — Détection automatique du texte surligné dans l'éditeur pour une traduction in situ préservant la mise en forme HTML (`<b>`, `<p>`, `<br>`).
+- **Réversibilité totale** — Bouton **Restaurer l'original** pour retrouver l'état initial (via mémoire vive `storage.session`) en un clic.
 
 ### 🌐 3. Hub Multi-Fournisseurs & LLMs
-- **Google Translate** (*recommandé*, gratuit, activation en 1 clic — avec relais automatique optionnel vers MyMemory en cas de quota ou indisponibilité)
+- **Google Translate** (*recommandé*, gratuit, activation en 1 clic — avec relais automatique optionnel vers MyMemory, désactivé par défaut)
 - **MyMemory** (*Gratuit*, sans clé d'API, 5 000 à 50 000 car./jour via e-mail optionnel)
 - **DeepL API** (*Free & Pro*, qualité linguistique professionnelle)
-- **Google Gemini API** (*Cloud IA*, `gemini-2.5-flash`, ultra-rapide et intelligent)
+- **Google Gemini API** (*Cloud IA*, `gemini-3.5-flash-lite`, `gemini-3.7-flash`, synchronisation dynamique des modèles)
 - **Hub LLMs OpenAI-Compatible** (*Cloud & Local*) :
   - **OpenAI** (`gpt-4o-mini`, `gpt-4o`)
   - **Groq Cloud** (`llama-3.3-70b-versatile` — inférence instantanée)
@@ -78,13 +78,13 @@ Extension de traduction intégrée pour Mozilla Thunderbird. Traduit les e-mails
 
 ### En Mode Rédaction :
 1. Rédigez votre e-mail dans la fenêtre de composition (en français ou votre langue habituelle).
-2. Cliquez sur le bouton **MT** dans la barre d'outils de rédaction (ou faites `Alt+Shift+T`).
+2. Cliquez sur le bouton **Traduire** dans la barre d'outils de rédaction (ou faites `Alt+Shift+M`).
 3. Le popup Glassmorphism s'ouvre : choisissez la langue cible (ex: English, Deutsch).
 4. Cochez les éléments à traduire (Objet, Corps entier, ou Sélection active).
-5. Cliquez sur **Traduire le message** ➔ Le texte est mis à jour in situ !
+5. Cliquez sur **Traduire** ➔ Le texte est mis à jour in situ !
 6. Cliquez sur **Restaurer l'original** si vous souhaitez revenir à votre brouillon initial.
 
-> **Raccourci clavier :** `Alt+Shift+T` (par défaut, **remappable**) affiche / masque le traducteur, comme le bouton de la barre.
+> **Raccourcis clavier (remappables) :** `Alt+Shift+T` en lecture et `Alt+Shift+M` en rédaction.
 
 ## ⚠️ Incompatibilités connues
 
@@ -140,25 +140,23 @@ magic-translator-tb/
 ### Flux de données
 
 ```
-[Utilisateur clique [T] dans la barre de message]
+[Utilisateur clique [Traduire] dans la barre de message ou Alt+Shift+T]
     ↓
-background.js → messageDisplayAction.onClicked
-    → tabs.sendMessage({ action: "toggleBanner" })
+background.js → estOngletLectureValide() → tabs.sendMessage({ action: "toggleBanner" })
     ↓
 translator-injected.js reçoit "toggleBanner"
-    → ouvre le bandeau (ou ferme tout si déjà ouvert)
+    → ouvre le bandeau (avec barre de consentement inline si provider === "none")
     ↓
-Clic « Traduire »
+Clic « Traduire » (ou « ✓ Activer Google et traduire »)
     ↓
-browser.runtime.sendMessage({ action: "translate", ... })
+browser.runtime.sendMessage({ action: "translate", ... }) (+ keep-alive ping)
     ↓
-background.js → fetch() → Fournisseur choisi (ex: Google Translate-PA)
+background.js → MTProviders.traduire() → fetch() → Fournisseur choisi
     ↓
 Réponse { success, text, detectedLang }
     ↓
-Texte traduit injecté dans le DOM du message
-Bandeau se referme proprement (zéro résidu sur l'e-mail)
-Clic [Traduire] ou bouton barre → réaffiche le bandeau pour restaurer l'original ou changer de langue
+Texte traduit injecté dans le DOM du message ; bouton « Original » disponible pour restaurer
+Clic [Traduire] barre ou [▴] → replie proprement le bandeau (zéro résidu sur l'e-mail)
 ```
 
 ## 🌐 Langues de l'interface

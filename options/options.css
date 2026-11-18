@@ -13,7 +13,8 @@
   --mt-bg-base: transparent;
   --mt-bg-card: #ffffff;
   --mt-border: #cbd5e1;
-  --mt-border-hover: #94a3b8;
+  --mt-border-control: #94a3b8;
+  --mt-border-hover: #64748b;
   --mt-border-focus: #6d28d9;
   --mt-text-primary: #15141a;
   --mt-text-secondary: #475569;
@@ -23,18 +24,19 @@
   --mt-badge-text: #5b21b6;
   --mt-badge-border: rgba(109, 40, 217, 0.28);
   --mt-select-bg: #f8fafc;
+  --mt-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.5L6 6L10.5 1.5' stroke='%23475569' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --mt-section-bg: #f8fafc;
   --mt-section-border: #e2e8f0;
   --mt-toggle-off-bg: #94a3b8;
   --mt-toggle-off-border: #64748b;
+  --mt-toggle-checked-border: #6d28d9;
   --mt-btn-sec-bg: #f1f5f9;
   --mt-btn-sec-hover: #e2e8f0;
-  --mt-btn-sec-border: #cbd5e1;
+  --mt-btn-sec-border: #94a3b8;
   --mt-btn-sec-text: #15141a;
   --mt-code-bg: rgba(0, 0, 0, 0.06);
   --mt-link-color: #6d28d9;
   --mt-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --mt-success: #059669;
   --mt-success-bg: rgba(16, 185, 129, 0.1);
   --mt-success-text: #065f46;
   --mt-success-border: rgba(16, 185, 129, 0.35);
@@ -54,7 +56,8 @@
     --mt-bg-base: transparent;
     --mt-bg-card: #2b2a33;
     --mt-border: rgba(255, 255, 255, 0.16);
-    --mt-border-hover: rgba(255, 255, 255, 0.28);
+    --mt-border-control: rgba(255, 255, 255, 0.28);
+    --mt-border-hover: rgba(255, 255, 255, 0.4);
     --mt-border-focus: #c4b5fd;
     --mt-text-primary: #fbfbfe;
     --mt-text-secondary: #cfcfd8;
@@ -64,18 +67,19 @@
     --mt-badge-text: #ddd6fe;
     --mt-badge-border: rgba(167, 139, 250, 0.4);
     --mt-select-bg: #1c1b22;
+    --mt-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.5L6 6L10.5 1.5' stroke='%2394a3b8' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --mt-section-bg: rgba(0, 0, 0, 0.25);
     --mt-section-border: rgba(255, 255, 255, 0.1);
     --mt-toggle-off-bg: rgba(255, 255, 255, 0.28);
     --mt-toggle-off-border: rgba(255, 255, 255, 0.45);
+    --mt-toggle-checked-border: #a78bfa;
     --mt-btn-sec-bg: #383740;
     --mt-btn-sec-hover: #484752;
-    --mt-btn-sec-border: rgba(255, 255, 255, 0.2);
+    --mt-btn-sec-border: rgba(255, 255, 255, 0.28);
     --mt-btn-sec-text: #fbfbfe;
     --mt-code-bg: rgba(255, 255, 255, 0.1);
     --mt-link-color: #c4b5fd;
     --mt-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    --mt-success: #10b981;
     --mt-success-bg: rgba(16, 185, 129, 0.16);
     --mt-success-text: #6ee7b7;
     --mt-success-border: rgba(16, 185, 129, 0.35);
@@ -135,19 +139,8 @@ html, body {
   gap: 12px;
 }
 
-.mt-logo-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--mt-radius-md);
-  background: linear-gradient(135deg, #6d28d9, #4338ca);
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: -0.5px;
-  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+.mt-logo-img {
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
@@ -166,8 +159,6 @@ html, body {
 /* ── CARTE PRINCIPALE ── */
 .mt-card {
   background: var(--mt-bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--mt-border);
   border-radius: var(--mt-radius-lg);
   padding: 24px;
@@ -224,12 +215,28 @@ form {
   width: 100%;
   padding: 10px 14px;
   background: var(--mt-select-bg);
-  border: 1px solid var(--mt-border);
+  border: 1px solid var(--mt-border-control);
   border-radius: var(--mt-radius-md);
   color: var(--mt-text-primary);
   font-family: inherit;
   font-size: 13px;
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.mt-select {
+  appearance: none;
+  -moz-appearance: none;
+  background-image: var(--mt-select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 8px;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.mt-input::placeholder {
+  color: var(--mt-text-secondary);
+  opacity: 0.85;
 }
 
 .mt-select:hover,
@@ -330,16 +337,6 @@ form {
   flex: 1 1 260px;
 }
 
-.mt-btn-inline {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.mt-btn-tiny {
-  padding: 4px 10px;
-  font-size: 11.5px;
-}
-
 /* ── SECTION ERGONOMIE & TITRES ── */
 .mt-section-divider {
   border-top: 1px solid var(--mt-border);
@@ -420,7 +417,7 @@ form {
 
 .mt-toggle-input:checked + .mt-toggle-track {
   background-color: var(--mt-accent-purple);
-  border-color: var(--mt-accent-purple);
+  border-color: var(--mt-toggle-checked-border);
 }
 
 .mt-toggle-input:checked + .mt-toggle-track .mt-toggle-thumb {
@@ -533,6 +530,17 @@ form {
 
 .mt-btn-primary:hover:not(:disabled) {
   background: var(--mt-accent-purple-hover);
+}
+
+/* Déclarés après .mt-btn pour garantir la priorité de cascade sur le padding et la taille */
+.mt-btn-inline {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.mt-btn-tiny {
+  padding: 4px 10px;
+  font-size: 11.5px;
 }
 
 /* ── FOOTER ── */
@@ -659,7 +667,7 @@ form {
 }
 
 .mt-btn-permission:focus-visible {
-  outline: 2px solid #d97706;
+  outline: 2px solid var(--mt-border-focus);
   outline-offset: 2px;
 }
 
@@ -720,7 +728,7 @@ form {
   gap: 6px;
   font-size: 12px;
   background: var(--mt-bg-card);
-  border: 1px solid var(--mt-border);
+  border: 1px solid var(--mt-border-control);
   border-radius: var(--mt-radius-sm);
   padding: 4px 8px;
   color: var(--mt-text-primary);
@@ -746,6 +754,26 @@ form {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 520px) {
+  html, body {
+    padding: 12px;
+  }
+  .mt-card {
+    padding: 16px;
+  }
+  .mt-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mt-btn {
+    width: 100%;
+  }
+  .mt-btn-inline,
+  .mt-btn-tiny {
+    width: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

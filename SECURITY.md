@@ -34,10 +34,11 @@ des e-mails. Les hypothèses structurantes sont :
 - ✅ **Aucune écriture HTML.** Toutes les insertions de texte (UI et contenu du message) passent par
   `textContent` / `createTextNode` / `DOMParser`. Pas d'`innerHTML`, `outerHTML`, `insertAdjacentHTML`, ni `eval`.
   → un e-mail hostile **ne peut pas** exécuter de code via l'extension.
-- ✅ **Aucune persistance disque du contenu des e-mails.** Seules les préférences d'options et les clés d'API sont stockées localement via `browser.storage.local`. En mode rédaction, l'instantané d'annulation avant traduction (`compose_orig_<tabId>`) réside exclusivement en mémoire vive éphémère (`browser.storage.session`) et disparaît dès la restauration ou à la fermeture de Thunderbird.
-- ✅ **Consentement explicite préalable (Opt-In — `provider: "none"` par défaut).** Aucun moteur de traduction ni relais de secours n'est activé avant le choix explicite de l'utilisateur (assistant de premier lancement `setup/setup.html` ou bandeau de consentement inline en 1 clic, avec case optionnelle dédiée pour MyMemory). Tant qu'aucun fournisseur n'est sélectionné, zéro requête réseau (`fetch`) n'est émise (politique *fail-closed*).
+- ✅ **Aucune persistance disque du contenu des e-mails.** Seules les préférences d'options et les clés d'API sont stockées localement via `browser.storage.local`. En mode rédaction, l'instantané d'annulation avant traduction (`compose_orig_<tabId>`) réside exclusivement en mémoire vive éphémère (`browser.storage.session`, avec repli `Map` en RAM sans écriture disque) et disparaît dès la restauration ou à la fermeture de Thunderbird.
+- ✅ **Consentement explicite préalable (Opt-In — `provider: "none"` par défaut).** Aucun moteur de traduction ni relais de secours n'est activé avant le choix explicite de l'utilisateur (assistant de premier lancement `setup/setup.html` ou bandeau de consentement inline en 1 clic, avec case optionnelle décochée par défaut pour MyMemory). Tant qu'aucun fournisseur n'est sélectionné, zéro requête réseau (`fetch`) n'est émise (politique *fail-closed*).
 - ✅ **HTTPS strictement imposé hors bouclage local & CSP `connect-src`.** Conformément aux règles de sécurité de Mozilla Thunderbird (`cleartext-transmission`), toute connexion vers un serveur distant ou une adresse IP de réseau local (LAN) exige obligatoirement le protocole chiffré `https://`. Le protocole `http://` est strictement restreint aux adresses de bouclage local `localhost` et `127.0.0.1` (en parité 1:1 avec `host_permissions` et la directive CSP `connect-src https: http://localhost:* http://127.0.0.1:*`), et aucune clé d'API (`Authorization` / `api_key`) n'est jamais transmise sur `http://`.
-- ✅ **Cloisonnement contre l'injection de prompt LLM.** Pour Google Gemini et le Hub LLMs, le texte de l'e-mail est encapsulé dans des balises `<source_text>...</source_text>` avec consigne système explicite de ne jamais exécuter les instructions contenues dans le corps du message.
+- ✅ **Cloisonnement contre l'injection de prompt LLM.** Pour Google Gemini et le Hub LLMs, le texte de l'e-mail est encapsulé dans une balise XML à nonce aléatoire `<source_text_<16hex>>...</source_text_<16hex>>` vérifiée absente du message, empêchant toute évasion de délimiteur par un contenu hostile.
+- ✅ **Garde de contexte d'injection lecture (`estOngletLectureValide`).** L'injection dynamique du bandeau de lecture et le raccourci `Alt+Shift+T` sont strictement restreints aux onglets `mail` / `messageDisplay` affichant réellement un message (aucune injection accidentelle dans les brouillons `messageCompose`, qui disposent du raccourci dédié `Alt+Shift+M`).
 - ✅ **Isolation Shadow DOM** de l'interface utilisateur dans le panneau de lecture.
 
 ---
@@ -74,7 +75,7 @@ Il a été **entièrement retiré** des scripts en **v2.0.9**. Le débogage pass
 
 **Garde-fous anti-régression** :
 
-- `build.sh` **refuse de packager** si `const DEBUG = true` est détecté.
+- `build.sh` scanne dynamiquement tous les scripts `.js` runtime et **refuse de packager** si `DEBUG = true` (ou `DEBUG: true`) est détecté.
 - `npm run lint:webext` exécute `thunderbird/webext-linter --warnings-as-errors` sur le `.xpi` compilé.
 - `*.log` et `.env*` sont ignorés par Git pour empêcher tout commit de log ou secret.
 

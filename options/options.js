@@ -33,14 +33,15 @@ function t(cle, repli = "", vars = null) {
   return texte;
 }
 
+const LOCALES_SUPPORTEES = new Set(["fr", "en", "de", "es", "vi", "ja", "pt"]);
+
 /**
  * Parcourt le DOM et applique les traductions sur tous les éléments data-i18n*.
  */
 function appliquerI18n() {
   const uiLang = browser.i18n ? browser.i18n.getUILanguage() : "en";
-  if (uiLang) {
-    document.documentElement.lang = uiLang.split("-")[0];
-  }
+  const codePrimaire = uiLang ? uiLang.split("-")[0].toLowerCase() : "en";
+  document.documentElement.lang = LOCALES_SUPPORTEES.has(codePrimaire) ? codePrimaire : "en";
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const cle = el.getAttribute("data-i18n");
     const msg = t(cle);
@@ -135,8 +136,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     inputLibreTranslateUrl
   ].filter(Boolean);
 
-  // Garde synchrone anti-réentrance sur Enregistrer / Tester
+  // Gardes synchrones anti-réentrance et séquence de permissions
   let actionEnCours = false;
+  let syncGeminiEnCours = false;
+  let seqVerifPermission = 0;
 
   // ── Valeurs par défaut & Presets LLM ───────────────────────────────────────
   const DEFAUTS = {
@@ -242,13 +245,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /**
-   * Synchronise l'état visuel et ARIA des sous-options Zéro-Clic.
+   * Synchronise l'état visuel des sous-options Zéro-Clic (role="switch" n'accepte pas aria-expanded).
    */
   function synchroniserEtatZeroClic() {
     const ouvert = Boolean(chkAutoTranslateOnOpen && chkAutoTranslateOnOpen.checked);
-    if (chkAutoTranslateOnOpen) {
-      chkAutoTranslateOnOpen.setAttribute("aria-expanded", String(ouvert));
-    }
     if (zeroClickSuboptions) {
       zeroClickSuboptions.classList.toggle("mt-hidden", !ouvert);
     }
@@ -311,6 +311,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       providerBadge.textContent = "LibreTranslate";
       helpProvider.textContent = t("helpLibreTranslateUrl", "LibreTranslate API");
     }
+
+    if (btnTest) {
+      btnTest.disabled = actionEnCours || provider === "none";
+    }
   }
 
   /**
@@ -328,27 +332,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    if (syncGeminiEnCours) return;
+    syncGeminiEnCours = true;
+
     const libelleRepos = t("btnRefreshModels", "🔄 Actualiser les modèles");
     if (btnRefreshGeminiModels) {
       btnRefreshGeminiModels.disabled = true;
       btnRefreshGeminiModels.textContent = t("btnRefreshingModels", "⏳ Chargement…");
     }
 
-    // Demande de permission sous geste utilisateur uniquement (clic explicite)
-    if (!silencieux) {
-      const accorde = await assurerPermissionsHote({ provider: "gemini", geminiApiKey: apiKey });
-      if (!accorde) {
-        if (btnRefreshGeminiModels) {
-          btnRefreshGeminiModels.disabled = false;
-          btnRefreshGeminiModels.textContent = libelleRepos;
-        }
-        await verifierPermissionMoteur();
-        afficherStatut(t("errorPermissionDenied", "Autorisation réseau refusée. Accordez l'accès au domaine pour continuer."), "error");
-        return;
-      }
-    }
-
     try {
+      // Demande de permission sous geste utilisateur uniquement (clic explicite)
+      if (!silencieux) {
+        const accorde = await assurerPermissionsHote({ provider: "gemini", geminiApiKey: apiKey });
+        await verifierPermissionMoteur();
+        if (!accorde) {
+          afficherStatut(t("errorPermissionDenied", "Autorisation réseau refusée. Accordez l'accès au domaine pour continuer."), "error");
+          return;
+        }
+      }
+
       const reponse = await browser.runtime.sendMessage({
         action: "listGeminiModels",
         apiKey: apiKey.trim()
@@ -427,9 +430,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         afficherStatut(t("errorGeminiModelsSync", "⚠️ Erreur de synchronisation : {error}", { error: msg }), "error");
       }
     } finally {
+      syncGeminiEnCours = false;
       if (btnRefreshGeminiModels) {
         btnRefreshGeminiModels.disabled = false;
         btnRefreshGeminiModels.textContent = libelleRepos;
+        if (!silencieux) {
+          btnRefreshGeminiModels.focus();
+        }
       }
     }
   }
@@ -452,6 +459,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectLlmPreset.value = config.llmPreset || "openai";
     inputLlmBaseUrl.value = config.llmBaseUrl || "https://api.openai.com";
     inputLlmApiKey.value = config.llmApiKey;
+    if (LLM_PRESETS[selectLlmPreset.value]) {
+      inputLlmApiKey.placeholder = LLM_PRESETS[selectLlmPreset.value].keyPlaceholder;
+    }
     inputLlmModel.value = config.llmModel || "gpt-4o-mini";
 
     inputLibreTranslateUrl.value = config.libretranslateUrl || "https://libretranslate.com";
@@ -522,9 +532,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   inputGeminiKey.addEventListener("blur", () => {
-    if (selectProvider.value === "gemini" && inputGeminiKey.value.trim()) {
-      actualiserModelesGemini(inputGeminiKey.value.trim(), true);
-    }
     verifierPermissionMoteur();
   });
 
@@ -600,7 +607,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           const accorde = await browser.permissions.request({ origins: [pattern] });
           if (accorde) {
             warningBanner.classList.add("mt-hidden");
-            afficherStatut(t("statusPermissionGranted", "✓ Autorisation accordée avec succès ! Le moteur est prêt."), "success");
+            afficherStatut(
+              t("statusPermissionGranted", "✓ Autorisation accordée ! Cliquez maintenant sur « Enregistrer les préférences » pour finaliser."),
+              "success"
+            );
+            if (btnSave && !btnSave.disabled) {
+              btnSave.focus();
+            }
           } else {
             afficherStatut(t("errorPermissionDenied", "Autorisation réseau refusée. Accordez l'accès au domaine pour continuer."), "error");
           }
@@ -618,8 +631,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.addEventListener("click", () => {
       const afficherCle = input.type === "password";
       input.type = afficherCle ? "text" : "password";
-      btn.textContent = afficherCle ? "🔒" : "👁️";
-      btn.setAttribute("aria-pressed", String(afficherCle));
+      btn.textContent = afficherCle ? "🙈" : "👁️";
       btn.setAttribute(
         "aria-label",
         afficherCle
@@ -646,6 +658,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function verifierPermissionMoteur() {
     if (!warningBanner) return;
 
+    const seq = ++seqVerifPermission;
     const config = obtenirConfigFormulaire();
     const provider = config.provider;
 
@@ -663,6 +676,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (browser.permissions && browser.permissions.contains) {
         const hasPermission = await browser.permissions.contains({ origins: [pattern] });
+        if (seq !== seqVerifPermission) return;
         if (hasPermission) {
           warningBanner.classList.add("mt-hidden");
           return;
@@ -685,6 +699,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         warningBanner.classList.remove("mt-hidden");
       }
     } catch (err) {
+      if (seq !== seqVerifPermission) return;
       console.warn("[MagicTranslator Options] Erreur vérification permission :", err);
       warningBanner.classList.add("mt-hidden");
     }
@@ -846,6 +861,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       return false;
     }
 
+    if (config.autoTranslateOnOpen && config.autoTranslateMode === "selected" && config.autoTranslateLangs.length === 0) {
+      afficherStatut(t("errorZeroClickNoLang", "Veuillez sélectionner au moins une langue pour le mode Zéro-Clic."), "error");
+      const premiereCase = zeroClickLangsGrid ? zeroClickLangsGrid.querySelector(".mt-lang-chk") : null;
+      if (premiereCase) premiereCase.focus();
+      return false;
+    }
+
     return validerSecuriteUrlFormulaire(config);
   }
 
@@ -858,9 +880,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    const txtTest = btnTest.querySelector(".mt-btn-text");
+    const libelleReposTest = t("btnTestConnection", "Tester la connexion");
+
     actionEnCours = true;
     btnTest.disabled = true;
     btnSave.disabled = true;
+    if (txtTest) txtTest.textContent = t("btnTesting", "Test en cours…");
 
     try {
       // Demande de permission à la volée sur le geste utilisateur
@@ -900,10 +926,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         plan: config.deeplPlan
       };
 
-      const reponse = await browser.runtime.sendMessage({
-        action: "testProvider",
-        config: configAiguillee
-      });
+      const keepAliveId = setInterval(() => {
+        browser.runtime.sendMessage({ action: "ping" }).catch(() => {});
+      }, 18000);
+      let reponse;
+      try {
+        reponse = await browser.runtime.sendMessage({
+          action: "testProvider",
+          config: configAiguillee
+        });
+      } finally {
+        clearInterval(keepAliveId);
+      }
 
       if (reponse && reponse.success) {
         afficherStatut(`✓ ${t("statusTestSuccess", "Connexion réussie !")}`, "success");
@@ -918,8 +952,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
     } finally {
       actionEnCours = false;
-      btnTest.disabled = false;
+      if (txtTest) txtTest.textContent = libelleReposTest;
+      btnTest.disabled = (selectProvider.value === "none");
       btnSave.disabled = false;
+      if (!btnTest.disabled) {
+        btnTest.focus();
+      }
     }
   });
 
@@ -933,9 +971,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    const txtSave = btnSave.querySelector(".mt-btn-text");
+    const libelleReposSave = t("btnSavePreferences", "Enregistrer les préférences");
+
     actionEnCours = true;
     btnSave.disabled = true;
     btnTest.disabled = true;
+    if (txtSave) txtSave.textContent = t("btnSaving", "Enregistrement…");
 
     try {
       // Demande de permission à la volée sur le geste utilisateur direct
@@ -952,13 +994,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (err) {
       console.error("[MagicTranslator Options] Erreur sauvegarde :", err);
       afficherStatut(
-        `${t("statusTestError", "Échec :")} ${(err && err.message) || "Storage error"}`,
+        t("errorSavePreferences", "Impossible d'enregistrer les préférences."),
         "error"
       );
     } finally {
       actionEnCours = false;
+      if (txtSave) txtSave.textContent = libelleReposSave;
       btnSave.disabled = false;
-      btnTest.disabled = false;
+      btnTest.disabled = (selectProvider.value === "none");
+      btnSave.focus();
     }
   };
 

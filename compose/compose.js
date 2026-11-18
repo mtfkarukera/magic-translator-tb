@@ -17,9 +17,10 @@
 let ongletActifId = null;
 let etatOriginal = {
   sujet: null,
+  corpsHtml: null,
+  corpsTexte: null,
+  isPlainText: null,
   extraitsCorps: null,
-  selection: null,
-  modeSelection: false,
   estTraduit: false
 };
 let texteSelectionne = "";
@@ -30,9 +31,51 @@ let origineRequise = "";
 let langueAlternance = "none";
 
 const { decouperLong, extraireEspaces } = globalThis.MTText;
+const LOCALES_SUPPORTEES = new Set(["fr", "en", "de", "es", "vi", "ja", "pt"]);
+const memoireSessionFallback = new Map();
 
 function obtenirStockageSession() {
-  return (browser.storage && browser.storage.session) ? browser.storage.session : browser.storage.local;
+  if (browser.storage && browser.storage.session) {
+    return browser.storage.session;
+  }
+  // Repli purement en RAM (aucune écriture de brouillon sur disque)
+  return {
+    get: async (cle) => ({ [cle]: memoireSessionFallback.get(cle) }),
+    set: async (obj) => {
+      Object.entries(obj).forEach(([k, v]) => memoireSessionFallback.set(k, v));
+    },
+    remove: async (cle) => {
+      memoireSessionFallback.delete(cle);
+    }
+  };
+}
+
+function definirValeurSelectSiPresente(selectEl, valeur) {
+  if (!selectEl || !valeur) return false;
+  const existe = Array.from(selectEl.options).some((opt) => opt.value === valeur);
+  if (!existe) return false;
+  selectEl.value = valeur;
+  return true;
+}
+
+async function envoyerMessageTraduction(texte, source, target) {
+  const keepAliveId = setInterval(() => {
+    browser.runtime.sendMessage({ action: "ping" }).catch(() => {});
+  }, 18000);
+  try {
+    const rep = await browser.runtime.sendMessage({
+      action: "translate",
+      text: texte,
+      source,
+      target
+    });
+    if (!rep || !rep.success) {
+      throw new Error((rep && rep.error) || "SERVICE_UNAVAILABLE");
+    }
+    return rep;
+  } finally {
+    clearInterval(keepAliveId);
+  }
 }
 
 function languesSontEquivalentes(l1, l2) {
@@ -62,9 +105,8 @@ function t(cle, repli = "", remplacements = null) {
 
 function appliquerI18n() {
   const uiLang = browser.i18n ? browser.i18n.getUILanguage() : "en";
-  if (uiLang) {
-    document.documentElement.lang = uiLang.split("-")[0];
-  }
+  const codePrimaire = uiLang ? uiLang.split("-")[0].toLowerCase() : "en";
+  document.documentElement.lang = LOCALES_SUPPORTEES.has(codePrimaire) ? codePrimaire : "en";
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const cle = el.getAttribute("data-i18n");
@@ -114,6 +156,26 @@ function synchroniserBoutonTraduire(enCours = false) {
   btnTranslate.disabled = Boolean(consentementRequis);
 }
 
+function synchroniserLibelleBoutonTraduire() {
+  const txtBtn = document.getElementById("txt-btn-translate");
+  if (!txtBtn) return;
+  txtBtn.textContent = etatOriginal.estTraduit
+    ? t("composeBtnRetranslate", "Retraduire")
+    : t("composeBtnTranslate", "Traduire");
+}
+
+function mettreAJourCompteurSelection() {
+  const selectionBanner = document.getElementById("selection-banner");
+  const txtSelectionCount = document.getElementById("txt-selection-count");
+  if (!selectionBanner || !txtSelectionCount) return;
+  if (texteSelectionne && texteSelectionne.length > 0) {
+    selectionBanner.classList.remove("is-hidden");
+    const nbCars = texteSelectionne.length;
+    const cle = nbCars > 1 ? "composeSelectionCountPlural" : "composeSelectionCountSingular";
+    txtSelectionCount.textContent = t(cle, "({count} car.)", { count: nbCars });
+  }
+}
+
 // ── Fonction d'Autorisation 1-Clic sous Geste Utilisateur ───────────────────
 async function demanderAutorisation1Clic() {
   if (!origineRequise) return true;
@@ -142,8 +204,12 @@ async function chargerBadgeMoteur() {
     const badge = document.getElementById("btn-provider-badge");
     const dot = document.querySelector(".provider-dot");
     const consentBanner = document.getElementById("consent-banner");
+    const chkConsentMyMemory = document.getElementById("chk-consent-mymemory");
 
     if (res && res.success) {
+      if (chkConsentMyMemory) {
+        chkConsentMyMemory.checked = Boolean(res.enableMyMemoryFallback);
+      }
       if (res.alternateTarget) {
         langueAlternance = res.alternateTarget;
       }
@@ -209,7 +275,8 @@ function mettreAJourBadgeDepuisReponse(rep) {
   if (!rep || !rep.providerLabel) return;
   const badgeTxt = document.getElementById("txt-provider-label");
   const badge = document.getElementById("btn-provider-badge");
-  const suffixe = rep.usedFallback ? t("composeBadgeFallbackSuffix", " (secours)") : "";
+  const brut = rep.usedFallback ? t("composeBadgeFallbackSuffix", "secours").trim() : "";
+  const suffixe = brut ? (brut.startsWith("(") ? ` ${brut}` : ` (${brut})`) : "";
   if (badgeTxt) {
     badgeTxt.textContent = rep.providerLabel + suffixe;
   }
@@ -241,7 +308,7 @@ async function detecterSelection(tabId) {
   return "";
 }
 
-// ── Extraction et Injection Directe des Nœuds du Corps dans l'Éditeur ──────────
+// ── Extraction et Injection Directe des Nœuds / Sélection dans l'Éditeur ──
 async function extraireNoeudsCorpsEditeur(tabId) {
   try {
     const resultats = await browser.scripting.executeScript({
@@ -256,10 +323,29 @@ async function extraireNoeudsCorpsEditeur(tabId) {
           while (parent && parent !== document.body) {
             const nom = (parent.tagName || "").toUpperCase();
             if (BALISES_EXCLUES.has(nom)) return true;
-            if (parent.hidden) return true;
+            if (parent.hidden || parent.getAttribute("aria-hidden") === "true") return true;
             if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            try {
+              const st = getComputedStyle(parent);
+              if (
+                st.display === "none" ||
+                st.visibility === "hidden" ||
+                st.visibility === "collapse" ||
+                st.opacity === "0" ||
+                parseFloat(st.fontSize) === 0
+              ) {
+                return true;
+              }
+            } catch { /* ignorer */ }
             if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
-            if (parent.classList && (parent.classList.contains("moz-cite-prefix") || parent.classList.contains("moz-email-headers-table"))) return true;
+            if (
+              parent.classList &&
+              (parent.classList.contains("moz-cite-prefix") ||
+                parent.classList.contains("moz-email-headers-table") ||
+                parent.classList.contains("gmail_quote"))
+            ) {
+              return true;
+            }
             parent = parent.parentElement;
           }
           return false;
@@ -305,10 +391,29 @@ async function injecterTraductionsCorpsEditeur(tabId, traductions) {
           while (parent && parent !== document.body) {
             const nom = (parent.tagName || "").toUpperCase();
             if (BALISES_EXCLUES.has(nom)) return true;
-            if (parent.hidden) return true;
+            if (parent.hidden || parent.getAttribute("aria-hidden") === "true") return true;
             if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            try {
+              const st = getComputedStyle(parent);
+              if (
+                st.display === "none" ||
+                st.visibility === "hidden" ||
+                st.visibility === "collapse" ||
+                st.opacity === "0" ||
+                parseFloat(st.fontSize) === 0
+              ) {
+                return true;
+              }
+            } catch { /* ignorer */ }
             if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
-            if (parent.classList && (parent.classList.contains("moz-cite-prefix") || parent.classList.contains("moz-email-headers-table"))) return true;
+            if (
+              parent.classList &&
+              (parent.classList.contains("moz-cite-prefix") ||
+                parent.classList.contains("moz-email-headers-table") ||
+                parent.classList.contains("gmail_quote"))
+            ) {
+              return true;
+            }
             parent = parent.parentElement;
           }
           return false;
@@ -328,6 +433,9 @@ async function injecterTraductionsCorpsEditeur(tabId, traductions) {
           n.nodeValue = trads[idx];
           idx++;
         }
+        if (idx > 0 && document.body) {
+          document.body.dispatchEvent(new InputEvent("input", { bubbles: true }));
+        }
         return idx;
       },
       args: [traductions]
@@ -335,6 +443,190 @@ async function injecterTraductionsCorpsEditeur(tabId, traductions) {
     return (resultats && resultats[0] && typeof resultats[0].result === "number") ? resultats[0].result : 0;
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur injection traductions corps :", err);
+    throw err;
+  }
+}
+
+async function extraireTranchesSelectionEditeur(tabId) {
+  try {
+    const resultats = await browser.scripting.executeScript({
+      target: { tabId: tabId },
+      func: () => {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+          return [];
+        }
+        const range = sel.getRangeAt(0);
+        const BALISES_EXCLUES = new Set([
+          "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
+          "EMBED", "SVG", "MATH", "CODE", "TEXTAREA", "TEMPLATE"
+        ]);
+        const estExcluOuDansCitation = (noeud) => {
+          let parent = noeud.parentElement;
+          while (parent && parent !== document.body) {
+            const nom = (parent.tagName || "").toUpperCase();
+            if (BALISES_EXCLUES.has(nom)) return true;
+            if (parent.hidden || parent.getAttribute("aria-hidden") === "true") return true;
+            if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            try {
+              const st = getComputedStyle(parent);
+              if (
+                st.display === "none" ||
+                st.visibility === "hidden" ||
+                st.visibility === "collapse" ||
+                st.opacity === "0" ||
+                parseFloat(st.fontSize) === 0
+              ) {
+                return true;
+              }
+            } catch { /* ignorer */ }
+            if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
+            if (
+              parent.classList &&
+              (parent.classList.contains("moz-cite-prefix") ||
+                parent.classList.contains("moz-email-headers-table") ||
+                parent.classList.contains("gmail_quote"))
+            ) {
+              return true;
+            }
+            parent = parent.parentElement;
+          }
+          return false;
+        };
+
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(noeud) {
+            if (!noeud.nodeValue || !noeud.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+            if (!noeud.parentElement || estExcluOuDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+
+        const tranches = [];
+        let nodeIndex = 0;
+        let n;
+        while ((n = walker.nextNode())) {
+          if (range.intersectsNode(n)) {
+            const val = n.nodeValue || "";
+            const start = (n === range.startContainer) ? Math.max(0, Math.min(val.length, range.startOffset)) : 0;
+            const end = (n === range.endContainer) ? Math.max(0, Math.min(val.length, range.endOffset)) : val.length;
+            if (end > start) {
+              const tranche = val.slice(start, end);
+              if (tranche.trim()) {
+                tranches.push({ nodeIndex, start, end, text: tranche });
+              }
+            }
+          }
+          nodeIndex++;
+        }
+        return tranches;
+      }
+    });
+    return (resultats && resultats[0] && Array.isArray(resultats[0].result)) ? resultats[0].result : [];
+  } catch (err) {
+    console.warn("[MagicTranslator:Compose] Erreur extraction sélection :", err);
+    return [];
+  }
+}
+
+async function injecterTranchesSelectionEditeur(tabId, patchs) {
+  try {
+    const resultats = await browser.scripting.executeScript({
+      target: { tabId: tabId },
+      func: (listePatchs) => {
+        const BALISES_EXCLUES = new Set([
+          "SCRIPT", "STYLE", "NOSCRIPT", "IFRAME", "OBJECT",
+          "EMBED", "SVG", "MATH", "CODE", "TEXTAREA", "TEMPLATE"
+        ]);
+        const estExcluOuDansCitation = (noeud) => {
+          let parent = noeud.parentElement;
+          while (parent && parent !== document.body) {
+            const nom = (parent.tagName || "").toUpperCase();
+            if (BALISES_EXCLUES.has(nom)) return true;
+            if (parent.hidden || parent.getAttribute("aria-hidden") === "true") return true;
+            if (parent.style && typeof parent.style.display === "string" && parent.style.display.toLowerCase() === "none") return true;
+            try {
+              const st = getComputedStyle(parent);
+              if (
+                st.display === "none" ||
+                st.visibility === "hidden" ||
+                st.visibility === "collapse" ||
+                st.opacity === "0" ||
+                parseFloat(st.fontSize) === 0
+              ) {
+                return true;
+              }
+            } catch { /* ignorer */ }
+            if (nom === "BLOCKQUOTE" && parent.getAttribute("type") === "cite") return true;
+            if (
+              parent.classList &&
+              (parent.classList.contains("moz-cite-prefix") ||
+                parent.classList.contains("moz-email-headers-table") ||
+                parent.classList.contains("gmail_quote"))
+            ) {
+              return true;
+            }
+            parent = parent.parentElement;
+          }
+          return false;
+        };
+
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(noeud) {
+            if (!noeud.nodeValue || !noeud.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+            if (!noeud.parentElement || estExcluOuDansCitation(noeud)) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+
+        const noeuds = [];
+        let n;
+        while ((n = walker.nextNode())) {
+          noeuds.push(n);
+        }
+
+        let nbInjectes = 0;
+        let premierNoeud = null;
+        let premierStart = 0;
+        let dernierNoeud = null;
+        let dernierEnd = 0;
+
+        for (const p of listePatchs) {
+          const cible = noeuds[p.nodeIndex];
+          if (!cible) continue;
+          const val = cible.nodeValue || "";
+          cible.nodeValue = val.slice(0, p.start) + p.translated + val.slice(p.end);
+          if (!premierNoeud) {
+            premierNoeud = cible;
+            premierStart = p.start;
+          }
+          dernierNoeud = cible;
+          dernierEnd = p.start + p.translated.length;
+          nbInjectes++;
+        }
+
+        if (nbInjectes > 0) {
+          if (premierNoeud && dernierNoeud) {
+            const sel = window.getSelection();
+            if (sel) {
+              const nouveauRange = document.createRange();
+              nouveauRange.setStart(premierNoeud, premierStart);
+              nouveauRange.setEnd(dernierNoeud, dernierEnd);
+              sel.removeAllRanges();
+              sel.addRange(nouveauRange);
+            }
+          }
+          if (document.body) {
+            document.body.dispatchEvent(new InputEvent("input", { bubbles: true }));
+          }
+        }
+        return nbInjectes;
+      },
+      args: [patchs]
+    });
+    return (resultats && resultats[0] && typeof resultats[0].result === "number") ? resultats[0].result : 0;
+  } catch (err) {
+    console.error("[MagicTranslator:Compose] Erreur injection sélection :", err);
     throw err;
   }
 }
@@ -356,7 +648,7 @@ async function traduireExtraitsParLots(extraits, sourceInit, targetInit) {
   } while (texteJoint.toUpperCase().includes(SENTINEL.toUpperCase()));
 
   const SEPARATEUR = "\n" + SENTINEL + "\n";
-  const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "gi");
+  const SEPARATEUR_RE = new RegExp("\\s{0,20}" + SENTINEL + "\\s{0,20}", "gi");
   const TAILLE_MAX_LOT = 4000;
 
   const lots = [];
@@ -381,15 +673,7 @@ async function traduireExtraitsParLots(extraits, sourceInit, targetInit) {
   let derniereReponse = null;
 
   const appelerTraduction = async (txt, AutoriserAlternanceAuto = false) => {
-    let rep = await browser.runtime.sendMessage({
-      action: "translate",
-      text: txt,
-      source,
-      target
-    });
-    if (!rep || !rep.success) {
-      throw new Error((rep && rep.error) || "SERVICE_UNAVAILABLE");
-    }
+    let rep = await envoyerMessageTraduction(txt, source, target);
     if (
       AutoriserAlternanceAuto &&
       source === "auto" &&
@@ -401,17 +685,8 @@ async function traduireExtraitsParLots(extraits, sourceInit, targetInit) {
     ) {
       target = langueAlternance;
       source = rep.detectedLang;
-      const selectTarget = document.getElementById("select-target");
-      if (selectTarget) selectTarget.value = target;
-      rep = await browser.runtime.sendMessage({
-        action: "translate",
-        text: txt,
-        source,
-        target
-      });
-      if (!rep || !rep.success) {
-        throw new Error((rep && rep.error) || "SERVICE_UNAVAILABLE");
-      }
+      definirValeurSelectSiPresente(document.getElementById("select-target"), target);
+      rep = await envoyerMessageTraduction(txt, source, target);
     }
     derniereReponse = rep;
     return rep;
@@ -426,8 +701,13 @@ async function traduireExtraitsParLots(extraits, sourceInit, targetInit) {
       const segments = decouperLong(lot.texte, TAILLE_MAX_LOT);
       const morceaux = [];
       for (let sIdx = 0; sIdx < segments.length; sIdx++) {
-        const repSeg = await appelerTraduction(segments[sIdx], autoriserAlt && sIdx === 0);
-        morceaux.push(repSeg.text);
+        const { lead: sLead, coeur: sCoeur, trail: sTrail } = extraireEspaces(segments[sIdx]);
+        if (!sCoeur) {
+          morceaux.push(segments[sIdx]);
+          continue;
+        }
+        const repSeg = await appelerTraduction(sCoeur, autoriserAlt && sIdx === 0);
+        morceaux.push(sLead + repSeg.text + sTrail);
       }
       resultatFinal[item.index] = item.lead + morceaux.join("") + item.trail;
       continue;
@@ -461,12 +741,6 @@ async function lireCoffreOnglet(cleCoffre) {
   if (resSession && resSession[cleCoffre]) {
     return resSession[cleCoffre];
   }
-  if (sessionStore !== browser.storage.local) {
-    const resLocal = await browser.storage.local.get(cleCoffre);
-    if (resLocal && resLocal[cleCoffre]) {
-      return resLocal[cleCoffre];
-    }
-  }
   return null;
 }
 
@@ -476,9 +750,66 @@ async function ecrireCoffreOnglet(cleCoffre, valeur) {
 
 async function supprimerCoffreOnglet(cleCoffre) {
   await obtenirStockageSession().remove(cleCoffre);
-  if (obtenirStockageSession() !== browser.storage.local) {
+  if (browser.storage && browser.storage.local) {
     await browser.storage.local.remove(cleCoffre).catch(() => {});
   }
+}
+
+async function assurerSnapshotOriginal(details, { capturerSujet = false, capturerCorps = false, extraitsInitial = null } = {}) {
+  const cleCoffre = `compose_orig_${ongletActifId}`;
+  let modifie = false;
+
+  if (capturerSujet && etatOriginal.sujet === null) {
+    etatOriginal.sujet = details.subject || "";
+    modifie = true;
+  }
+
+  if (capturerCorps && etatOriginal.corpsHtml === null && etatOriginal.corpsTexte === null) {
+    const estTexteBrut = Boolean(details.isPlainText);
+    etatOriginal.isPlainText = estTexteBrut;
+    if (estTexteBrut) {
+      etatOriginal.corpsTexte = details.plainTextBody || "";
+      etatOriginal.corpsHtml = null;
+    } else {
+      etatOriginal.corpsHtml = details.body || "";
+      etatOriginal.corpsTexte = null;
+    }
+    etatOriginal.extraitsCorps = Array.isArray(extraitsInitial)
+      ? [...extraitsInitial]
+      : await extraireNoeudsCorpsEditeur(ongletActifId);
+    modifie = true;
+  }
+
+  if (!etatOriginal.estTraduit) {
+    etatOriginal.estTraduit = true;
+    modifie = true;
+  }
+
+  if (modifie) {
+    await ecrireCoffreOnglet(cleCoffre, etatOriginal);
+  }
+}
+
+function rafraichirEtatSelectionUI() {
+  const selectionBanner = document.getElementById("selection-banner");
+  const chkSelection = document.getElementById("chk-selection");
+  const globalOptions = document.getElementById("global-options");
+  const chkSubject = document.getElementById("chk-subject");
+  const chkBody = document.getElementById("chk-body");
+
+  const aSelection = Boolean(texteSelectionne && texteSelectionne.length > 0);
+  if (selectionBanner) {
+    selectionBanner.classList.toggle("is-hidden", !aSelection);
+  }
+  if (aSelection) {
+    mettreAJourCompteurSelection();
+  }
+  const modeSelectionActif = Boolean(aSelection && chkSelection && chkSelection.checked);
+  if (globalOptions) {
+    globalOptions.classList.toggle("is-disabled", modeSelectionActif);
+  }
+  if (chkSubject) chkSubject.disabled = modeSelectionActif;
+  if (chkBody) chkBody.disabled = modeSelectionActif;
 }
 
 // ── Action : Traduire ────────────────────────────────────────────────────────
@@ -532,82 +863,39 @@ async function executerTraduction() {
 
   try {
     const details = await browser.compose.getComposeDetails(ongletActifId);
-    const cleCoffre = `compose_orig_${ongletActifId}`;
 
-    // 1. Traduction de la Sélection uniquement
+    // 1. Traduction de la Sélection par tranches de TextNode (préserve <b>, <p>, <br>)
     if (texteSelectionne && chkSelection && chkSelection.checked) {
-      // Snapshot complet des nœuds du corps AVANT modification : garantit une restauration
-      // 100 % fiable même après fermeture/réouverture de la popup (perte de sélection).
-      const snapshotCorps = etatOriginal.estTraduit && etatOriginal.extraitsCorps
-        ? etatOriginal.extraitsCorps
-        : await extraireNoeudsCorpsEditeur(ongletActifId);
-
-      let repSelection = await browser.runtime.sendMessage({
-        action: "translate",
-        text: texteSelectionne,
-        source: sourceLang,
-        target: targetLang
-      });
-
-      if (!repSelection || !repSelection.success) {
-        throw new Error(repSelection ? repSelection.error : "SERVICE_UNAVAILABLE");
+      const tranches = await extraireTranchesSelectionEditeur(ongletActifId);
+      if (tranches.length === 0) {
+        throw new Error("SELECTION_EMPTY");
       }
 
-      if (
-        sourceLang === "auto" &&
-        repSelection.detectedLang &&
-        languesSontEquivalentes(repSelection.detectedLang, targetLang) &&
-        langueAlternance &&
-        langueAlternance !== "none" &&
-        !languesSontEquivalentes(langueAlternance, repSelection.detectedLang)
-      ) {
-        targetLang = langueAlternance;
-        selectTarget.value = targetLang;
-        repSelection = await browser.runtime.sendMessage({
-          action: "translate",
-          text: texteSelectionne,
-          source: repSelection.detectedLang,
-          target: targetLang
-        });
-        if (!repSelection || !repSelection.success) {
-          throw new Error(repSelection ? repSelection.error : "SERVICE_UNAVAILABLE");
-        }
+      const resSel = await traduireExtraitsParLots(
+        tranches.map((tr) => tr.text),
+        sourceLang,
+        targetLang
+      );
+      targetLang = resSel.targetEffective;
+      mettreAJourBadgeDepuisReponse(resSel.derniereReponse);
+
+      await assurerSnapshotOriginal(details, { capturerCorps: true });
+
+      const patchs = tranches.map((tr, idx) => ({
+        nodeIndex: tr.nodeIndex,
+        start: tr.start,
+        end: tr.end,
+        translated: resSel.traductions[idx]
+      }));
+      const nbInjectes = await injecterTranchesSelectionEditeur(ongletActifId, patchs);
+      if (nbInjectes === 0) {
+        throw new Error("SELECTION_EMPTY");
       }
 
-      mettreAJourBadgeDepuisReponse(repSelection);
-      const texteTraduit = repSelection.text;
-
-      if (!etatOriginal.estTraduit) {
-        etatOriginal = {
-          sujet: null,
-          extraitsCorps: snapshotCorps,
-          selection: texteSelectionne,
-          modeSelection: true,
-          estTraduit: true
-        };
-        await ecrireCoffreOnglet(cleCoffre, etatOriginal);
-      }
-
-      await browser.scripting.executeScript({
-        target: { tabId: ongletActifId },
-        func: (traduction) => {
-          const sel = window.getSelection();
-          if (sel && sel.rangeCount > 0) {
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            const noeudInsere = document.createTextNode(traduction);
-            range.insertNode(noeudInsere);
-            const nouveauRange = document.createRange();
-            nouveauRange.selectNodeContents(noeudInsere);
-            sel.removeAllRanges();
-            sel.addRange(nouveauRange);
-          }
-        },
-        args: [texteTraduit]
-      });
-
-      texteSelectionne = texteTraduit;
+      texteSelectionne = await detecterSelection(ongletActifId);
+      rafraichirEtatSelectionUI();
       btnRestore.disabled = false;
+      synchroniserLibelleBoutonTraduire();
       definirStatut("ready", "composeStatusSuccess", "Message traduit avec succès ✓");
       return;
     }
@@ -621,14 +909,14 @@ async function executerTraduction() {
       return;
     }
 
-    const sujetInitial = (etatOriginal.estTraduit && etatOriginal.sujet !== null)
+    const sujetInitial = (etatOriginal.sujet !== null)
       ? etatOriginal.sujet
       : (details.subject || "");
     const aObjetNonVide = Boolean(veutObjet && sujetInitial.trim());
 
     let extraitsSource = [];
     if (veutCorps) {
-      extraitsSource = (etatOriginal.estTraduit && Array.isArray(etatOriginal.extraitsCorps))
+      extraitsSource = (Array.isArray(etatOriginal.extraitsCorps))
         ? etatOriginal.extraitsCorps
         : await extraireNoeudsCorpsEditeur(ongletActifId);
     }
@@ -639,29 +927,24 @@ async function executerTraduction() {
       return;
     }
 
-    // 2.a Traduction en mémoire d'abord (aucune écriture partielle en cas d'échec réseau)
+    // 2.a Traduction en mémoire d'abord (lot unique Objet + Corps si les deux sont présents)
     let sujetTraduit = null;
     let traductionsCorps = null;
 
-    if (aCorpsNonVide) {
+    if (aObjetNonVide && aCorpsNonVide) {
+      const resGlobal = await traduireExtraitsParLots([sujetInitial, ...extraitsSource], sourceLang, targetLang);
+      sujetTraduit = resGlobal.traductions[0];
+      traductionsCorps = resGlobal.traductions.slice(1);
+      targetLang = resGlobal.targetEffective;
+      mettreAJourBadgeDepuisReponse(resGlobal.derniereReponse);
+    } else if (aCorpsNonVide) {
       const resCorps = await traduireExtraitsParLots(extraitsSource, sourceLang, targetLang);
       traductionsCorps = resCorps.traductions;
       targetLang = resCorps.targetEffective;
       mettreAJourBadgeDepuisReponse(resCorps.derniereReponse);
-    }
-
-    if (aObjetNonVide) {
-      let repSubject = await browser.runtime.sendMessage({
-        action: "translate",
-        text: sujetInitial,
-        source: sourceLang,
-        target: targetLang
-      });
-      if (!repSubject || !repSubject.success) {
-        throw new Error(repSubject ? repSubject.error : "SERVICE_UNAVAILABLE");
-      }
+    } else if (aObjetNonVide) {
+      let repSubject = await envoyerMessageTraduction(sujetInitial, sourceLang, targetLang);
       if (
-        !aCorpsNonVide &&
         sourceLang === "auto" &&
         repSubject.detectedLang &&
         languesSontEquivalentes(repSubject.detectedLang, targetLang) &&
@@ -670,47 +953,40 @@ async function executerTraduction() {
         !languesSontEquivalentes(langueAlternance, repSubject.detectedLang)
       ) {
         targetLang = langueAlternance;
-        selectTarget.value = targetLang;
-        repSubject = await browser.runtime.sendMessage({
-          action: "translate",
-          text: sujetInitial,
-          source: repSubject.detectedLang,
-          target: targetLang
-        });
-        if (!repSubject || !repSubject.success) {
-          throw new Error(repSubject ? repSubject.error : "SERVICE_UNAVAILABLE");
-        }
+        definirValeurSelectSiPresente(selectTarget, targetLang);
+        repSubject = await envoyerMessageTraduction(sujetInitial, repSubject.detectedLang, targetLang);
       }
       mettreAJourBadgeDepuisReponse(repSubject);
       sujetTraduit = repSubject.text;
     }
 
-    // 2.b Sauvegarde de l'original avant écriture dans l'éditeur
-    if (!etatOriginal.estTraduit) {
-      etatOriginal = {
-        sujet: aObjetNonVide ? sujetInitial : null,
-        extraitsCorps: aCorpsNonVide ? [...extraitsSource] : null,
-        selection: null,
-        modeSelection: false,
-        estTraduit: true
-      };
-      await ecrireCoffreOnglet(cleCoffre, etatOriginal);
-    }
+    // 2.b Sauvegarde incrémentale de l'original avant écriture dans l'éditeur
+    await assurerSnapshotOriginal(details, {
+      capturerSujet: aObjetNonVide,
+      capturerCorps: aCorpsNonVide,
+      extraitsInitial: aCorpsNonVide ? extraitsSource : null
+    });
 
     // 2.c Application atomique Objet + Corps
     if (sujetTraduit !== null) {
       await browser.compose.setComposeDetails(ongletActifId, { subject: sujetTraduit });
     }
     if (traductionsCorps !== null) {
-      await injecterTraductionsCorpsEditeur(ongletActifId, traductionsCorps);
+      const nbInjectes = await injecterTraductionsCorpsEditeur(ongletActifId, traductionsCorps);
+      if (nbInjectes === 0) {
+        throw new Error("SERVICE_UNAVAILABLE");
+      }
     }
 
     btnRestore.disabled = false;
+    synchroniserLibelleBoutonTraduire();
     definirStatut("ready", "composeStatusSuccess", "Message traduit avec succès ✓");
   } catch (err) {
     console.error("[MagicTranslator:Compose] Erreur lors de la traduction :", err);
     const code = err && err.message ? err.message : "SERVICE_UNAVAILABLE";
-    if (code === "PERMISSION_REQUIRED") {
+    if (code === "SELECTION_EMPTY") {
+      definirStatut("error", "errorNoText", "Aucun texte à traduire.");
+    } else if (code === "PERMISSION_REQUIRED") {
       definirStatut("error", "composeStatusPermissionRequired", "Autorisation réseau requise pour traduire.");
     } else if (code === "CONSENT_REQUIRED") {
       consentementRequis = true;
@@ -734,6 +1010,12 @@ async function executerTraduction() {
     }
   } finally {
     synchroniserBoutonTraduire(false);
+    if (!consentementRequis) {
+      const btnTranslate = document.getElementById("btn-translate");
+      if (btnTranslate && !btnTranslate.disabled) {
+        btnTranslate.focus();
+      }
+    }
   }
 }
 
@@ -751,48 +1033,47 @@ async function executerRestauration() {
 
   try {
     const cleCoffre = `compose_orig_${ongletActifId}`;
+    const patch = {};
 
     if (etatOriginal.sujet !== null) {
-      await browser.compose.setComposeDetails(ongletActifId, { subject: etatOriginal.sujet });
+      patch.subject = etatOriginal.sujet;
+    }
+    if (etatOriginal.isPlainText === true && etatOriginal.corpsTexte !== null) {
+      patch.plainTextBody = etatOriginal.corpsTexte;
+    } else if (etatOriginal.isPlainText === false && etatOriginal.corpsHtml !== null) {
+      patch.body = etatOriginal.corpsHtml;
     }
 
-    if (Array.isArray(etatOriginal.extraitsCorps) && etatOriginal.extraitsCorps.length > 0) {
+    if (Object.keys(patch).length > 0) {
+      await browser.compose.setComposeDetails(ongletActifId, patch);
+    }
+
+    // Repli rétro-compatible si seule la liste plate extraitsCorps existait
+    if (
+      etatOriginal.corpsHtml === null &&
+      etatOriginal.corpsTexte === null &&
+      Array.isArray(etatOriginal.extraitsCorps) &&
+      etatOriginal.extraitsCorps.length > 0
+    ) {
       const nbRestaures = await injecterTraductionsCorpsEditeur(ongletActifId, etatOriginal.extraitsCorps);
       if (nbRestaures === 0) {
         throw new Error("RESTORE_FAILED");
       }
-    } else if (etatOriginal.modeSelection && etatOriginal.selection) {
-      const remplaceOk = await browser.scripting.executeScript({
-        target: { tabId: ongletActifId },
-        func: (original) => {
-          const sel = window.getSelection();
-          if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(document.createTextNode(original));
-            return true;
-          }
-          return false;
-        },
-        args: [etatOriginal.selection]
-      });
-      if (!remplaceOk || !remplaceOk[0] || !remplaceOk[0].result) {
-        throw new Error("RESTORE_FAILED");
-      }
-    }
-
-    if (etatOriginal.modeSelection && etatOriginal.selection) {
-      texteSelectionne = etatOriginal.selection;
     }
 
     etatOriginal = {
       sujet: null,
+      corpsHtml: null,
+      corpsTexte: null,
+      isPlainText: null,
       extraitsCorps: null,
-      selection: null,
-      modeSelection: false,
       estTraduit: false
     };
     await supprimerCoffreOnglet(cleCoffre);
+
+    texteSelectionne = await detecterSelection(ongletActifId);
+    rafraichirEtatSelectionUI();
+    synchroniserLibelleBoutonTraduire();
 
     btnRestore.removeAttribute("aria-busy");
     btnRestore.disabled = true;
@@ -844,10 +1125,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnRestore = document.getElementById("btn-restore");
 
     if (sauvegarde && sauvegarde.estTraduit) {
-      etatOriginal = sauvegarde;
+      etatOriginal = {
+        sujet: sauvegarde.sujet ?? null,
+        corpsHtml: sauvegarde.corpsHtml ?? null,
+        corpsTexte: sauvegarde.corpsTexte ?? null,
+        isPlainText: sauvegarde.isPlainText ?? null,
+        extraitsCorps: Array.isArray(sauvegarde.extraitsCorps) ? sauvegarde.extraitsCorps : null,
+        estTraduit: true
+      };
       if (btnRestore) {
         btnRestore.disabled = false;
       }
+      synchroniserLibelleBoutonTraduire();
       definirStatut("ready", "composeStatusRestorable", "Traduction active (Restauration disponible)");
     }
   } catch (err) {
@@ -859,7 +1148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const stockLang = await browser.storage.local.get({ composeLastTargetLang: "en" });
     const selectTarget = document.getElementById("select-target");
     if (selectTarget && stockLang.composeLastTargetLang) {
-      selectTarget.value = stockLang.composeLastTargetLang;
+      definirValeurSelectSiPresente(selectTarget, stockLang.composeLastTargetLang);
     }
   } catch {
     // Ignorer
@@ -867,31 +1156,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Détecter si une sélection est active
   texteSelectionne = await detecterSelection(ongletActifId);
-  const selectionBanner = document.getElementById("selection-banner");
-  const txtSelectionCount = document.getElementById("txt-selection-count");
   const chkSelection = document.getElementById("chk-selection");
-  const globalOptions = document.getElementById("global-options");
-
-  if (texteSelectionne && texteSelectionne.length > 0) {
-    selectionBanner.classList.remove("is-hidden");
-    const nbMots = texteSelectionne.split(/\s+/).filter(Boolean).length;
-    const cleMots = nbMots > 1 ? "composeSelectionCountPlural" : "composeSelectionCountSingular";
-    const defautMots = nbMots > 1
-      ? "Sélection active ({count} mots)"
-      : "Sélection active ({count} mot)";
-    txtSelectionCount.textContent = t(cleMots, defautMots, { count: nbMots });
-
-    const chkSubject = document.getElementById("chk-subject");
-    const chkBody = document.getElementById("chk-body");
-    const majOptionsSelection = () => {
-      const active = chkSelection.checked;
-      globalOptions.classList.toggle("is-disabled", active);
-      if (chkSubject) chkSubject.disabled = active;
-      if (chkBody) chkBody.disabled = active;
-    };
-    chkSelection.addEventListener("change", majOptionsSelection);
-    majOptionsSelection();
+  if (chkSelection) {
+    chkSelection.addEventListener("change", rafraichirEtatSelectionUI);
   }
+  rafraichirEtatSelectionUI();
 
   document.getElementById("btn-translate").addEventListener("click", executerTraduction);
   document.getElementById("btn-restore").addEventListener("click", executerRestauration);
@@ -910,8 +1179,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const srcVal = selectSource.value;
     const tgtVal = selectTarget.value;
     if (srcVal !== "auto") {
-      selectSource.value = tgtVal;
-      selectTarget.value = srcVal;
+      definirValeurSelectSiPresente(selectSource, tgtVal);
+      definirValeurSelectSiPresente(selectTarget, srcVal);
     }
   });
 
@@ -931,7 +1200,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (btnConsentAccept.disabled) return;
       btnConsentAccept.disabled = true;
       try {
-        const autoriserRelais = Boolean(!chkConsentMyMemory || chkConsentMyMemory.checked);
+        const autoriserRelais = Boolean(chkConsentMyMemory && chkConsentMyMemory.checked);
         const res = await browser.runtime.sendMessage({
           action: "acceptDefaultProvider",
           enableMyMemoryFallback: autoriserRelais
@@ -941,6 +1210,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           const consentBanner = document.getElementById("consent-banner");
           if (consentBanner) consentBanner.classList.add("is-hidden");
           await chargerBadgeMoteur();
+          const btnTranslate = document.getElementById("btn-translate");
+          if (btnTranslate && !btnTranslate.disabled) {
+            btnTranslate.focus();
+          }
           await executerTraduction();
         } else {
           definirStatut("error", "composeStatusError", "Erreur d'activation");

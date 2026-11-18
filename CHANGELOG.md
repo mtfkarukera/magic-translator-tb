@@ -9,56 +9,55 @@ Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) 
 > tenait pas de changelog jusqu'ici) ; elles regroupent les changements par version telle que
 > référencée dans les messages de commit.
 
-## [2.5.0] — 2026-11-11
+## [2.5.0] — 2026-11-18
 
-Conformité intégrale aux exigences de revue Mozilla Thunderbird Add-ons (ATN) et audit complet post-conception : parcours de premier lancement et consentement explicite préalable (Opt-In `data-exfiltration`), filet de sécurité d'activation en 1 clic en lecture et rédaction, contrôle optionnel et homogène du relais MyMemory, chiffrement HTTPS strict hors bouclage local (`cleartext-transmission`), durcissement CSP, stockage en mémoire de session pour les brouillons, découpage UTF-8 multi-octets, accessibilité WCAG 2.1 AA et adoption du linter officiel `thunderbird/webext-linter`.
+Conformité intégrale aux exigences de revue Mozilla Thunderbird Add-ons (ATN) et audit complet multi-passes : parcours de premier lancement et consentement explicite préalable (Opt-In `data-exfiltration`), filet de sécurité d'activation en 1 clic en lecture et rédaction, contrôle optionnel (décoché par défaut) et homogène du relais MyMemory, chiffrement HTTPS strict hors bouclage local (`cleartext-transmission`), durcissement CSP, stockage purement en mémoire vive de session (`storage.session` sans repli disque), protection de sélection HTML et brouillons, découpage UTF-8 multi-octets, accessibilité WCAG 2.1 AA et validation `thunderbird/webext-linter`.
 
 ### Ajouté
 - **Assistant de Premier Lancement & Consentement Explicite (`setup/setup.html`, `setup/setup.css`, `setup/setup.js`, `background.js`)** :
   - À l'installation d'une nouvelle instance (`runtime.onInstalled`), aucun fournisseur n'est activé par défaut (`provider: "none"`, `enableMyMemoryFallback: false`).
-  - Ouverture automatique et dédupliquée de l'onglet d'accueil présentant en toute transparence les données transmises (corps du message ou brouillon) et permettant soit d'activer **Google Translate** en 1 clic (avec case à cocher optionnelle pour le relais de secours **MyMemory**), soit d'ouvrir la page complète des Préférences pour choisir un autre moteur (DeepL, Gemini, LLMs, Ollama/LM Studio, LibreTranslate).
+  - Ouverture automatique et dédupliquée de l'onglet d'accueil présentant en toute transparence les données transmises et permettant soit d'activer **Google Translate** en 1 clic (avec case à cocher optionnelle décochée par défaut pour le relais de secours **MyMemory**), soit d'ouvrir la page complète des Préférences.
+  - Synchronisation en temps réel de l'écran d'accueil via `getConfig` et `browser.storage.onChanged`.
   - Encadré permanent « Transparence & Confidentialité des Données » dans la page des Options (`options/options.html`) avec bouton permettant de rouvrir l'assistant d'accueil à tout moment.
 - **Filet de Sécurité d'Opt-In en 1 Clic en Lecture et en Rédaction (`translator-injected.js`, `compose/compose.html`, `compose/compose.js`)** :
-  - Si l'utilisateur ferme l'assistant de premier lancement sans choisir de moteur (`provider === "none"`), le premier clic sur **Traduire** (dans le bandeau de lecture ou le popup de rédaction) affiche une barre de consentement intégrée avec case optionnelle pour MyMemory.
-  - Le bouton **`✓ Activer Google et traduire`** enregistre immédiatement le consentement (`acceptDefaultProvider`) et enchaîne automatiquement la traduction demandée sans clic supplémentaire ; le bouton **`⚙️ Autre moteur…`** ouvre la page des Options.
-- **Contrôle Optionnel Homogène du Relais MyMemory (`options/options.html`, `options/options.js`, `translator-injected.js`, `compose/compose.html`, `setup/setup.js`, `mt-providers.js`)** :
-  - Présence d'une case à cocher optionnelle dédiée sur l'ensemble des 3 surfaces d'Opt-In (assistant d'accueil, bandeaux de consentement intégrés en lecture/rédaction et Préférences) permettant d'autoriser ou d'interdire la bascule automatique vers MyMemory en cas de quota ou d'indisponibilité de Google.
-  - Signalement transparent du relais actif sur le badge moteur (`Google → MyMemory`) lorsqu'une traduction a basculé sur MyMemory, et désactivation du fallback lors du test explicite de connexion dans les Options (`testerConnexion`).
-- **Outillage & Linter Officiel Thunderbird (`package.json`, `test/providers.test.js`, `test/text.test.js`)** :
-  - Intégration du linter officiel de l'équipe Thunderbird ([`thunderbird/webext-linter`](https://github.com/thunderbird/webext-linter) v2.5.1, `verify.js --warnings-as-errors`) validant les 85 règles ATN avec `0 error(s), 0 hold, 0 warning(s)`.
-  - Suite de 34 tests unitaires complets couvrant `estHoteLoopback`, `validerUrlSecurisee`, le garde-fou `CONSENT_REQUIRED`, le contrôle `enableMyMemoryFallback`, le rejet `CLEARTEXT_FORBIDDEN`, le découpage UTF-8 multi-octets, le temps linéaire $O(N)$ anti-ReDoS et les citations accentuées.
+  - Si l'utilisateur ferme l'assistant de premier lancement sans choisir de moteur (`provider === "none"`), dès l'ouverture du bandeau de lecture ou du popup de rédaction, la barre de consentement intégrée s'affiche immédiatement (bouton *Traduire* désactivé, case optionnelle MyMemory décochée par défaut et synchronisée).
+  - Le bouton **`✓ Activer Google et traduire`** enregistre immédiatement le consentement (`acceptDefaultProvider` avec `Boolean(enableMyMemoryFallback)` et anti-écrasement d'un moteur actif) et enchaîne la traduction demandée sans clic supplémentaire.
+- **Raccourcis Clavier Distincts & Garde d'Onglet (`manifest.json`, `background.js`)** :
+  - Séparation des raccourcis clavier : `Alt+Shift+T` pour la lecture (`toggle-translator`) et `Alt+Shift+M` pour l'ouverture du popup de rédaction (`_execute_compose_action`).
+  - Garde `estOngletLectureValide()` restreignant l'injection du bandeau aux onglets `mail` et `messageDisplay` affichant un message réel (avec déduplication des appels concurrents `togglesEnVol`), éliminant tout risque d'injection dans un brouillon `messageCompose`.
+- **Outillage & Linter Officiel Thunderbird (`package.json`, `build.sh`, `test/providers.test.js`, `test/text.test.js`)** :
+  - Intégration du linter officiel de l'équipe Thunderbird (`thunderbird/webext-linter`, `verify.js --warnings-as-errors`) validant les 85 règles ATN avec `0 error(s), 0 hold, 0 warning(s)`.
+  - Suite étendue de **40 tests unitaires** couvrant `estHoteLoopback`, `validerUrlSecurisee`, `CONSENT_REQUIRED`, `enableMyMemoryFallback`, `CLEARTEXT_FORBIDDEN`, `compterOctetsUtf8`, la protection `MTSEP`, le seuil Google `1800` octets, le délimiteur à nonce aléatoire `<source_text_<hex>>`, les pensées Gemini, le temps linéaire $O(N)$ anti-ReDoS et les citations multi-lingues.
+  - Scan dynamique de tous les fichiers `.js` runtime dans `build.sh` contre `DEBUG = true` et règle ESLint `"no-alert": "error"`.
 
 ### Sécurité
-- **Politique CSP Durcie & Permissions Minimales (`manifest.json`, `mt-providers.js`)** :
+- **Politique CSP Durcie & Permissions Minimales (`manifest.json`, `mt-providers.js`, `background.js`)** :
   - Durcissement de `content_security_policy.extension_pages` (`script-src 'self'; object-src 'none'; connect-src https: http://localhost:* http://127.0.0.1:*`) bloquant structurellement au niveau navigateur toute requête en clair hors bouclage local.
-  - Parité stricte 1:1 entre `estHoteLoopback()` (`localhost` et `127.0.0.1`) et les `host_permissions` déclarées dans `manifest.json`, et retrait de la permission inutilisée `https://translate.googleapis.com/*`.
-  - Restriction de `optional_host_permissions` dans `manifest.json` à `["https://*/*"]`.
-- **Coffre Éphémère en Mémoire de Session (`compose/compose.js`, `background.js`)** :
-  - Migration des instantanés d'annulation avant traduction (`compose_orig_<tabId>`) de `browser.storage.local` (disque) vers `browser.storage.session` (mémoire vive volatile), garantissant qu'aucun brouillon ne persiste sur le disque après fermeture de Thunderbird.
-- **Politique *Fail-Closed* & Cloisonnement Privilégié (`mt-providers.js`, `background.js`, `options/options.js`)** :
-  - Suppression de tout repli implicite vers Google dans `obtenirFournisseur()` et `obtenirPatternOrigine()`, rejet explicite des URLs vides dans LibreTranslate et le Hub LLM, et retour `false` en cas d'erreur dans `assurerPermissionsHote()`.
-  - Restriction stricte des actions privilégiées `testProvider` et `listGeminiModels` à l'émetteur `options/options.html` avec vérification préalable `browser.permissions.contains`, et assainissement des erreurs renvoyées par `background.js`.
-  - Synchronisation silencieuse des modèles Google Gemini dans `options/options.js` déclenchée uniquement lorsque `provider === "gemini"` (zéro appel réseau en arrière-plan lorsqu'un autre moteur est utilisé).
-  - Cloisonnement anti-injection de prompt pour Gemini et le Hub LLM via balises `<source_text>...</source_text>` avec indication de la langue source, et suppression des expressions régulières polynomiales ($O(N^2)$) au profit d'un parcours linéaire $O(N)$ dans `extraireEspaces()`.
-  - Anonymisation des exemples d'adresses e-mail dans `test/text.test.js` et exclusion de `.env` / `.env.*` dans `.gitignore`.
+  - Rejet *fail-closed* des URLs vides et des identifiants imbriqués dans `http://`, parité 1:1 `estHoteLoopback()` (`localhost` / `127.0.0.1`), et retrait de `https://translate.googleapis.com/*`.
+  - Restriction stricte de `optional_host_permissions` à `["https://*/*"]` et vérification de `sender.url === options/options.html` + `browser.permissions.contains` sur `testProvider`, `listGeminiModels` et avant le relais de secours MyMemory.
+- **Coffre Éphémère Purement en Mémoire Vive (`compose/compose.js`, `background.js`)** :
+  - Stockage exclusivement en RAM (`browser.storage.session` avec `Map` mémoire de repli, zéro écriture sur disque `storage.local` hormis purge d'éventuelles traces héritées).
+- **Cloisonnement Anti-Injection LLM & Bornage Anti-ReDoS (`mt-providers.js`, `mt-text.js`, `translator-injected.js`, `compose/compose.js`)** :
+  - Encapsulation du message par balise à nonce aléatoire `<source_text_<16hex>>` vérifiée absente du texte, filtrage des parts `thought` Gemini, distinction d'erreurs HTTP 400 (clé vs payload) et préservation des guillemets doubles légitimes dans `nettoyerReponseLLM`.
+  - Remplacement de `Uint8Array` par un calcul d'octets UTF-8 $O(N)$ sans allocation (`compterOctetsUtf8`), et bornage strict des regex (`MTSEP`, adresses e-mail, citations).
 
 ### Corrigé
-- **Cycle de Vie MV3 & Résilience Réseau (`background.js`, `mt-providers.js`)** :
-  - Déplacement des opérations d'initialisation (`unregisterScripts`/`registerScripts`, recréation séquentielle des menus et purge des clés de rédaction excluant les onglets ouverts) dans `runtime.onInstalled` et `runtime.onStartup`, remplacé au réveil d'Event Page par une vérification légère non destructive.
-  - Ajout d'un maintien en éveil MV3 toutes les 20 s pendant `MTProviders.traduire` pour éviter toute interruption des traductions longues (jusqu'à 60 s sur LLM local), et déduplication de l'onglet `setup/setup.html`.
-  - Découpage UTF-8 conscient de la taille en octets (`decouperParOctetsUtf8`) pour MyMemory (`<= 450` octets) et Google GET (`<= 3600` octets), éliminant les erreurs `QUERY LENGTH LIMIT` et HTTP 414 sur les alphabets non-latins (CJK, cyrillique, arabe).
-- **Mode Lecture & Mode Rédaction (`translator-injected.js`, `compose/compose.js`, `mt-text.js`)** :
-  - Remontée complète de la chaîne d'ancêtres dans `collecterNoeudsTexte` et `extraireTextePourDetection` pour exclure intégralement les sous-arbres `STYLE`/`SCRIPT`/`TEMPLATE`/`CODE` et les éléments masqués (`hidden` / `display: none`), préservation des sauts de ligne entre paragraphes et nettoyage des amorces de citation françaises accentuées (`À :`, `Écrit le`) et jetons `MTSEP`.
-  - Isolation complète des états et timers par instance (`_mtSeq`) lors de navigations rapides entre e-mails, actualisation en temps réel du badge moteur via `storage.onChanged`, conservation de la cible d'alternance sur les messages multi-lots et tolérance à la casse sur le séparateur `MTSEP`.
-  - En mode rédaction : chargement de `mt-text.js` pour découper les longues sélections, restauration 100 % fiable par instantané complet du brouillon, regroupement atomique Objet + Corps en un seul lot `MTSEP` et prise en charge de `alternateTarget`.
+- **Cycle de Vie MV3 & Résilience Réseau (`background.js`, `mt-providers.js`, `translator-injected.js`, `compose/compose.js`, `options/options.js`)** :
+  - Sérialisation de `assurerScriptsEnregistres()` (`verrouScripts`), keep-alive MV3 interne (20 s) et inter-contextes (`{ action: "ping" }` toutes les 18 s pour `translate` et `testProvider`), et arrêt rapide du fallback nœud-par-nœud sur `TIMEOUT`/`PERMISSION_REQUIRED`/`CLEARTEXT_FORBIDDEN`.
+  - Sous-découpage UTF-8 (`decouperParOctetsUtf8`) respectant les frontières `MTSEP`: Google GET abaissé à `1800` octets UTF-8 (évite HTTP 414 sur CJK/cyrillique/arabe) et isolation stricte des jetons `MTSEP` avant envoi sur MyMemory (+ décodage `&apos;` / `&#39;` / `&nbsp;`).
+  - Court-circuit `preferLocalDetection` lorsqu'en `auto` la langue détectée localement équivaut à `target`, préservant la bascule `alternateTarget` sans appel `fr → fr` inutile.
+- **Mode Lecture & Mode Rédaction (`translator-injected.js`, `compose/compose.js`)** :
+  - Court-circuit précoce en Mode Zéro-Clic dès le lot `0` et avant toute écriture DOM si déjà dans la cible, garde anti-double injection `_mtBodyBound` et `MutationObserver` débouncé 50 ms.
+  - Filtrage complet des éléments masqués (`aria-hidden="true"`, `.gmail_quote`, `getComputedStyle` avec cache `WeakMap` en lecture), `extraireEspaces` appliqué sur les tranches `decouperLong`, union à 35 langues (`bg`, `ca`, `hr`, `ms`, `sk`, `sl`) avec `definirValeurSelectSiPresente`.
+  - En rédaction : instantané complet incrémental via `getComposeDetails`/`setComposeDetails` (sans jamais passer `body` et `plainTextBody` simultanément), traduction chirurgicale des sélections HTML par tranches de `TextNode` préservant `<b>`/`<p>`/`<br>`, regroupement Objet + Corps en un seul lot `MTSEP`, émission d'événement `InputEvent("input")`, libellé dynamique `Retraduire`, compteur de sélection en caractères séparé et badge `(secours)` correctement espacé.
 - **Options & Assistant d'Accueil (`options/options.js`, `setup/setup.js`)** :
-  - Validation commune des champs requis avant sauvegarde et avant test (`aria-invalid`), conservation des modèles Gemini dynamiques au rechargement, gardes anti-double-clic et affichage de l'état actif à la réouverture de `setup/setup.html`.
+  - Retrait de l'appel réseau automatique sur `blur` Gemini, verrou `syncGeminiEnCours`, compteur monotone `seqVerifPermission`, message post-permission orientant vers Enregistrer, et validation Zéro-Clic exigeant au moins une langue en mode ciblé.
 
 ### Accessibilité
-- **Conformité WCAG 2.1 AA & Parité i18n 7 Langues (`translator-injected.js`, `compose/*`, `options/*`, `setup/*`, `_locales/*`)** :
-  - Rehaussement des contrastes des boutons primaires (`>= 4.5:1`), des surfaces glassmorphism (`rgba(15, 23, 42, 0.93)`), de la piste des interrupteurs `role="switch"` en thème clair (`#94a3b8` / `#64748b`) et des contours `:focus-visible`.
-  - Maintien des zones `role="status" aria-live="polite"` dans l'arbre ARIA dès l'initialisation, suppression du vol de focus en Mode Zéro-Clic, restitution du focus clavier à la fermeture (`Escape` / repli), et ajout de `<fieldset>`/`<legend>`, `aria-expanded`, `aria-pressed` et `aria-describedby`.
-  - Synchronisation intégrale des **166 clés** dans les 7 fichiers `_locales/{de,en,es,fr,ja,pt,vi}/messages.json` et dans le dictionnaire embarqué de `translator-injected.js`.
+- **Conformité WCAG 2.1 AA, ARIA & Parité i18n 7 Langues (`translator-injected.js`, `compose/*`, `options/*`, `setup/*`, `_locales/*`)** :
+  - Suppression de `aria-expanded` sur `role="switch"` (`options.html`/`options.js`), suppression de `aria-pressed` contradictoire sur les bascules de clés d'API, hiérarchie `<h2>` dans `setup.html`, `<main>` dans `compose.html`, `role="group"` + `<span lang>` sur la grille de langues, région `role="status"` hors conteneur caché dans le Shadow DOM, et `prefers-reduced-motion` sur `scrollIntoView`.
+  - Rehaussement de tous les contrastes >= 4.5:1 (texte) et >= 3:1 (composants/bordures/flèches SVG adaptatives), ordre de cascade CSS corrigé (`.mt-btn-inline`/`.mt-btn-tiny` après `.mt-btn`), largeur `360px` anti-débordement en rédaction et palier responsive `<680px` en lecture.
+  - Purge des 13 clés inutilisées, mise à jour et ajout de toutes les nouvelles clés sur les **7 langues** (`_locales/{de,en,es,fr,ja,pt,vi}/messages.json` : 166 clés strictement synchronisées à 100 %).
 
 ## [2.4.1] — 2026-10-27
 

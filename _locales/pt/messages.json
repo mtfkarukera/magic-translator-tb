@@ -5,56 +5,14 @@
   "extDescription": {
     "message": "Traduza os seus e-mails diretamente no Thunderbird, de forma reversível, com o Google Translate."
   },
-  "bannerTitle": {
-    "message": "Translator"
-  },
-  "labelFrom": {
-    "message": "DE"
-  },
-  "labelTo": {
-    "message": "PARA"
-  },
   "btnTranslate": {
     "message": "Traduzir"
-  },
-  "btnRetranslate": {
-    "message": "Traduzir novamente"
-  },
-  "btnOriginal": {
-    "message": "Original"
-  },
-  "statusTranslating": {
-    "message": "A traduzir…"
-  },
-  "statusTranslated": {
-    "message": "Traduzido"
-  },
-  "statusTranslatedFrom": {
-    "message": "Traduzido de $LANG$",
-    "placeholders": {
-      "lang": {
-        "content": "$1",
-        "example": "inglês"
-      }
-    }
   },
   "errorSameLanguage": {
     "message": "Os idiomas de origem e destino são iguais."
   },
   "errorNoText": {
     "message": "Nenhum texto para traduzir."
-  },
-  "errorGeneric": {
-    "message": "Erro: $MSG$",
-    "placeholders": {
-      "msg": {
-        "content": "$1",
-        "example": "Network error"
-      }
-    }
-  },
-  "tooltipExpand": {
-    "message": "Traduzir esta mensagem"
   },
   "actionTitle": {
     "message": "Traduzir"
@@ -206,12 +164,6 @@
   "errorModelRequired": {
     "message": "O identificador do modelo é obrigatório."
   },
-  "ariaToggleKey": {
-    "message": "Exibir ou ocultar chave de API"
-  },
-  "optionsFooter": {
-    "message": "Magic Translator · Versão Manifest V3 · Projetado para Mozilla Thunderbird"
-  },
   "composeActionTitle": {
     "message": "Traduzir"
   },
@@ -243,9 +195,6 @@
     "message": "Corpo do e-mail"
   },
   "composeBtnTranslate": {
-    "message": "Traduzir"
-  },
-  "composeBtnTranslateSelection": {
     "message": "Traduzir"
   },
   "composeBtnRestore": {
@@ -294,7 +243,7 @@
     "message": "Conceder acesso em 1 clique"
   },
   "statusPermissionGranted": {
-    "message": "✓ Permissão concedida com sucesso! O motor está pronto."
+    "message": "✓ Permissão concedida! Clique agora em «Guardar preferências» para concluir."
   },
   "sectionErgonomicsTitle": {
     "message": "Ergonomia e comportamento"
@@ -318,7 +267,7 @@
     "message": "Tradução automática ao abrir (Modo Zero Cliques)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Traduz automaticamente os e-mails recebidos assim que são abertos sem necessidade de cliques e recolhe discretamente a barra de tradução."
+    "message": "Traduz automaticamente os e-mails recebidos ao abrir sem necessidade de clicar (botão Original disponível na barra)."
   },
   "optModeAllForeign": {
     "message": "Todos os e-mails que não estejam no meu idioma de destino"
@@ -471,7 +420,7 @@
     "message": "Falha ao restaurar a mensagem original."
   },
   "errorUnauthorized": {
-    "message": "Pedido não autorizado."
+    "message": "Chave de API em falta ou inválida. Verifique as definições."
   },
   "ariaShowKey": {
     "message": "Mostrar chave de API"
@@ -508,5 +457,44 @@
   },
   "setupBtnActivatedGoogle": {
     "message": "✓ Google Translate ativo (atualizar opção)"
+  },
+  "errorRateLimited": {
+    "message": "Demasiados pedidos. Tente novamente dentro de momentos."
+  },
+  "errorTimeout": {
+    "message": "Tempo limite excedido. Verifique a sua ligação."
+  },
+  "errorNetwork": {
+    "message": "Erro de rede. Verifique a sua ligação."
+  },
+  "composeBtnRetranslate": {
+    "message": "Traduzir novamente"
+  },
+  "optGemini35FlashLite": {
+    "message": "gemini-3.5-flash-lite (Recomendado — Ultrarrápido e económico)"
+  },
+  "optGemini37Flash": {
+    "message": "gemini-3.7-flash (Modelo principal de alta precisão)"
+  },
+  "optLlmGroq": {
+    "message": "Groq Cloud (llama-3.3-70b-versatile — Inferência instantânea)"
+  },
+  "optLlmCustom": {
+    "message": "Servidor personalizado (URL livre)"
+  },
+  "placeholderLlmBaseUrl": {
+    "message": "https://api.openai.com ou http://localhost:11434"
+  },
+  "placeholderLtUrl": {
+    "message": "https://libretranslate.com ou http://localhost:5000"
+  },
+  "placeholderMyMemoryEmail": {
+    "message": "Ex.: nome@dominio.com"
+  },
+  "errorZeroClickNoLang": {
+    "message": "Selecione pelo menos um idioma para o modo Zero Cliques."
+  },
+  "errorSavePreferences": {
+    "message": "Não foi possível guardar as preferências."
   }
 }

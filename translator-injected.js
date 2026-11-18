@@ -51,8 +51,6 @@
     fr: {
       autoDetect:         "Auto-détection",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "DE",
-      labelTo:            "VERS",
       ariaSelectSource:   "Langue source",
       ariaSelectTarget:   "Langue cible",
       ariaConsentRegion:  "Consentement du moteur de traduction",
@@ -65,7 +63,6 @@
       errorSameLanguage:  "Les langues source et cible sont identiques.",
       errorNoText:        "Aucun texte à traduire.",
       errorGeneric:       "Erreur : {msg}",
-      tooltipExpand:      "Traduire ce message",
       tooltipCollapse:    "Replier",
       statusTranslatingChunk:  "Traduction… ({i}/{n})",
       statusTranslatedPartial: "Traduit partiellement",
@@ -95,8 +92,6 @@
     en: {
       autoDetect:         "Auto-detect",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "FROM",
-      labelTo:            "TO",
       ariaSelectSource:   "Source language",
       ariaSelectTarget:   "Target language",
       ariaConsentRegion:  "Translation provider consent",
@@ -109,7 +104,6 @@
       errorSameLanguage:  "Source and target languages are the same.",
       errorNoText:        "No text to translate.",
       errorGeneric:       "Error: {msg}",
-      tooltipExpand:      "Translate this message",
       tooltipCollapse:    "Collapse",
       statusTranslatingChunk:  "Translating… ({i}/{n})",
       statusTranslatedPartial: "Partially translated",
@@ -139,8 +133,6 @@
     es: {
       autoDetect:         "Auto-detectar",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "DE",
-      labelTo:            "A",
       ariaSelectSource:   "Idioma de origen",
       ariaSelectTarget:   "Idioma de destino",
       ariaConsentRegion:  "Consentimiento del motor de traducción",
@@ -153,7 +145,6 @@
       errorSameLanguage:  "Los idiomas de origen y destino son iguales.",
       errorNoText:        "No hay texto para traducir.",
       errorGeneric:       "Error: {msg}",
-      tooltipExpand:      "Traducir este mensaje",
       tooltipCollapse:    "Replegar",
       statusTranslatingChunk:  "Traduciendo… ({i}/{n})",
       statusTranslatedPartial: "Traducido parcialmente",
@@ -183,8 +174,6 @@
     de: {
       autoDetect:         "Automatische Erkennung",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "VON",
-      labelTo:            "NACH",
       ariaSelectSource:   "Quellsprache",
       ariaSelectTarget:   "Zielsprache",
       ariaConsentRegion:  "Zustimmung zum Übersetzungsdienst",
@@ -197,7 +186,6 @@
       errorSameLanguage:  "Quell- und Zielsprache sind identisch.",
       errorNoText:        "Kein Text zum Übersetzen.",
       errorGeneric:       "Fehler: {msg}",
-      tooltipExpand:      "Diese Nachricht übersetzen",
       tooltipCollapse:    "Einklappen",
       statusTranslatingChunk:  "Übersetze… ({i}/{n})",
       statusTranslatedPartial: "Teilweise übersetzt",
@@ -227,8 +215,6 @@
     vi: {
       autoDetect:         "Tự động phát hiện",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "TỪ",
-      labelTo:            "SANG",
       ariaSelectSource:   "Ngôn ngữ nguồn",
       ariaSelectTarget:   "Ngôn ngữ đích",
       ariaConsentRegion:  "Đồng ý chọn công cụ dịch",
@@ -241,7 +227,6 @@
       errorSameLanguage:  "Ngôn ngữ nguồn và đích giống nhau.",
       errorNoText:        "Không có văn bản để dịch.",
       errorGeneric:       "Lỗi: {msg}",
-      tooltipExpand:      "Dịch tin nhắn này",
       tooltipCollapse:    "Thu gọn",
       statusTranslatingChunk:  "Đang dịch… ({i}/{n})",
       statusTranslatedPartial: "Đã dịch một phần",
@@ -271,8 +256,6 @@
     ja: {
       autoDetect:         "自動検出",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "差出語",
-      labelTo:            "翻訳先",
       ariaSelectSource:   "翻訳元の言語",
       ariaSelectTarget:   "翻訳先の言語",
       ariaConsentRegion:  "翻訳エンジンの同意設定",
@@ -285,7 +268,6 @@
       errorSameLanguage:  "翻訳元と翻訳先の言語が同じです。",
       errorNoText:        "翻訳するテキストがありません。",
       errorGeneric:       "エラー: {msg}",
-      tooltipExpand:      "このメッセージを翻訳",
       tooltipCollapse:    "折りたたむ",
       statusTranslatingChunk:  "翻訳中… ({i}/{n})",
       statusTranslatedPartial: "部分的に翻訳しました",
@@ -315,8 +297,6 @@
     pt: {
       autoDetect:         "Auto-detecção",
       bannerTitle:        "Magic Translator",
-      labelFrom:          "DE",
-      labelTo:            "PARA",
       ariaSelectSource:   "Idioma de origem",
       ariaSelectTarget:   "Idioma de destino",
       ariaConsentRegion:  "Consentimento do motor de tradução",
@@ -329,7 +309,6 @@
       errorSameLanguage:  "Os idiomas de origem e destino são iguais.",
       errorNoText:        "Nenhum texto para traduzir.",
       errorGeneric:       "Erro: {msg}",
-      tooltipExpand:      "Traduzir esta mensagem",
       tooltipCollapse:    "Recolher",
       statusTranslatingChunk:  "A traduzir… ({i}/{n})",
       statusTranslatedPartial: "Traduzido parcialmente",
@@ -442,7 +421,6 @@
   --mt-bg-glass: rgba(15, 23, 42, 0.93);
   --mt-border-glass: rgba(255, 255, 255, 0.12);
   --mt-accent-indigo: #4f46e5;
-  --mt-accent-indigo-hover: #4338ca;
   --mt-accent-purple: #6d28d9;
   --mt-accent-purple-hover: #a78bfa;
   --mt-btn-gradient: linear-gradient(135deg, #6d28d9, #4f46e5);
@@ -454,12 +432,10 @@
   --mt-error: #fb7185;
   
   /* Tokens supplémentaires pour éliminer les valeurs hardcodées */
-  /* [Mi-D3] Centralisation des valeurs de couleur utilisées dans plusieurs sélecteurs */
-  --mt-bg-pill-hover: rgba(30, 41, 59, 0.85);
   --mt-accent-purple-dim: rgba(139, 92, 246, 0.2);
   --mt-divider: rgba(255, 255, 255, 0.08);
+  --mt-border-control: rgba(255, 255, 255, 0.36);
   --mt-btn-secondary-bg: rgba(255, 255, 255, 0.06);
-  --mt-btn-secondary-border: rgba(255, 255, 255, 0.08);
   --mt-bg-input: rgba(255, 255, 255, 0.06);
   --mt-bg-input-hover: rgba(255, 255, 255, 0.10);
   --mt-bg-input-focus: rgba(15, 23, 42, 0.90);
@@ -469,7 +445,6 @@
 
   /* Arrondis */
   --mt-radius-sm: 6px;
-  --mt-radius-md: 10px;
   --mt-radius-full: 9999px;
   
   /* Transitions */
@@ -480,18 +455,17 @@
 /* [M-D3] Mode clair : variables retournées pour une meilleure intégration avec les thèmes clairs de Thunderbird */
 @media (prefers-color-scheme: light) {
   :host {
-    --mt-bg-glass: rgba(240, 245, 255, 0.92);
-    --mt-bg-pill-hover: rgba(210, 220, 240, 0.95);
+    --mt-bg-glass: rgba(244, 247, 255, 0.96);
     --mt-text-primary: #0f172a;
     --mt-text-secondary: #475569;
-    --mt-border-glass: rgba(0, 0, 0, 0.10);
-    --mt-divider: rgba(0, 0, 0, 0.08);
-    --mt-accent-purple-hover: #4f46e5;
-    --mt-success: #047857;
+    --mt-border-glass: rgba(0, 0, 0, 0.12);
+    --mt-divider: rgba(0, 0, 0, 0.10);
+    --mt-border-control: #64748b;
+    --mt-accent-purple-hover: #4338ca;
+    --mt-success: #065f46;
     --mt-error: #be123c;
     --mt-btn-secondary-bg: rgba(0, 0, 0, 0.05);
-    --mt-btn-secondary-border: rgba(0, 0, 0, 0.12);
-    --mt-bg-input: rgba(255, 255, 255, 0.85);
+    --mt-bg-input: rgba(255, 255, 255, 0.92);
     --mt-bg-input-hover: #ffffff;
     --mt-bg-input-focus: #ffffff;
     --mt-option-bg: #ffffff;
@@ -553,7 +527,10 @@
   user-select: none;
   cursor: pointer;
   font-family: inherit;
-  transition: all var(--mt-duration) var(--mt-ease-out);
+  transition: border-color var(--mt-duration) var(--mt-ease-out),
+              box-shadow var(--mt-duration) var(--mt-ease-out),
+              transform var(--mt-duration) var(--mt-ease-out),
+              filter var(--mt-duration) var(--mt-ease-out);
   outline: none;
 }
 
@@ -609,18 +586,7 @@
   color: white;
   font-weight: 700;
   flex-shrink: 0;
-  cursor: pointer;
-  transition: all var(--mt-duration) var(--mt-ease-out);
   user-select: none;
-}
-
-.mt-logo-icon:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
-}
-
-.mt-logo-icon:active {
-  transform: scale(0.95);
 }
 
 /* Séparateur */
@@ -640,14 +606,6 @@
   flex-wrap: wrap;
 }
 
-.mt-label {
-  font-size: 10px;
-  color: var(--mt-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  font-weight: 600;
-}
-
 /* Sélecteurs de langue */
 .mt-select {
   appearance: none;
@@ -656,20 +614,20 @@
   background-image: var(--mt-select-arrow);
   background-repeat: no-repeat;
   background-position: right 10px center;
-  border: 1px solid var(--mt-divider);
+  border: 1px solid var(--mt-border-control);
   border-radius: var(--mt-radius-sm);
   color: var(--mt-text-primary);
   padding: 6px 28px 6px 10px;
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
-  /* [B-A1] Suppression de outline:none brut — géré uniquement par :focus-visible ci-dessous */
   outline: 0;
-  /* [Mi-D1] Propriétés ciblées au lieu de "all" */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: border-color var(--mt-duration) var(--mt-ease-out),
               background-color var(--mt-duration) var(--mt-ease-out),
               box-shadow var(--mt-duration) var(--mt-ease-out);
-  /* [M-D2] min-width réduit + max-width pour les panneaux étroits */
   min-width: 80px;
   max-width: 130px;
 }
@@ -738,12 +696,12 @@
 .mt-btn-original {
   background: var(--mt-btn-secondary-bg);
   color: var(--mt-text-primary);
-  border: 1px solid var(--mt-btn-secondary-border);
+  border: 1px solid var(--mt-border-control);
 }
 
 .mt-btn-original:hover {
   filter: brightness(1.15);
-  border-color: var(--mt-border-glass);
+  border-color: var(--mt-accent-purple-hover);
 }
 
 .mt-btn-original:active {
@@ -753,10 +711,10 @@
 /* Bouton Replier */
 .mt-btn-collapse {
   background: var(--mt-btn-secondary-bg);
-  border: 1px solid var(--mt-btn-secondary-border) !important;
+  border: 1px solid var(--mt-border-control);
   color: var(--mt-text-secondary);
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--mt-radius-full);
   padding: 0;
   font-size: 12px;
@@ -775,7 +733,7 @@
 .mt-btn-collapse:hover {
   color: var(--mt-accent-purple-hover);
   background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.3) !important;
+  border-color: var(--mt-accent-purple-hover);
   transform: scale(1.05);
 }
 
@@ -794,18 +752,16 @@
 /* [B-A1] Focus visible : indicateur explicité pour TOUS les éléments interactifs. */
 .mt-btn:focus-visible,
 .mt-engine-badge:focus-visible,
-.mt-logo-icon:focus-visible,
 .mt-select:focus-visible,
 .mt-consent-checkbox:focus-visible {
   outline: 2px solid var(--mt-accent-purple-hover);
   outline-offset: 2px;
 }
 
-/* Neutralise le focus ring natif en mode pointeur (clic souris) sans masquer le clavier */
+/* Neutralise le focus ring natif en mode pointeur sans éteindre l'ombre des boutons primaires */
 .mt-btn:focus:not(:focus-visible),
 .mt-select:focus:not(:focus-visible) {
   outline: 0;
-  box-shadow: none;
 }
 
 /* Statut de chargement (maintenu dans l'arbre ARIA via .is-empty pour garantir la première annonce) */
@@ -813,11 +769,10 @@
   font-size: 11px;
   color: var(--mt-text-secondary);
   white-space: normal;
-  overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 260px;
 }
 
+.mt-sr-only,
 .mt-status.is-empty {
   position: absolute;
   width: 1px;
@@ -830,7 +785,11 @@
   border: 0;
 }
 
-.mt-status.error   { color: var(--mt-error); }
+.mt-status.error   {
+  color: var(--mt-error);
+  flex: 1 1 100%;
+  max-width: none;
+}
 .mt-status.success { color: var(--mt-success); }
 
 .mt-spinner {
@@ -847,11 +806,15 @@
 
 @keyframes mt-spin { to { transform: rotate(360deg); } }
 
-/* [M-D2] Responsive : en fenêtre très étroite, les contrôles passent en colonne */
-@media (max-width: 480px) {
+/* Responsive panneau 3 colonnes (481px–680px) : masque le séparateur avant passage sur 2 lignes */
+@media (max-width: 680px) {
   .mt-separator {
     display: none;
   }
+}
+
+/* [M-D2] Responsive : en fenêtre très étroite, les contrôles passent en colonne */
+@media (max-width: 480px) {
   .mt-controls {
     flex-direction: column;
     align-items: flex-start;
@@ -872,7 +835,7 @@
   .mt-banner  { animation: none; opacity: 1; }
   .mt-spinner { animation: none; border-style: dashed; border-top-color: var(--mt-accent-purple-hover); }
   .mt-engine-dot.is-warning { animation: none; }
-  .mt-engine-badge, .mt-btn, .mt-logo-icon, .mt-select {
+  .mt-engine-badge, .mt-engine-dot, .mt-btn, .mt-select {
     transition: none;
   }
 }
@@ -946,7 +909,7 @@
 .mt-btn-consent-options {
   background: var(--mt-btn-secondary-bg);
   color: var(--mt-text-primary);
-  border: 1px solid var(--mt-btn-secondary-border);
+  border: 1px solid var(--mt-border-control);
   padding: 5px 10px;
   font-size: 11.5px;
 }
@@ -970,7 +933,8 @@
   const CODES_LANGUES = [
     "fr", "en", "es", "de", "it", "pt", "nl", "pl", "ru", "uk",
     "ja", "ko", "zh-CN", "zh-TW", "ar", "hi", "tr", "vi", "th", "sv",
-    "da", "fi", "no", "cs", "ro", "hu", "el", "he", "id", "ms"
+    "da", "fi", "no", "cs", "ro", "hu", "el", "he", "id", "ms",
+    "bg", "ca", "hr", "sk", "sl"
   ];
   const LANGUES = [
     // Le libellé "auto" est remplacé par t("autoDetect") au moment de l'affichage.
@@ -978,38 +942,62 @@
     ...CODES_LANGUES.map((code) => ({ code, label: NOMS_LANGUES[code] || code }))
   ];
 
+  /**
+   * Affecte une valeur à un <select> uniquement si une <option> correspondante existe,
+   * évitant ainsi de passer le sélecteur sur un état vide ("").
+   *
+   * @param {HTMLSelectElement} selectEl
+   * @param {string} valeur
+   * @returns {boolean}
+   */
+  const definirValeurSelectSiPresente = (selectEl, valeur) => {
+    if (!selectEl || !valeur) return false;
+    const existe = Array.from(selectEl.options).some((opt) => opt.value === valeur);
+    if (!existe) return false;
+    selectEl.value = valeur;
+    return true;
+  };
+
   // ═══════════════════════════════════════════════════════════════════════
   // COMMUNICATION AVEC LE BACKGROUND
   // ═══════════════════════════════════════════════════════════════════════
 
   /**
-   * Envoie le texte au background.js pour traduction via Google Translate.
+   * Envoie le texte au background.js pour traduction via le moteur configuré,
+   * avec maintien de vie (keep-alive) de l'Event Page pendant les requêtes longues.
    *
    * @param   {string} texte   — Texte brut à traduire
    * @param   {string} source  — Code langue source ("auto" pour auto-détection)
    * @param   {string} cible   — Code langue cible
-   * @returns {Promise<{text: string, detectedLang: string|null}>}
+   * @returns {Promise<{text: string, detectedLang: string|null, providerLabel: string|null, providerNom: string|null, usedFallback: boolean}>}
    * @throws  {Error} Si la traduction échoue
    */
   const demanderTraduction = async (texte, source, cible) => {
-    const reponse = await browser.runtime.sendMessage({
-      action: "translate",
-      text: texte,
-      source: source,
-      target: cible
-    });
-    if (reponse && reponse.success) {
-      return {
-        text: reponse.text,
-        detectedLang: reponse.detectedLang || null,
-        providerLabel: reponse.providerLabel || null,
-        providerNom: reponse.providerNom || null,
-        usedFallback: Boolean(reponse.usedFallback)
-      };
+    const keepAliveId = setInterval(() => {
+      browser.runtime.sendMessage({ action: "ping" }).catch(() => {});
+    }, 18000);
+    try {
+      const reponse = await browser.runtime.sendMessage({
+        action: "translate",
+        text: texte,
+        source: source,
+        target: cible
+      });
+      if (reponse && reponse.success) {
+        return {
+          text: reponse.text,
+          detectedLang: reponse.detectedLang || null,
+          providerLabel: reponse.providerLabel || null,
+          providerNom: reponse.providerNom || null,
+          usedFallback: Boolean(reponse.usedFallback)
+        };
+      }
+      // [Mi-R3] Si sendMessage retourne undefined (listener background sans return Promise)
+      // ou une réponse d'échec, on lance une erreur avec un code structuré.
+      throw new Error((reponse && reponse.error) || "SERVICE_UNAVAILABLE");
+    } finally {
+      clearInterval(keepAliveId);
     }
-    // [Mi-R3] Si sendMessage retourne undefined (listener background sans return Promise)
-    // ou une réponse d'échec, on lance une erreur avec un code structuré.
-    throw new Error((reponse && reponse.error) || "SERVICE_UNAVAILABLE");
   };
 
   // ── Codes d'erreur (background) → clés i18n pour un message clair ───────
@@ -1046,23 +1034,49 @@
   ]);
 
   /**
-   * Vérifie si un élément ou l'un de ses ancêtres (jusqu'à `racine`) est ignoré ou masqué.
+   * Vérifie si un élément ou l'un de ses ancêtres (jusqu'à `racine`) est ignoré ou masqué
+   * (balise technique, attribut hidden/aria-hidden, CSS display:none ou visibility:hidden/collapse).
+   *
    * @param {Element|null} parent
    * @param {Element} racine
    * @param {boolean} [exclureCitations=false]
+   * @param {WeakMap<Element, boolean>|null} [cacheVisibilite=null]
    * @returns {boolean}
    */
-  const aAncetreIgnoreOuMasque = (parent, racine, exclureCitations = false) => {
+  const aAncetreIgnoreOuMasque = (parent, racine, exclureCitations = false, cacheVisibilite = null) => {
     let el = parent;
     while (el && el !== racine) {
       const nomBalise = (el.tagName || "").toUpperCase();
       if (BALISES_IGNOREES.has(nomBalise)) {
         return true;
       }
-      if (el.hidden) {
+      if (el.hidden || (el.getAttribute && el.getAttribute("aria-hidden") === "true")) {
         return true;
       }
-      if (el.style && typeof el.style.display === "string" && el.style.display.toLowerCase() === "none") {
+      let masqueCss = cacheVisibilite ? cacheVisibilite.get(el) : undefined;
+      if (masqueCss === undefined) {
+        masqueCss = false;
+        if (el.style && typeof el.style.display === "string" && el.style.display.toLowerCase() === "none") {
+          masqueCss = true;
+        } else if (typeof getComputedStyle === "function") {
+          try {
+            const styleCalcule = getComputedStyle(el);
+            if (
+              styleCalcule.display === "none" ||
+              styleCalcule.visibility === "hidden" ||
+              styleCalcule.visibility === "collapse" ||
+              styleCalcule.opacity === "0" ||
+              parseFloat(styleCalcule.fontSize) === 0
+            ) {
+              masqueCss = true;
+            }
+          } catch { /* élément détaché */ }
+        }
+        if (cacheVisibilite) {
+          cacheVisibilite.set(el, masqueCss);
+        }
+      }
+      if (masqueCss) {
         return true;
       }
       if (exclureCitations) {
@@ -1087,10 +1101,11 @@
    */
   const collecterNoeudsTexte = (racine) => {
     const noeuds = [];
+    const cacheVisibilite = new WeakMap();
     const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
       acceptNode: (noeud) => {
         if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, false)) {
+        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, false, cacheVisibilite)) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -1113,10 +1128,11 @@
   const extraireTextePourDetection = (racine) => {
     if (!racine) return "";
     const extraits = [];
+    const cacheVisibilite = new WeakMap();
     const walker = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, {
       acceptNode: (noeud) => {
         if (!noeud.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, true)) {
+        if (!noeud.parentElement || aAncetreIgnoreOuMasque(noeud.parentElement, racine, true, cacheVisibilite)) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -1178,7 +1194,6 @@
     // [M-A1] logoIcone purement décoratif : on retire le rôle bouton (doublon avec btnReplier).
     // L'utilisateur clavier n'a pas besoin de deux contrôles identiques dans le flux de tabulation.
     logoIcone.setAttribute("aria-hidden", "true");
-    logoIcone.title = t("tooltipCollapse");
     logo.appendChild(logoIcone);
 
     // Badge moteur actif interactif
@@ -1279,12 +1294,10 @@
 
     bandeau.appendChild(controles);
 
-    // ── Zone de statut (toujours présente dans l'arbre ARIA via .is-empty) ──
+    // ── Zone de statut visuelle (sans doublon ARIA avec srLive) ───────
     const statut = document.createElement("span");
     statut.className = "mt-status is-empty";
-    statut.setAttribute("role", "status");
-    statut.setAttribute("aria-live", "polite");
-    statut.setAttribute("aria-atomic", "true");
+    statut.setAttribute("aria-hidden", "true");
     bandeau.appendChild(statut);
 
     // ── Bouton « Replier » ──────────────────────────────────────────
@@ -1315,7 +1328,7 @@
     const chkConsentMyMemory = document.createElement("input");
     chkConsentMyMemory.type = "checkbox";
     chkConsentMyMemory.className = "mt-consent-checkbox";
-    chkConsentMyMemory.checked = true;
+    chkConsentMyMemory.checked = false;
     const spanConsentMyMemory = document.createElement("span");
     spanConsentMyMemory.textContent = t("consentFallbackCheckbox");
     lblConsentMyMemory.appendChild(chkConsentMyMemory);
@@ -1339,6 +1352,14 @@
 
     shadow.appendChild(bandeau);
 
+    // ── Région ARIA live persistante (hors de .mt-banner pour annoncer même bandeau replié) ──
+    const srLive = document.createElement("span");
+    srLive.className = "mt-sr-only";
+    srLive.setAttribute("role", "status");
+    srLive.setAttribute("aria-live", "polite");
+    srLive.setAttribute("aria-atomic", "true");
+    shadow.appendChild(srLive);
+
     // ── Objet de retour (références directes aux éléments du DOM) ────
     return {
       conteneur,
@@ -1353,6 +1374,7 @@
       btnTraduire,
       btnOriginal,
       statut,
+      srLive,
       btnReplier,
       consentBar,
       consentText,
@@ -1367,7 +1389,20 @@
   // INITIALISATION (ÉTAT ISOLÉ PAR INSTANCE)
   // ═══════════════════════════════════════════════════════════════════════
 
-  async function initialiser() {
+  async function initialiser(forcer = false) {
+    // Garde anti-double injection : ne pas réinitialiser si l'instance active est déjà montée
+    const racineExistante = document.getElementById("magic-translator-root");
+    if (
+      !forcer &&
+      document.body &&
+      racineExistante &&
+      document.body.contains(racineExistante) &&
+      document.body._mtBodyBound &&
+      document.body._mtBodyBound === document.documentElement._mtActiveInstanceId
+    ) {
+      return;
+    }
+
     // ── Nettoyage de l'instance précédente ───────────────────────────────
     nettoyerInstance();
 
@@ -1449,6 +1484,7 @@
     ui.bandeau.classList.add("mt-hidden");
 
     if (document.body) {
+      document.body._mtBodyBound = instanceId;
       document.body.insertBefore(ui.conteneur, document.body.firstChild);
     } else {
       document.documentElement.insertBefore(ui.conteneur, document.documentElement.firstChild);
@@ -1484,10 +1520,6 @@
       }
     };
 
-    ui.logoIcone.addEventListener("click", () => {
-      replier({ restaurerFocus: true });
-    });
-
     ui.btnReplier.addEventListener("click", () => {
       replier({ restaurerFocus: true });
     });
@@ -1514,7 +1546,6 @@
             LOCALE = langUi;
             ui.conteneur.setAttribute("lang", LOCALE);
             ui.bandeau.setAttribute("aria-label", t("bannerTitle"));
-            ui.logoIcone.title = t("tooltipCollapse");
             ui.selectSource.setAttribute("aria-label", t("ariaSelectSource"));
             ui.selectCible.setAttribute("aria-label", t("ariaSelectTarget"));
             ui.btnTraduire.textContent = contenusOriginaux ? t("btnRetranslate") : t("btnTranslate");
@@ -1537,9 +1568,13 @@
               langueCibleTrouvee = langUi;
             }
             if (langueCibleTrouvee) {
-              ui.selectCible.value = langueCibleTrouvee;
+              definirValeurSelectSiPresente(ui.selectCible, langueCibleTrouvee);
             }
           }
+        }
+
+        if (ui.chkConsentMyMemory) {
+          ui.chkConsentMyMemory.checked = Boolean(res.enableMyMemoryFallback);
         }
 
         if (res.alternateTarget) {
@@ -1598,6 +1633,10 @@
       }
     };
 
+    const majStatut = (message, type = "") => {
+      afficherStatut(ui.statut, message, type, ui.srLive);
+    };
+
     const lancerTraduction = async (options = {}) => {
       if (traductionEnCours) return;
       const replierApres = Boolean(options && options.replierApres);
@@ -1612,14 +1651,14 @@
       if (!estDeplie && !replierApres) deplier({ focus: !isAutoOnOpen });
 
       if (!document.body) {
-        afficherStatut(ui.statut, t("errorNoText"), "error");
+        majStatut(t("errorNoText"), "error");
         return;
       }
 
       // Garde-fou Opt-In ATN : afficher la barre de consentement si aucun moteur n'est configuré
       if (consentementRequis) {
         ui.consentBar.classList.remove("mt-hidden");
-        afficherStatut(ui.statut, t("errorConsentRequired"), "error");
+        majStatut(t("errorConsentRequired"), "error");
         if (!isAutoOnOpen && ui.btnConsentAccept) {
           ui.btnConsentAccept.focus();
         }
@@ -1629,13 +1668,13 @@
       // Signalement explicite si la permission réseau manque
       if (!aPermissionMoteur && origineRequise) {
         const nomMoteur = (ui.badgeMoteurLabel && ui.badgeMoteurLabel.textContent) || "le moteur actif";
-        afficherStatut(ui.statut, t("errorPermissionRequired", { provider: nomMoteur }), "error");
+        majStatut(t("errorPermissionRequired", { provider: nomMoteur }), "error");
         return;
       }
 
       // Signalement explicite si la clé d'API manque
       if (!estMoteurConfigure) {
-        afficherStatut(ui.statut, t("errorUnauthorized"), "error");
+        majStatut(t("errorUnauthorized"), "error");
         return;
       }
 
@@ -1650,20 +1689,21 @@
           if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
           cible = langueAlternance;
           utiliseAlternance = true;
-          ui.selectCible.value = cible;
+          definirValeurSelectSiPresente(ui.selectCible, cible);
         } else {
-          afficherStatut(ui.statut, t("errorSameLanguage"), "error");
+          majStatut(t("errorSameLanguage"), "error");
           return;
         }
       }
 
       const noeudsTexte = collecterNoeudsTexte(document.body);
       if (noeudsTexte.length === 0) {
-        afficherStatut(ui.statut, t("errorNoText"), "error");
+        majStatut(t("errorNoText"), "error");
         return;
       }
 
       // ── Sauvegarde des originaux (première traduction uniquement) ──────
+      const avaitOriginauxAvant = Boolean(contenusOriginaux);
       if (!contenusOriginaux) {
         contenusOriginaux = new Map();
         noeudsTexte.forEach((noeud) => {
@@ -1679,9 +1719,38 @@
       ui.btnTraduire.setAttribute("aria-disabled", "true");
       ui.selectSource.disabled = true;
       ui.selectCible.disabled  = true;
-      afficherStatut(ui.statut, t("statusTranslating"), "loading");
+      majStatut(t("statusTranslating"), "loading");
 
       let derniereLangDetectee = null;
+
+      const mettreAJourBadgeMoteur = (res) => {
+        if (!res || !res.providerLabel || !ui.badgeMoteur) return;
+        const suffixeSecours = res.usedFallback ? t("badgeFallbackSuffix") : "";
+        const labelAffiche = res.providerLabel + suffixeSecours;
+        const nomAffiche = (res.providerNom || res.providerLabel) + suffixeSecours;
+        ui.badgeMoteurLabel.textContent = labelAffiche;
+        ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomAffiche });
+        ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomAffiche }));
+      };
+
+      const gererTexteDejaDansCible = () => {
+        if (avaitOriginauxAvant && contenusOriginaux) {
+          contenusOriginaux.forEach((texte, noeud) => {
+            noeud.textContent = texte;
+          });
+          ui.btnOriginal.classList.add("mt-hidden");
+          ui.btnTraduire.textContent = t("btnTranslate");
+          cibleAvantAlternance = null;
+          sourceAvantAlternance = null;
+        }
+        contenusOriginaux = null;
+        if (isAutoOnOpen) {
+          replier({ restaurerFocus: false });
+          return;
+        }
+        const nomLang = NOMS_LANGUES[cible] || cible;
+        majStatut("✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
+      };
 
       try {
         // ── Séparateur unique anti-collision ─────────────────────────────
@@ -1696,7 +1765,7 @@
           SENTINEL = "MTSEP" + hex4() + hex4() + hex4() + hex4() + hex4() + hex4();
         } while (textContentTotal.toUpperCase().includes(SENTINEL.toUpperCase()));
         const SEPARATEUR = "\n" + SENTINEL + "\n";
-        const SEPARATEUR_RE = new RegExp("\\s*" + SENTINEL + "\\s*", "gi");
+        const SEPARATEUR_RE = new RegExp("\\s{0,20}" + SENTINEL + "\\s{0,20}", "gi");
 
         // ── Découpage en lots (chunks) ──────────────────────────────────
         const TAILLE_MAX_LOT = 4000;
@@ -1737,7 +1806,7 @@
           if (document.documentElement._mtActiveInstanceId !== instanceId) break;
 
           if (lots.length > 1) {
-            afficherStatut(ui.statut, t("statusTranslatingChunk", { i: i + 1, n: lots.length }), "loading");
+            majStatut(t("statusTranslatingChunk", { i: i + 1, n: lots.length }), "loading");
           }
 
           // ── Nœud unique très long (> limite) : sous-découpage ───────────
@@ -1748,7 +1817,12 @@
             for (let sIdx = 0; sIdx < segments.length; sIdx++) {
               const seg = segments[sIdx];
               if (document.documentElement._mtActiveInstanceId !== instanceId) break;
-              let r = await demanderTraduction(seg, source, cible);
+              const { lead: sLead, coeur: sCoeur, trail: sTrail } = extraireEspaces(seg);
+              if (!sCoeur) {
+                morceaux.push(seg);
+                continue;
+              }
+              let r = await demanderTraduction(sCoeur, source, cible);
               if (r.detectedLang) derniereLangDetectee = r.detectedLang;
 
               // Détection d'inversion ou d'alternance sur le premier segment du premier lot (mode manuel uniquement)
@@ -1759,21 +1833,29 @@
                   cible = source;
                   source = derniereLangDetectee;
                   utiliseAlternance = true;
-                  ui.selectCible.value = cible;
-                  ui.selectSource.value = source;
-                  r = await demanderTraduction(seg, source, cible);
+                  definirValeurSelectSiPresente(ui.selectCible, cible);
+                  definirValeurSelectSiPresente(ui.selectSource, source);
+                  r = await demanderTraduction(sCoeur, source, cible);
                   if (r.detectedLang) derniereLangDetectee = r.detectedLang;
                 } else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
                   if (!cibleAvantAlternance) cibleAvantAlternance = ui.selectCible.value;
                   cible = langueAlternance;
                   source = derniereLangDetectee;
                   utiliseAlternance = true;
-                  ui.selectCible.value = cible;
-                  r = await demanderTraduction(seg, source, cible);
+                  definirValeurSelectSiPresente(ui.selectCible, cible);
+                  r = await demanderTraduction(sCoeur, source, cible);
                   if (r.detectedLang) derniereLangDetectee = r.detectedLang;
                 }
               }
-              morceaux.push(r.text);
+
+              mettreAJourBadgeMoteur(r);
+
+              if (i === 0 && sIdx === 0 && ui.selectSource.value === "auto" && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible) && !utiliseAlternance) {
+                gererTexteDejaDansCible();
+                return;
+              }
+
+              morceaux.push(sLead + r.text + sTrail);
             }
             traductions.set(entree.noeud, entree.lead + morceaux.join("") + entree.trail);
             continue;
@@ -1793,8 +1875,8 @@
               cible = source;
               source = derniereLangDetectee;
               utiliseAlternance = true;
-              ui.selectCible.value = cible;
-              ui.selectSource.value = source;
+              definirValeurSelectSiPresente(ui.selectCible, cible);
+              definirValeurSelectSiPresente(ui.selectSource, source);
               resultat = await demanderTraduction(lot.texte, source, cible);
               if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
             } else if (langueAlternance && langueAlternance !== "none" && !languesSontEquivalentes(langueAlternance, derniereLangDetectee)) {
@@ -1802,18 +1884,18 @@
               cible = langueAlternance;
               source = derniereLangDetectee;
               utiliseAlternance = true;
-              ui.selectCible.value = cible;
+              definirValeurSelectSiPresente(ui.selectCible, cible);
               resultat = await demanderTraduction(lot.texte, source, cible);
               if (resultat.detectedLang) derniereLangDetectee = resultat.detectedLang;
             }
           }
-          if (resultat.providerLabel && ui.badgeMoteur) {
-            const suffixeSecours = resultat.usedFallback ? t("badgeFallbackSuffix") : "";
-            const labelAffiche = resultat.providerLabel + suffixeSecours;
-            const nomAffiche = (resultat.providerNom || resultat.providerLabel) + suffixeSecours;
-            ui.badgeMoteurLabel.textContent = labelAffiche;
-            ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomAffiche });
-            ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomAffiche }));
+
+          mettreAJourBadgeMoteur(resultat);
+
+          // Court-circuit précoce avant toute écriture DOM ou appel aux lots 1..N si déjà dans la cible
+          if (i === 0 && ui.selectSource.value === "auto" && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible) && !utiliseAlternance) {
+            gererTexteDejaDansCible();
+            return;
           }
 
           if (lot.noeuds.length === 1) {
@@ -1834,7 +1916,15 @@
                   echecsNoeuds++;
                   derniereErreurNoeud = e;
                   console.error("[MagicTranslator] Fallback translation failed for node", e);
-                  if (e.message === "RATE_LIMITED" || e.message === "NETWORK" || e.message === "UNAUTHORIZED" || e.message === "CONSENT_REQUIRED") {
+                  if (
+                    e.message === "RATE_LIMITED" ||
+                    e.message === "NETWORK" ||
+                    e.message === "UNAUTHORIZED" ||
+                    e.message === "CONSENT_REQUIRED" ||
+                    e.message === "TIMEOUT" ||
+                    e.message === "PERMISSION_REQUIRED" ||
+                    e.message === "CLEARTEXT_FORBIDDEN"
+                  ) {
                     throw e;
                   }
                 }
@@ -1865,30 +1955,30 @@
 
         // ── Affichage du statut ──────────────────────────────────────────
         if (echecsNoeuds > 0) {
-          afficherStatut(ui.statut, t("statusTranslatedPartial"), "error");
+          majStatut(t("statusTranslatedPartial"), "error");
         } else if (utiliseAlternance) {
           const nomLang = NOMS_LANGUES[cible] || cible;
-          afficherStatut(ui.statut, "✓ " + t("statusTranslatedAlternate", { lang: nomLang }), "success");
+          majStatut("✓ " + t("statusTranslatedAlternate", { lang: nomLang }), "success");
         } else if (ui.selectSource.value === "auto" && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
           if (isAutoOnOpen) {
             contenusOriginaux = null;
-            replier();
+            replier({ restaurerFocus: false });
             return;
           }
           const nomLang = NOMS_LANGUES[cible] || cible;
-          afficherStatut(ui.statut, "✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
+          majStatut("✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
         } else if (derniereLangDetectee && ui.selectSource.value === "auto") {
           const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
-          afficherStatut(ui.statut, "✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
+          majStatut("✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
         } else {
-          afficherStatut(ui.statut, "✓ " + t("statusTranslated"), "success");
+          majStatut("✓ " + t("statusTranslated"), "success");
         }
 
         ui.btnOriginal.classList.remove("mt-hidden");
         ui.btnTraduire.textContent = t("btnRetranslate");
 
         if (replierApres) {
-          replier();
+          replier({ restaurerFocus: !isAutoOnOpen });
         }
 
       } catch (erreur) {
@@ -1909,7 +1999,7 @@
         const cle = ERREURS_CONNUES[erreur.message];
         const nomMoteur = (ui.badgeMoteurLabel && ui.badgeMoteurLabel.textContent) || "Google";
         const msg = cle ? t(cle, { provider: nomMoteur }) : t("errorGeneric", { msg: erreur.message });
-        afficherStatut(ui.statut, msg, "error");
+        majStatut(msg, "error");
       } finally {
         // ── Déverrouillage de l'interface ────────────────────────────────
         traductionEnCours = false;
@@ -1944,21 +2034,28 @@
         if (res && res.success) {
           consentementRequis = false;
           estMoteurConfigure = true;
-          aPermissionMoteur = true;
+          aPermissionMoteur = res.hasPermission !== false;
           ui.consentBar.classList.add("mt-hidden");
-          ui.badgeDot.classList.remove("is-warning");
+          if (aPermissionMoteur) {
+            origineRequise = "";
+            ui.badgeDot.classList.remove("is-warning");
+          } else {
+            origineRequise = res.requiredOrigin || "";
+            ui.badgeDot.classList.add("is-warning");
+          }
           const labelMoteur = res.providerLabel || "Google";
           const nomMoteur = res.providerNom || "Google Translate";
           ui.badgeMoteurLabel.textContent = labelMoteur;
           ui.badgeMoteur.title = t("badgeActiveTitle", { provider: nomMoteur });
           ui.badgeMoteur.setAttribute("aria-label", t("badgeActiveAria", { provider: nomMoteur }));
           synchroniserEtatBoutonTraduire();
+          ui.btnTraduire.focus();
           await lancerTraduction();
         } else {
-          afficherStatut(ui.statut, t("errorServiceUnavailable"), "error");
+          majStatut(t("errorServiceUnavailable"), "error");
         }
       } catch {
-        afficherStatut(ui.statut, t("errorServiceUnavailable"), "error");
+        majStatut(t("errorServiceUnavailable"), "error");
       } finally {
         ui.btnConsentAccept.disabled = false;
       }
@@ -1973,18 +2070,18 @@
       });
 
       if (cibleAvantAlternance) {
-        ui.selectCible.value = cibleAvantAlternance;
+        definirValeurSelectSiPresente(ui.selectCible, cibleAvantAlternance);
         cibleAvantAlternance = null;
       }
       if (sourceAvantAlternance) {
-        ui.selectSource.value = sourceAvantAlternance;
+        definirValeurSelectSiPresente(ui.selectSource, sourceAvantAlternance);
         sourceAvantAlternance = null;
       }
 
       contenusOriginaux = null;
       ui.btnOriginal.classList.add("mt-hidden");
       ui.btnTraduire.textContent = t("btnTranslate");
-      afficherStatut(ui.statut, "", "");
+      majStatut("", "");
       ui.btnTraduire.focus();
     });
 
@@ -2018,6 +2115,7 @@
       if (
         changements.provider ||
         changements.deeplApiKey ||
+        changements.deeplPlan ||
         changements.geminiApiKey ||
         changements.llmApiKey ||
         changements.llmPreset ||
@@ -2025,7 +2123,10 @@
         changements.libretranslateUrl ||
         changements.alternateTarget ||
         changements.autoTranslateOnClick ||
-        changements.autoTranslateOnOpen
+        changements.autoTranslateOnOpen ||
+        changements.autoTranslateMode ||
+        changements.autoTranslateLangs ||
+        changements.enableMyMemoryFallback
       ) {
         actualiserConfig();
       }
@@ -2092,12 +2193,18 @@
       }
     });
 
-    // ── MutationObserver — filet de sécurité ─────────────────────────────
+    // ── MutationObserver — filet de sécurité (débouncé 50 ms) ────────────
+    let timerMutation = null;
     const observeur = new MutationObserver(() => {
-      if (!document.body || !document.body.contains(ui.conteneur)) {
-        observeur.disconnect();
-        initialiser().catch(console.error);
-      }
+      if (timerMutation) return;
+      timerMutation = planifierTimer(() => {
+        timerMutation = null;
+        if (document.documentElement._mtActiveInstanceId !== instanceId) return;
+        if (!document.body || !document.body.contains(ui.conteneur)) {
+          observeur.disconnect();
+          initialiser(true).catch(console.error);
+        }
+      }, 50);
     });
     if (document.body) {
       observeur.observe(document.body, { childList: true });
@@ -2119,6 +2226,9 @@
     document.getElementById("magic-translator-root")?.remove();
     document.documentElement._mtObserver?.disconnect();
     document.documentElement._mtObserver = null;
+    if (document.body && document.body._mtBodyBound) {
+      document.body._mtBodyBound = null;
+    }
     if (document.documentElement._mtMessageListener) {
       browser.runtime.onMessage.removeListener(document.documentElement._mtMessageListener);
       document.documentElement._mtMessageListener = null;
@@ -2134,15 +2244,21 @@
   // ═══════════════════════════════════════════════════════════════════════
 
   /**
-   * Met à jour la zone de statut dans le bandeau tout en la gardant présente dans l'arbre ARIA.
+   * Met à jour la zone de statut dans le bandeau et la région ARIA live persistante.
    *
-   * @param {HTMLElement} el      — Élément DOM du statut
-   * @param {string}      message — Message à afficher (vide = masquer visuellement via .is-empty)
-   * @param {string}      type    — "loading" | "error" | "success" | ""
+   * @param {HTMLElement}      el      — Élément DOM du statut visuel
+   * @param {string}           message — Message à afficher (vide = masquer visuellement via .is-empty)
+   * @param {string}           type    — "loading" | "error" | "success" | ""
+   * @param {HTMLElement|null} [srEl]  — Région ARIA live hors bandeau
    */
-  function afficherStatut(el, message, type) {
+  function afficherStatut(el, message, type, srEl = null) {
     el.classList.remove("error", "success", "mt-hidden");
     el.textContent = "";
+
+    if (srEl) {
+      // Les états visuels transitoires de chargement restent annoncés, puis le résultat final suit
+      srEl.textContent = message || "";
+    }
 
     if (!message) {
       el.classList.add("is-empty");

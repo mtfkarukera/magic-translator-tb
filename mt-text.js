@@ -78,9 +78,9 @@
     // 1. Tronquer à la première amorce de fil de citation classique
     // Ex: "On Wed, Oct 21... wrote:", "Le 21 oct... a écrit :", "----- Original Message -----"
     const motifsCitationsEntete = [
-      /^-{3,}\s*(?:Original Message|Message d'origine)\s*-{3,}/im,
-      /^(?:On|Le)\s+[^\r\n]{1,250}(?:wrote|a écrit)\s*:/im,
-      /^From:\s*.*$/im
+      /^-{3,}\s*(?:Original Message|Message d'origine|Ursprüngliche Nachricht|Mensaje original)\s*-{3,}/im,
+      /^(?:On|Le|Am|El)\s+[^\r\n]{1,200}(?:\r?\n[^\r\n]{1,120})?\s*(?:wrote|a écrit|schrieb|escribió)\s*:/im,
+      /^(?:From|De|Von)\s*:\s*[^\r\n]+$/im
     ];
     let textePropre = texte;
     for (const motif of motifsCitationsEntete) {
@@ -100,7 +100,7 @@
     textePropre = textePropre.replace(/https?:\/\/\S+|www\.\S+/gi, " ");
 
     // 4. Supprimer les adresses e-mails techniques et jetons sentinelles internes
-    textePropre = textePropre.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, " ");
+    textePropre = textePropre.replace(/\b[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,255}\.[A-Za-z]{2,24}\b/g, " ");
     textePropre = textePropre.replace(/\bMTSEP[0-9a-f]+\b/gi, " ");
 
     // 5. Normaliser les espaces et retours chariots

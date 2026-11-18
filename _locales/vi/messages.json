@@ -5,56 +5,14 @@
   "extDescription": {
     "message": "Dịch email trực tiếp trong Thunderbird, có thể hoàn tác, bằng Google Translate."
   },
-  "bannerTitle": {
-    "message": "Translator"
-  },
-  "labelFrom": {
-    "message": "TỪ"
-  },
-  "labelTo": {
-    "message": "SANG"
-  },
   "btnTranslate": {
     "message": "Dịch"
-  },
-  "btnRetranslate": {
-    "message": "Dịch lại"
-  },
-  "btnOriginal": {
-    "message": "Bản gốc"
-  },
-  "statusTranslating": {
-    "message": "Đang dịch…"
-  },
-  "statusTranslated": {
-    "message": "Đã dịch"
-  },
-  "statusTranslatedFrom": {
-    "message": "Đã dịch từ $LANG$",
-    "placeholders": {
-      "lang": {
-        "content": "$1",
-        "example": "tiếng Anh"
-      }
-    }
   },
   "errorSameLanguage": {
     "message": "Ngôn ngữ nguồn và đích giống nhau."
   },
   "errorNoText": {
     "message": "Không có văn bản để dịch."
-  },
-  "errorGeneric": {
-    "message": "Lỗi: $MSG$",
-    "placeholders": {
-      "msg": {
-        "content": "$1",
-        "example": "Network error"
-      }
-    }
-  },
-  "tooltipExpand": {
-    "message": "Dịch tin nhắn này"
   },
   "actionTitle": {
     "message": "Dịch"
@@ -206,12 +164,6 @@
   "errorModelRequired": {
     "message": "Bắt buộc phải có tên mô hình."
   },
-  "ariaToggleKey": {
-    "message": "Bật/tắt hiển thị khóa API"
-  },
-  "optionsFooter": {
-    "message": "Magic Translator · Phiên bản Manifest V3 · Được thiết kế cho Mozilla Thunderbird"
-  },
   "composeActionTitle": {
     "message": "Dịch"
   },
@@ -243,9 +195,6 @@
     "message": "Nội dung email"
   },
   "composeBtnTranslate": {
-    "message": "Dịch"
-  },
-  "composeBtnTranslateSelection": {
     "message": "Dịch"
   },
   "composeBtnRestore": {
@@ -294,7 +243,7 @@
     "message": "Cấp quyền truy cập trong 1 cú nhấp chuột"
   },
   "statusPermissionGranted": {
-    "message": "✓ Đã cấp quyền thành công! Động cơ đã sẵn sàng."
+    "message": "✓ Đã cấp quyền! Hãy nhấp vào «Lưu tùy chọn» ngay bây giờ để hoàn tất."
   },
   "sectionErgonomicsTitle": {
     "message": "Tiện dụng & Hành vi"
@@ -318,7 +267,7 @@
     "message": "Tự động dịch khi mở thư (Chế độ Không cần nhấp)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Tự động dịch email đến ngay khi mở mà không cần nhấp chuột, sau đó thu gọn gọn gàng thanh dịch."
+    "message": "Tự động dịch email đến ngay khi mở mà không cần nhấp chuột (có sẵn nút Bản gốc trên thanh dịch)."
   },
   "optModeAllForeign": {
     "message": "Tất cả email không phải bằng ngôn ngữ đích của tôi"
@@ -471,7 +420,7 @@
     "message": "Không thể khôi phục thư gốc."
   },
   "errorUnauthorized": {
-    "message": "Yêu cầu không được phép."
+    "message": "Thiếu khóa API hoặc khóa không hợp lệ. Kiểm tra cài đặt."
   },
   "ariaShowKey": {
     "message": "Hiện khóa API"
@@ -508,5 +457,44 @@
   },
   "setupBtnActivatedGoogle": {
     "message": "✓ Đã bật Google Dịch (cập nhật tùy chọn)"
+  },
+  "errorRateLimited": {
+    "message": "Quá nhiều yêu cầu. Vui lòng thử lại sau giây lát."
+  },
+  "errorTimeout": {
+    "message": "Quá thời gian chờ. Kiểm tra kết nối của bạn."
+  },
+  "errorNetwork": {
+    "message": "Lỗi mạng. Kiểm tra kết nối của bạn."
+  },
+  "composeBtnRetranslate": {
+    "message": "Dịch lại"
+  },
+  "optGemini35FlashLite": {
+    "message": "gemini-3.5-flash-lite (Khuyên dùng — Siêu nhanh & tiết kiệm)"
+  },
+  "optGemini37Flash": {
+    "message": "gemini-3.7-flash (Mô hình chủ lực độ chính xác cao)"
+  },
+  "optLlmGroq": {
+    "message": "Groq Cloud (llama-3.3-70b-versatile — Suy luận tức thì)"
+  },
+  "optLlmCustom": {
+    "message": "Máy chủ tùy chỉnh (URL tự do)"
+  },
+  "placeholderLlmBaseUrl": {
+    "message": "https://api.openai.com hoặc http://localhost:11434"
+  },
+  "placeholderLtUrl": {
+    "message": "https://libretranslate.com hoặc http://localhost:5000"
+  },
+  "placeholderMyMemoryEmail": {
+    "message": "VD: ten@mien.com"
+  },
+  "errorZeroClickNoLang": {
+    "message": "Vui lòng chọn ít nhất một ngôn ngữ cho chế độ Không nhấp chuột."
+  },
+  "errorSavePreferences": {
+    "message": "Không thể lưu tùy chọn."
   }
 }

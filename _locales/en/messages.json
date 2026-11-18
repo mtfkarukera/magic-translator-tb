@@ -5,56 +5,14 @@
   "extDescription": {
     "message": "Translate your emails directly in Thunderbird, reversibly, using Google Translate."
   },
-  "bannerTitle": {
-    "message": "Translator"
-  },
-  "labelFrom": {
-    "message": "FROM"
-  },
-  "labelTo": {
-    "message": "TO"
-  },
   "btnTranslate": {
     "message": "Translate"
-  },
-  "btnRetranslate": {
-    "message": "Retranslate"
-  },
-  "btnOriginal": {
-    "message": "Original"
-  },
-  "statusTranslating": {
-    "message": "Translating…"
-  },
-  "statusTranslated": {
-    "message": "Translated"
-  },
-  "statusTranslatedFrom": {
-    "message": "Translated from $LANG$",
-    "placeholders": {
-      "lang": {
-        "content": "$1",
-        "example": "English"
-      }
-    }
   },
   "errorSameLanguage": {
     "message": "Source and target languages are the same."
   },
   "errorNoText": {
     "message": "No text to translate."
-  },
-  "errorGeneric": {
-    "message": "Error: $MSG$",
-    "placeholders": {
-      "msg": {
-        "content": "$1",
-        "example": "Network error"
-      }
-    }
-  },
-  "tooltipExpand": {
-    "message": "Translate this message"
   },
   "actionTitle": {
     "message": "Translate"
@@ -206,12 +164,6 @@
   "errorModelRequired": {
     "message": "The model identifier is required."
   },
-  "ariaToggleKey": {
-    "message": "Toggle API key visibility"
-  },
-  "optionsFooter": {
-    "message": "Magic Translator · Manifest V3 Version · Designed for Mozilla Thunderbird"
-  },
   "composeActionTitle": {
     "message": "Translate"
   },
@@ -243,9 +195,6 @@
     "message": "Email body"
   },
   "composeBtnTranslate": {
-    "message": "Translate"
-  },
-  "composeBtnTranslateSelection": {
     "message": "Translate"
   },
   "composeBtnRestore": {
@@ -294,7 +243,7 @@
     "message": "Grant access in 1 click"
   },
   "statusPermissionGranted": {
-    "message": "✓ Permission granted successfully! The engine is ready."
+    "message": "✓ Permission granted! Click \"Save Preferences\" now to finish."
   },
   "sectionErgonomicsTitle": {
     "message": "Ergonomics & Behavior"
@@ -318,7 +267,7 @@
     "message": "Automatic translation on open (Zero-Click Mode)"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "Automatically translates incoming emails as soon as they are opened without requiring any click, then discreetly collapses the translation bar."
+    "message": "Automatically translates incoming emails as soon as they are opened without clicking (Original button available in the banner)."
   },
   "optModeAllForeign": {
     "message": "All emails not written in my target language"
@@ -471,7 +420,7 @@
     "message": "Failed to restore original message."
   },
   "errorUnauthorized": {
-    "message": "Unauthorized request."
+    "message": "Missing or invalid API key. Check settings."
   },
   "ariaShowKey": {
     "message": "Show API key"
@@ -508,5 +457,44 @@
   },
   "setupBtnActivatedGoogle": {
     "message": "✓ Google Translate enabled (update option)"
+  },
+  "errorRateLimited": {
+    "message": "Too many requests. Please try again in a moment."
+  },
+  "errorTimeout": {
+    "message": "Request timed out. Check your connection."
+  },
+  "errorNetwork": {
+    "message": "Network error. Check your connection."
+  },
+  "composeBtnRetranslate": {
+    "message": "Retranslate"
+  },
+  "optGemini35FlashLite": {
+    "message": "gemini-3.5-flash-lite (Recommended — Ultra-fast & cost-effective)"
+  },
+  "optGemini37Flash": {
+    "message": "gemini-3.7-flash (High-precision flagship model)"
+  },
+  "optLlmGroq": {
+    "message": "Groq Cloud (llama-3.3-70b-versatile — Instant inference)"
+  },
+  "optLlmCustom": {
+    "message": "Custom Server (Free URL)"
+  },
+  "placeholderLlmBaseUrl": {
+    "message": "https://api.openai.com or http://localhost:11434"
+  },
+  "placeholderLtUrl": {
+    "message": "https://libretranslate.com or http://localhost:5000"
+  },
+  "placeholderMyMemoryEmail": {
+    "message": "e.g. you@domain.com"
+  },
+  "errorZeroClickNoLang": {
+    "message": "Please select at least one language for Zero-Click mode."
+  },
+  "errorSavePreferences": {
+    "message": "Unable to save preferences."
   }
 }

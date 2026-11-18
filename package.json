@@ -3,7 +3,7 @@
   "version": "2.5.0",
   "private": true,
   "type": "module",
-  "description": "Extension Thunderbird de traduction d'e-mails via Google Translate.",
+  "description": "Extension Thunderbird de traduction d'e-mails multi-fournisseurs (Google, MyMemory, DeepL, Gemini, LLMs Cloud/Locaux, LibreTranslate) avec consentement Opt-In explicite.",
   "author": "MTF Karukera",
   "license": "MPL-2.0",
   "scripts": {

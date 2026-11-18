@@ -5,56 +5,14 @@
   "extDescription": {
     "message": "Google翻訳を使って、Thunderbirdでメールを直接翻訳します。"
   },
-  "bannerTitle": {
-    "message": "Translator"
-  },
-  "labelFrom": {
-    "message": "差出語"
-  },
-  "labelTo": {
-    "message": "翻訳先"
-  },
   "btnTranslate": {
     "message": "翻訳"
-  },
-  "btnRetranslate": {
-    "message": "再翻訳"
-  },
-  "btnOriginal": {
-    "message": "原文"
-  },
-  "statusTranslating": {
-    "message": "翻訳中…"
-  },
-  "statusTranslated": {
-    "message": "翻訳済み"
-  },
-  "statusTranslatedFrom": {
-    "message": "$LANG$から翻訳",
-    "placeholders": {
-      "lang": {
-        "content": "$1",
-        "example": "英語"
-      }
-    }
   },
   "errorSameLanguage": {
     "message": "翻訳元と翻訳先の言語が同じです。"
   },
   "errorNoText": {
     "message": "翻訳するテキストがありません。"
-  },
-  "errorGeneric": {
-    "message": "エラー: $MSG$",
-    "placeholders": {
-      "msg": {
-        "content": "$1",
-        "example": "Network error"
-      }
-    }
-  },
-  "tooltipExpand": {
-    "message": "このメッセージを翻訳"
   },
   "actionTitle": {
     "message": "翻訳"
@@ -206,12 +164,6 @@
   "errorModelRequired": {
     "message": "モデル識別子が必要です。"
   },
-  "ariaToggleKey": {
-    "message": "APIキーの表示/非表示を切り替え"
-  },
-  "optionsFooter": {
-    "message": "Magic Translator · Manifest V3版 · Mozilla Thunderbird専用設計"
-  },
   "composeActionTitle": {
     "message": "翻訳"
   },
@@ -243,9 +195,6 @@
     "message": "本文"
   },
   "composeBtnTranslate": {
-    "message": "翻訳"
-  },
-  "composeBtnTranslateSelection": {
     "message": "翻訳"
   },
   "composeBtnRestore": {
@@ -294,7 +243,7 @@
     "message": "1クリックでアクセスを許可"
   },
   "statusPermissionGranted": {
-    "message": "✓ 権限が正常に付与されました！エンジンの準備が整いました。"
+    "message": "✓ 権限が付与されました！「設定を保存」をクリックして完了してください。"
   },
   "sectionErgonomicsTitle": {
     "message": "操作性と動作"
@@ -318,7 +267,7 @@
     "message": "開封時の自動翻訳（ゼロクリックモード）"
   },
   "helpAutoTranslateOnOpen": {
-    "message": "受信メールを開くとクリック不要で即座に自動翻訳し、翻訳バーを控えめに折りたたみます。"
+    "message": "受信メールを開くとクリックなしで自動翻訳します（翻訳バーに「原文」ボタンが表示されます）。"
   },
   "optModeAllForeign": {
     "message": "翻訳先言語以外のすべてのメール"
@@ -471,7 +420,7 @@
     "message": "元の文面を復元できませんでした。"
   },
   "errorUnauthorized": {
-    "message": "認証されていないリクエストです。"
+    "message": "APIキーが未設定または無効です。設定を確認してください。"
   },
   "ariaShowKey": {
     "message": "API キーを表示"
@@ -508,5 +457,44 @@
   },
   "setupBtnActivatedGoogle": {
     "message": "✓ Google 翻訳が有効です（設定を更新）"
+  },
+  "errorRateLimited": {
+    "message": "リクエストが多すぎます。しばらくしてから再試行してください。"
+  },
+  "errorTimeout": {
+    "message": "タイムアウトしました。接続を確認してください。"
+  },
+  "errorNetwork": {
+    "message": "ネットワークエラー。接続を確認してください。"
+  },
+  "composeBtnRetranslate": {
+    "message": "再翻訳"
+  },
+  "optGemini35FlashLite": {
+    "message": "gemini-3.5-flash-lite（推奨 — 超高速・低コスト）"
+  },
+  "optGemini37Flash": {
+    "message": "gemini-3.7-flash（高精度フラッグシップモデル）"
+  },
+  "optLlmGroq": {
+    "message": "Groq Cloud（llama-3.3-70b-versatile — 高速推論）"
+  },
+  "optLlmCustom": {
+    "message": "カスタムサーバー（任意のURL）"
+  },
+  "placeholderLlmBaseUrl": {
+    "message": "https://api.openai.com または http://localhost:11434"
+  },
+  "placeholderLtUrl": {
+    "message": "https://libretranslate.com または http://localhost:5000"
+  },
+  "placeholderMyMemoryEmail": {
+    "message": "例: user@example.com"
+  },
+  "errorZeroClickNoLang": {
+    "message": "ゼロクリックモードの言語を少なくとも1つ選択してください。"
+  },
+  "errorSavePreferences": {
+    "message": "設定を保存できませんでした。"
   }
 }

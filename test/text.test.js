@@ -100,3 +100,22 @@ test("nettoyerTextePourDetection : gère les chaînes vides ou invalides", () =>
   assert.equal(nettoyerTextePourDetection(null), "");
   assert.equal(nettoyerTextePourDetection(undefined), "");
 });
+
+test("nettoyerTextePourDetection : purge les sentinelles MTSEP, De:, citations repliées et e-mails complexes en O(N)", () => {
+  const txtAvecSentinelle = "Bonjour Alice MTSEP0123456789abcdef01234567 voici un texte assez long pour dépasser le seuil minimum.\nDe : Bob Martin <bob@example.org>\nHello world ignored";
+  assert.equal(
+    nettoyerTextePourDetection(txtAvecSentinelle),
+    "Bonjour Alice voici un texte assez long pour dépasser le seuil minimum."
+  );
+
+  const txtReplie = "Voici une réponse détaillée rédigée en français avant l'historique.\nLe 12 nov. 2026 à 09:30,\nClaire <claire@example.com> a écrit :\nThis quoted English block must be stripped completely.";
+  assert.equal(
+    nettoyerTextePourDetection(txtReplie),
+    "Voici une réponse détaillée rédigée en français avant l'historique."
+  );
+
+  const piegeEmail = "Texte français normal " + "a.".repeat(20000) + " fin.";
+  const debut = Date.now();
+  nettoyerTextePourDetection(piegeEmail);
+  assert.ok(Date.now() - debut < 150, "nettoyerTextePourDetection doit rester linéaire sur de longues séquences");
+});

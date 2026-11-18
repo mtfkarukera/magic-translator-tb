@@ -37,36 +37,79 @@ const DEFINITION_SCRIPT_MESSAGE = {
   runAt: "document_idle"
 };
 
-function obtenirStockageSession() {
-  return (browser.storage && browser.storage.session) ? browser.storage.session : browser.storage.local;
-}
-
-/**
- * Enregistre ou met à jour la définition des scripts injectés dans messageDisplay.
- * @param {boolean} [forcerReenregistrement=false]
- */
-async function assurerScriptsEnregistres(forcerReenregistrement = false) {
-  try {
-    if (!forcerReenregistrement && browser.scripting.messageDisplay.getRegisteredScripts) {
-      const deja = await browser.scripting.messageDisplay.getRegisteredScripts({
-        ids: [DEFINITION_SCRIPT_MESSAGE.id]
-      });
-      if (Array.isArray(deja) && deja.length > 0) {
-        return;
+const memoireSessionData = new Map();
+const memoireSessionFallback = {
+  async get(cles) {
+    const resultat = {};
+    if (cles === null || cles === undefined) {
+      memoireSessionData.forEach((v, k) => { resultat[k] = v; });
+      return resultat;
+    }
+    const liste = Array.isArray(cles) ? cles : (typeof cles === "string" ? [cles] : Object.keys(cles));
+    for (const k of liste) {
+      if (memoireSessionData.has(k)) {
+        resultat[k] = memoireSessionData.get(k);
+      } else if (cles && !Array.isArray(cles) && typeof cles === "object" && k in cles) {
+        resultat[k] = cles[k];
       }
     }
-  } catch { /* repli sur réenregistrement complet */ }
-
-  try {
-    await browser.scripting.messageDisplay.unregisterScripts({ ids: [DEFINITION_SCRIPT_MESSAGE.id] });
-  } catch { /* pas encore enregistré — normal au premier chargement */ }
-
-  try {
-    await browser.scripting.messageDisplay.registerScripts([DEFINITION_SCRIPT_MESSAGE]);
-    console.log("[MagicTranslator] Script messageDisplay enregistré.");
-  } catch (erreur) {
-    console.log("[MagicTranslator] Note registerScripts :", erreur.message || erreur);
+    return resultat;
+  },
+  async set(obj) {
+    if (obj && typeof obj === "object") {
+      Object.entries(obj).forEach(([k, v]) => memoireSessionData.set(k, v));
+    }
+  },
+  async remove(cles) {
+    const liste = Array.isArray(cles) ? cles : [cles];
+    for (const k of liste) {
+      memoireSessionData.delete(k);
+    }
   }
+};
+
+/**
+ * Retourne exclusivement le stockage volatil en RAM (storage.session),
+ * avec repli mémoire de processus sans jamais écrire de brouillon sur disque.
+ */
+function obtenirStockageSession() {
+  return (browser.storage && browser.storage.session) ? browser.storage.session : memoireSessionFallback;
+}
+
+let verrouScripts = Promise.resolve();
+
+/**
+ * Enregistre ou met à jour la définition des scripts injectés dans messageDisplay,
+ * de manière strictement sérialisée entre réveil d'Event Page, onStartup et onInstalled.
+ * @param {boolean} [forcerReenregistrement=false]
+ */
+function assurerScriptsEnregistres(forcerReenregistrement = false) {
+  const executer = async () => {
+    try {
+      if (!forcerReenregistrement && browser.scripting.messageDisplay.getRegisteredScripts) {
+        const deja = await browser.scripting.messageDisplay.getRegisteredScripts({
+          ids: [DEFINITION_SCRIPT_MESSAGE.id]
+        });
+        if (Array.isArray(deja) && deja.length > 0) {
+          return;
+        }
+      }
+    } catch { /* repli sur réenregistrement complet */ }
+
+    try {
+      await browser.scripting.messageDisplay.unregisterScripts({ ids: [DEFINITION_SCRIPT_MESSAGE.id] });
+    } catch { /* pas encore enregistré — normal au premier chargement */ }
+
+    try {
+      await browser.scripting.messageDisplay.registerScripts([DEFINITION_SCRIPT_MESSAGE]);
+      console.log("[MagicTranslator] Script messageDisplay enregistré.");
+    } catch (erreur) {
+      console.log("[MagicTranslator] Note registerScripts :", erreur.message || erreur);
+    }
+  };
+
+  verrouScripts = verrouScripts.then(executer, executer);
+  return verrouScripts;
 }
 
 /**
@@ -103,25 +146,29 @@ async function initialiserMenusContextuels() {
 
 /**
  * Purge uniquement les clés temporaires `compose_orig_<tabId>` dont l'onglet
- * de rédaction correspondant n'existe plus (sans jamais effacer un brouillon actif).
+ * de rédaction correspondant n'existe plus (et nettoie d'éventuelles traces héritées sur disque).
  */
 async function purgerClesRedactionOrphelines() {
   try {
     const ongletsOuverts = await browser.tabs.query({});
     const idsOuverts = new Set(ongletsOuverts.map((t) => `compose_orig_${t.id}`));
 
-    const zones = [obtenirStockageSession()];
-    if (zones[0] !== browser.storage.local) {
-      zones.push(browser.storage.local);
-    }
-
-    for (const zone of zones) {
-      const tout = await zone.get(null);
-      const orphelines = Object.keys(tout).filter(
+    const zoneSession = obtenirStockageSession();
+    if (zoneSession && typeof zoneSession.get === "function") {
+      const toutSession = await zoneSession.get(null);
+      const orphelines = Object.keys(toutSession).filter(
         (k) => k.startsWith("compose_orig_") && !idsOuverts.has(k)
       );
       if (orphelines.length > 0) {
-        await zone.remove(orphelines);
+        await zoneSession.remove(orphelines);
+      }
+    }
+
+    if (browser.storage && browser.storage.local) {
+      const toutLocal = await browser.storage.local.get(null);
+      const tracesDisque = Object.keys(toutLocal).filter((k) => k.startsWith("compose_orig_"));
+      if (tracesDisque.length > 0) {
+        await browser.storage.local.remove(tracesDisque);
       }
     }
   } catch { /* ignorer */ }
@@ -153,36 +200,80 @@ assurerScriptsEnregistres(false).catch(() => {});
 // 2. ENVOI DU MESSAGE "toggleBanner" AVEC SECOURS INJECTION DYNAMIQUE
 // ═══════════════════════════════════════════════════════════════════════════
 
+const togglesEnVol = new Map();
+
 /**
- * Envoie l'action "toggleBanner" au script injecté dans l'onglet spécifié.
+ * Vérifie strictement qu'un onglet est un panneau de lecture de message valide
+ * (`mail` ou `messageDisplay` avec au moins un e-mail affiché) afin de ne jamais
+ * injecter `translator-injected.js` dans une fenêtre de rédaction (`messageCompose`).
+ *
+ * @param {number} tabId
+ * @returns {Promise<boolean>}
+ */
+async function estOngletLectureValide(tabId) {
+  if (typeof tabId !== "number") return false;
+  try {
+    const onglet = await browser.tabs.get(tabId);
+    if (!onglet || (onglet.type !== "mail" && onglet.type !== "messageDisplay")) {
+      return false;
+    }
+    if (browser.messageDisplay && browser.messageDisplay.getDisplayedMessages) {
+      const liste = await browser.messageDisplay.getDisplayedMessages(tabId);
+      if (!liste || !Array.isArray(liste.messages) || liste.messages.length === 0) {
+        return false;
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Envoie l'action "toggleBanner" au script injecté dans l'onglet spécifié (dédupliqué).
  * Si le script de contenu n'est pas présent ou ne répond pas (contexte invalidé,
  * déchargement d'onglet...), il est injecté manuellement de secours avant l'envoi.
  *
  * @param {number} tabId — Identifiant de l'onglet Thunderbird
  */
-async function envoyerToggleBanner(tabId) {
-  const config = await chargerConfiguration();
-  const payload = {
-    action: "toggleBanner",
-    autoTranslate: Boolean(config.autoTranslateOnClick),
-    alternateTarget: config.alternateTarget || "none"
-  };
-  try {
-    await browser.tabs.sendMessage(tabId, payload);
-  } catch {
-    console.log("[MagicTranslator] Le script de contenu ne répond pas. Injection manuelle de secours...");
-    try {
-      await browser.scripting.executeScript({
-        target: { tabId: tabId },
-        files: ["mt-text.js", "translator-injected.js"]
-      });
-      // Petit délai pour laisser le temps au script de s'initialiser et de s'enregistrer
-      await new Promise((resolve) => setTimeout(resolve, 60));
-      await browser.tabs.sendMessage(tabId, payload);
-    } catch (errSecours) {
-      console.error("[MagicTranslator] Échec de l'injection ou de l'envoi de secours :", errSecours.message || errSecours);
-    }
+function envoyerToggleBanner(tabId) {
+  if (togglesEnVol.has(tabId)) {
+    return togglesEnVol.get(tabId);
   }
+
+  const promesse = (async () => {
+    if (!(await estOngletLectureValide(tabId))) {
+      return;
+    }
+
+    const config = await chargerConfiguration();
+    const payload = {
+      action: "toggleBanner",
+      autoTranslate: Boolean(config.autoTranslateOnClick),
+      alternateTarget: config.alternateTarget || "none"
+    };
+    try {
+      await browser.tabs.sendMessage(tabId, payload);
+    } catch {
+      console.log("[MagicTranslator] Le script de contenu ne répond pas. Injection manuelle de secours...");
+      try {
+        await browser.scripting.executeScript({
+          target: { tabId: tabId },
+          files: ["mt-text.js", "translator-injected.js"]
+        });
+        // Petit délai pour laisser le temps au script de s'initialiser et de s'enregistrer
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        await browser.tabs.sendMessage(tabId, payload);
+      } catch (errSecours) {
+        console.error("[MagicTranslator] Échec de l'injection ou de l'envoi de secours :", errSecours.message || errSecours);
+      }
+    }
+  })().finally(() => {
+    togglesEnVol.delete(tabId);
+  });
+
+  togglesEnVol.set(tabId, promesse);
+  return promesse;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -213,7 +304,7 @@ browser.commands.onCommand.addListener(async (commande) => {
   if (commande !== "toggle-translator") return;
   try {
     const [onglet] = await browser.tabs.query({ active: true, currentWindow: true });
-    if (onglet) {
+    if (onglet && (await estOngletLectureValide(onglet.id))) {
       await envoyerToggleBanner(onglet.id);
     }
   } catch (erreur) {
@@ -385,6 +476,19 @@ async function detecterLangueLocale(texte) {
 }
 
 /**
+ * Vérifie l'équivalence linguistique par code primaire (ex: "fr" et "fr-FR").
+ * @param {string|null} l1
+ * @param {string|null} l2
+ * @returns {boolean}
+ */
+function languesEquivalentes(l1, l2) {
+  if (!l1 || !l2) return false;
+  const n1 = l1.toLowerCase();
+  const n2 = l2.toLowerCase();
+  return n1 === n2 || n1.split("-")[0] === n2.split("-")[0];
+}
+
+/**
  * Traite les requêtes de messages internes de façon asynchrone.
  * @param {Object} message
  * @param {Object} expediteur
@@ -396,6 +500,11 @@ async function traiterMessage(message, expediteur) {
   // [M-S1] Validation de l'expéditeur : seul notre propre script ou page d'options est autorisé.
   if (!expediteur || expediteur.id !== browser.runtime.id) {
     return { success: false, error: "UNAUTHORIZED" };
+  }
+
+  // Maintien en éveil MV3 inter-contextes pendant les appels potentiellement longs
+  if (message.action === "ping") {
+    return { success: true, pong: true };
   }
 
   const urlOptions = browser.runtime.getURL("options/options.html");
@@ -440,18 +549,47 @@ async function traiterMessage(message, expediteur) {
 
   // ── Action 1b : Opt-In rapide 1-clic (Google Translate + MyMemory optionnel) ──
   if (message.action === "acceptDefaultProvider") {
-    const enableFallback = message.enableMyMemoryFallback !== false;
+    const actuel = await chargerConfiguration();
+    // Ne jamais écraser silencieusement un autre moteur déjà choisi et enregistré
+    if (actuel.provider && actuel.provider !== "none" && actuel.provider !== "google") {
+      const fActif = globalThis.MTProviders.obtenirFournisseur(actuel.provider, actuel);
+      const origActif = globalThis.MTProviders.obtenirPatternOrigine(actuel.provider, actuel);
+      let permActif = Boolean(origActif);
+      if (origActif && browser.permissions && browser.permissions.contains) {
+        permActif = await browser.permissions.contains({ origins: [origActif] }).catch(() => false);
+      }
+      return {
+        success: true,
+        provider: actuel.provider,
+        providerLabel: fActif.label,
+        providerNom: fActif.nomComplet,
+        isConfigured: verifierMoteurConfigure(actuel),
+        hasPermission: Boolean(permActif),
+        enableMyMemoryFallback: Boolean(actuel.enableMyMemoryFallback)
+      };
+    }
+
+    const enableFallback = Boolean(message.enableMyMemoryFallback);
     await browser.storage.local.set({
       provider: "google",
       enableMyMemoryFallback: enableFallback,
       onboardingShown: true
     });
+    let hasPermGoogle = true;
+    try {
+      if (browser.permissions && browser.permissions.contains) {
+        hasPermGoogle = await browser.permissions.contains({ origins: ["https://translate-pa.googleapis.com/*"] });
+      }
+    } catch {
+      hasPermGoogle = false;
+    }
     return {
       success: true,
       provider: "google",
       providerLabel: "Google",
       providerNom: "Google Translate",
       isConfigured: true,
+      hasPermission: Boolean(hasPermGoogle),
       enableMyMemoryFallback: enableFallback
     };
   }
@@ -486,7 +624,11 @@ async function traiterMessage(message, expediteur) {
     } catch {
       return { success: false, message: "PERMISSION_REQUIRED" };
     }
-    return await globalThis.MTProviders.testerConnexion(cfgTest);
+    const resTest = await globalThis.MTProviders.testerConnexion(cfgTest);
+    if (resTest && !resTest.success && !CODES_ERREURS_CONNUS.has(resTest.message)) {
+      return { success: false, message: "SERVICE_UNAVAILABLE" };
+    }
+    return resTest;
   }
 
   // ── Action 2b : Liste dynamique des modèles Google Gemini (strictement réservé aux Options) ──
@@ -495,10 +637,21 @@ async function traiterMessage(message, expediteur) {
       return { success: false, error: "UNAUTHORIZED", message: "UNAUTHORIZED" };
     }
     try {
+      if (browser.permissions && browser.permissions.contains) {
+        const permGemini = await browser.permissions.contains({ origins: ["https://generativelanguage.googleapis.com/*"] });
+        if (!permGemini) {
+          return { success: false, error: "PERMISSION_REQUIRED", message: "PERMISSION_REQUIRED" };
+        }
+      }
+    } catch {
+      return { success: false, error: "PERMISSION_REQUIRED", message: "PERMISSION_REQUIRED" };
+    }
+    try {
       const models = await globalThis.MTProviders.listerModelesGemini(message.apiKey);
       return { success: true, models };
     } catch (err) {
-      return { success: false, message: err.message || "SERVICE_UNAVAILABLE" };
+      const code = (err && CODES_ERREURS_CONNUS.has(err.message)) ? err.message : "SERVICE_UNAVAILABLE";
+      return { success: false, error: code, message: code };
     }
   }
 
@@ -594,6 +747,15 @@ async function traiterMessage(message, expediteur) {
             requiredOrigin
           };
         }
+        // Vérifier également l'accès hôte MyMemory avant d'autoriser le relais de secours
+        if (config.provider === "google" && configProvider.enableMyMemoryFallback) {
+          const permMyMemory = await browser.permissions.contains({
+            origins: ["https://api.mymemory.translated.net/*"]
+          }).catch(() => false);
+          if (!permMyMemory) {
+            configProvider.enableMyMemoryFallback = false;
+          }
+        }
       }
     } catch {
       return {
@@ -603,18 +765,28 @@ async function traiterMessage(message, expediteur) {
       };
     }
 
-    // Détection locale préalable si source === "auto"
+    // Détection locale préalable hors-ligne (CLD2) pour orienter LibreTranslate/LLMs
+    // ou court-circuiter si le texte est déjà dans la langue cible (préserve alternateTarget)
     let langueLocaleDetectee = null;
-    if (message.source === "auto") {
-      const detLocale = await detecterLangueLocale(message.text);
-      if (detLocale && detLocale.lang && detLocale.isReliable) {
-        langueLocaleDetectee = detLocale.lang;
-      }
+    const detLocale = await detecterLangueLocale(message.text);
+    if (detLocale && detLocale.lang && detLocale.isReliable) {
+      langueLocaleDetectee = detLocale.lang;
     }
 
     let sourceEffective = message.source;
-    // Si l'utilisateur a configuré la détection linguistique locale prioritaire
     if (config.preferLocalDetection && message.source === "auto" && langueLocaleDetectee) {
+      if (languesEquivalentes(langueLocaleDetectee, message.target)) {
+        return {
+          success: true,
+          text: message.text,
+          detectedLang: langueLocaleDetectee,
+          provider: config.provider,
+          configuredProvider: config.provider,
+          usedFallback: false,
+          providerLabel: fournisseur.label,
+          providerNom: fournisseur.nomComplet
+        };
+      }
       sourceEffective = langueLocaleDetectee;
     }
 

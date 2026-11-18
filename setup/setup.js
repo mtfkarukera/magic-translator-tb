@@ -46,10 +46,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     return texte;
   }
 
+  const LOCALES_SUPPORTEES = new Set(["fr", "en", "de", "es", "vi", "ja", "pt"]);
+
   function appliquerI18n() {
     try {
-      const lang = browser.i18n.getUILanguage ? browser.i18n.getUILanguage() : "fr";
-      document.documentElement.lang = lang.split("-")[0] || "fr";
+      const lang = browser.i18n.getUILanguage ? browser.i18n.getUILanguage() : "en";
+      const codePrimaire = lang.split("-")[0].toLowerCase();
+      document.documentElement.lang = LOCALES_SUPPORTEES.has(codePrimaire) ? codePrimaire : "en";
     } catch { /* ignore */ }
 
     document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -61,12 +64,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function afficherBanniereStatut(message) {
+  function afficherBanniereStatut(message, { type = "success", afficherFermer = true } = {}) {
     if (!statusBanner || !statusText) return;
     statusBanner.classList.remove("is-empty");
+    statusBanner.classList.toggle("is-error", type === "error");
     statusText.textContent = message;
     if (btnCloseTab) {
-      btnCloseTab.hidden = false;
+      btnCloseTab.hidden = !afficherFermer;
+    }
+  }
+
+  function masquerBanniereStatut() {
+    if (!statusBanner || !statusText) return;
+    statusBanner.classList.add("is-empty");
+    statusBanner.classList.remove("is-error");
+    statusText.textContent = "";
+    if (btnCloseTab) {
+      btnCloseTab.hidden = true;
     }
   }
 
@@ -81,30 +95,69 @@ document.addEventListener("DOMContentLoaded", async () => {
     libretranslate: "LibreTranslate"
   };
 
-  // Marquer que l'assistant a été présenté et refléter un moteur déjà actif
-  try {
-    await browser.storage.local.set({ onboardingShown: true });
-    const stocke = await browser.storage.local.get(["provider", "enableMyMemoryFallback"]);
-    if (typeof stocke.enableMyMemoryFallback === "boolean" && chkMyMemory) {
-      chkMyMemory.checked = stocke.enableMyMemoryFallback;
+  async function synchroniserEtatAccueil() {
+    let provider = "none";
+    let enableMyMemoryFallback = false;
+
+    try {
+      const res = await browser.runtime.sendMessage({ action: "getConfig" });
+      if (res && res.success) {
+        provider = res.provider || "none";
+        enableMyMemoryFallback = Boolean(res.enableMyMemoryFallback);
+      } else {
+        const stocke = await browser.storage.local.get(["provider", "enableMyMemoryFallback"]);
+        provider = stocke.provider || "none";
+        enableMyMemoryFallback = Boolean(stocke.enableMyMemoryFallback);
+      }
+    } catch {
+      const stocke = await browser.storage.local.get(["provider", "enableMyMemoryFallback"]).catch(() => ({}));
+      provider = stocke.provider || "none";
+      enableMyMemoryFallback = Boolean(stocke.enableMyMemoryFallback);
     }
-    if (stocke.provider && stocke.provider !== "none") {
-      const nomActif = NOMS_MOTEURS[stocke.provider] || stocke.provider;
+
+    if (chkMyMemory) {
+      chkMyMemory.checked = enableMyMemoryFallback;
+    }
+
+    if (provider && provider !== "none") {
+      const nomActif = NOMS_MOTEURS[provider] || provider;
       afficherBanniereStatut(
         t(
           "setupStatusAlreadyActive",
           "✓ Moteur actuellement actif : {provider}. Vous pouvez modifier votre choix ci-dessous ou fermer cet onglet.",
           { provider: nomActif }
-        )
+        ),
+        { type: "success", afficherFermer: true }
       );
-      if (stocke.provider === "google" && btnActivateGoogleLabel) {
-        btnActivateGoogleLabel.textContent = t(
-          "setupBtnActivatedGoogle",
-          "✓ Google Translate activé (mettre à jour l'option)"
-        );
+      if (btnActivateGoogleLabel) {
+        btnActivateGoogleLabel.textContent = (provider === "google")
+          ? t("setupBtnActivatedGoogle", "✓ Google Translate activé (mettre à jour l'option)")
+          : t("setupBtnActivateGoogle", "✓ Activer Google Translate et commencer");
+      }
+    } else {
+      masquerBanniereStatut();
+      if (btnActivateGoogleLabel) {
+        btnActivateGoogleLabel.textContent = t("setupBtnActivateGoogle", "✓ Activer Google Translate et commencer");
       }
     }
-  } catch { /* ignore */ }
+  }
+
+  // Marquer l'assistant présenté et synchroniser l'état courant
+  try {
+    await browser.storage.local.set({ onboardingShown: true });
+    await synchroniserEtatAccueil();
+  } catch (err) {
+    console.warn("[MagicTranslator] Erreur synchronisation initiale setup :", err);
+  }
+
+  if (browser.storage && browser.storage.onChanged) {
+    browser.storage.onChanged.addListener((changements, zone) => {
+      if (zone !== "local") return;
+      if (changements.provider || changements.enableMyMemoryFallback) {
+        synchroniserEtatAccueil();
+      }
+    });
+  }
 
   // ── 2. Activation en 1 clic de Google Translate (+ option MyMemory) ──────
   if (btnActivateGoogle) {
@@ -130,14 +183,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           t(
             "setupStatusActivated",
             "✓ Google Translate est activé ! Vous pouvez maintenant fermer cet onglet et traduire vos e-mails."
-          )
+          ),
+          { type: "success", afficherFermer: true }
         );
         if (btnCloseTab) {
-          btnCloseTab.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          const preferReduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          btnCloseTab.scrollIntoView({ behavior: preferReduce ? "auto" : "smooth", block: "nearest" });
           btnCloseTab.focus();
         }
       } catch (err) {
         console.error("[MagicTranslator] Erreur lors de l'activation :", err);
+        afficherBanniereStatut(
+          t("errorSavePreferences", "Impossible d'enregistrer les préférences."),
+          { type: "error", afficherFermer: false }
+        );
       } finally {
         activationEnCours = false;
         btnActivateGoogle.disabled = false;

@@ -39,8 +39,9 @@ FILES=(
   _locales
 )
 
-# ── Garde-fou : interdire DEBUG = true dans le code packagé ────────────────
-if grep -nE '(const|let|var)[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true' background.js translator-injected.js mt-text.js mt-providers.js setup/setup.js options/options.js compose/compose.js; then
+# ── Garde-fou : interdire DEBUG = true dans tout fichier JS runtime ──────────
+RUNTIME_JS=$(find . -maxdepth 2 -name "*.js" -not -path "./node_modules/*" -not -path "./test/*" -not -path "./dist/*")
+if echo "${RUNTIME_JS}" | xargs grep -nE '(const|let|var)[[:space:]]+DEBUG[[:space:]]*=[[:space:]]*true|\bDEBUG[[:space:]]*:[[:space:]]*true'; then
   echo "❌ ABANDON : DEBUG = true détecté. Repasser à false avant de packager." >&2
   exit 1
 fi

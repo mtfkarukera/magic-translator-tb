@@ -10,7 +10,7 @@
   <div class="mt-options-wrapper">
     <header class="mt-options-header">
       <div class="mt-logo-badge">
-        <span class="mt-logo-icon" aria-hidden="true">MT</span>
+        <img src="../icon.png" alt="" width="36" height="36" class="mt-logo-img">
         <div class="mt-logo-titles">
           <h1>Magic Translator</h1>
           <p class="mt-subtitle" data-i18n="optionsSubtitle">Configuration des moteurs de traduction &amp; options avancées</p>
@@ -94,7 +94,7 @@
             <label for="deepl-api-key" class="mt-label" data-i18n="labelDeeplKey">Clé d'API DeepL (Auth-Key)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="deepl-api-key" class="mt-input" placeholder="Ex: 12345678-abcd-ef01-2345-6789abcdef01:fx" autocomplete="off" spellcheck="false" aria-describedby="help-deepl-key">
-              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
+              <button type="button" id="btn-toggle-deepl-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
             <p id="help-deepl-key" class="mt-help-text">
               <span data-i18n="helpDeeplKey">Obtenez une clé gratuite (500 000 caractères/mois) ou pro sur</span> <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer" class="mt-link">deepl.com/pro-api</a>.
@@ -117,7 +117,7 @@
             <label for="gemini-api-key" class="mt-label" data-i18n="labelGeminiKey">Clé d'API Google AI Studio (Gemini API Key)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="gemini-api-key" class="mt-input" placeholder="Ex: AIzaSy..." autocomplete="off" spellcheck="false" aria-describedby="help-gemini-key">
-              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
+              <button type="button" id="btn-toggle-gemini-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
             <p id="help-gemini-key" class="mt-help-text">
               <span data-i18n="helpGeminiKey">Obtenez une clé gratuite sur</span> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="mt-link">aistudio.google.com</a>.
@@ -130,12 +130,11 @@
               <button type="button" id="btn-refresh-gemini-models" class="mt-btn mt-btn-secondary mt-btn-tiny" title="Interroger la liste officielle des modèles Google en direct" data-i18n="btnRefreshModels" data-i18n-title="titleRefreshModels">🔄 Actualiser les modèles</button>
             </div>
             <select id="gemini-model" class="mt-select" aria-describedby="help-gemini-models">
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Recommandé — Ultra-rapide &amp; économique)</option>
-              <option value="gemini-3.7-flash">gemini-3.7-flash (Nouveau modèle phare août 2026)</option>
+              <option value="gemini-3.5-flash-lite" data-i18n="optGemini35FlashLite">gemini-3.5-flash-lite (Recommandé — Ultra-rapide &amp; économique)</option>
+              <option value="gemini-3.7-flash" data-i18n="optGemini37Flash">gemini-3.7-flash (Modèle phare haute précision)</option>
               <option value="gemini-2.5-flash">gemini-2.5-flash</option>
               <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
               <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-              <option value="gemini-1.5-pro">gemini-1.5-pro (Raisonnement approfondi)</option>
             </select>
             <p class="mt-help-text" id="help-gemini-models" data-i18n="helpGeminiModels">
               Les modèles sont synchronisés en temps réel avec l'API officielle Google AI Studio.
@@ -149,17 +148,17 @@
             <label for="llm-preset" class="mt-label" data-i18n="labelLlmPreset">Fournisseur ou Moteur LLM</label>
             <select id="llm-preset" class="mt-select">
               <option value="openai">OpenAI (gpt-4o-mini)</option>
-              <option value="groq">Groq Cloud (llama-3.3-70b-versatile — Inférence instantanée)</option>
+              <option value="groq" data-i18n="optLlmGroq">Groq Cloud (llama-3.3-70b-versatile — Inférence instantanée)</option>
               <option value="mistral">Mistral AI (mistral-small-latest)</option>
               <option value="ollama">Ollama (Local — http://localhost:11434)</option>
               <option value="lmstudio">LM Studio (Local — http://localhost:1234)</option>
-              <option value="custom">Serveur Personnalisé (URL libre)</option>
+              <option value="custom" data-i18n="optLlmCustom">Serveur Personnalisé (URL libre)</option>
             </select>
           </div>
 
           <div class="mt-field-group">
             <label for="llm-base-url" class="mt-label" data-i18n="labelLlmBaseUrl">URL de Base de l'API (Base URL)</label>
-            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com ou http://localhost:11434" spellcheck="false" aria-describedby="help-llm-url">
+            <input type="url" id="llm-base-url" class="mt-input" placeholder="https://api.openai.com ou http://localhost:11434" data-i18n-placeholder="placeholderLlmBaseUrl" spellcheck="false" aria-describedby="help-llm-url">
             <p class="mt-help-text" id="help-llm-url" data-i18n="helpLlmBaseUrl">
               Endpoint standard (/v1/chat/completions ajouté automatiquement). Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire hors de votre machine locale (http:// est autorisé uniquement sur localhost / 127.0.0.1).
             </p>
@@ -169,7 +168,7 @@
             <label for="llm-api-key" class="mt-label" data-i18n="labelLlmApiKey">Clé d'API (Bearer Token)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="llm-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise (local)" data-i18n-placeholder="placeholderLlmApiKey" autocomplete="off" spellcheck="false" aria-describedby="help-llm-key">
-              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
+              <button type="button" id="btn-toggle-llm-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
             <p class="mt-help-text" id="help-llm-key" data-i18n="helpLlmApiKey">
               Clé d'authentification pour le service distant.
@@ -186,7 +185,7 @@
         <div id="section-libretranslate" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
             <label for="libretranslate-url" class="mt-label" data-i18n="labelLibreTranslateUrl">URL de l'instance LibreTranslate</label>
-            <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" spellcheck="false" aria-describedby="help-lt-url">
+            <input type="url" id="libretranslate-url" class="mt-input" placeholder="https://libretranslate.com ou http://localhost:5000" data-i18n-placeholder="placeholderLtUrl" spellcheck="false" aria-describedby="help-lt-url">
             <p id="help-lt-url" class="mt-help-text" data-i18n="helpLibreTranslateUrl">
               Indiquez l'URL de votre instance LibreTranslate. Conformément à la politique de sécurité de Mozilla Thunderbird, HTTPS est obligatoire pour tout serveur distant ou réseau local (LAN) ; http:// n'est autorisé que sur votre machine locale (localhost / 127.0.0.1).
             </p>
@@ -196,7 +195,7 @@
             <label for="libretranslate-api-key" class="mt-label" data-i18n="labelLibreTranslateKey">Clé d'API LibreTranslate (Optionnel)</label>
             <div class="mt-input-password-wrapper">
               <input type="password" id="libretranslate-api-key" class="mt-input" placeholder="Laisser vide si aucune clé requise" data-i18n-placeholder="placeholderLtKey" autocomplete="off" spellcheck="false">
-              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" aria-pressed="false" data-i18n-aria-label="ariaShowKey">👁️</button>
+              <button type="button" id="btn-toggle-lt-key" class="mt-btn-icon" aria-label="Afficher la clé d'API" data-i18n-aria-label="ariaShowKey">👁️</button>
             </div>
           </div>
         </div>
@@ -205,7 +204,7 @@
         <div id="section-mymemory" class="mt-provider-section mt-hidden">
           <div class="mt-field-group">
             <label for="mymemory-email" class="mt-label" data-i18n="labelMyMemoryEmail">Adresse e-mail (Optionnel — Quota étendu)</label>
-            <input type="email" id="mymemory-email" class="mt-input" placeholder="Ex: vous@domaine.com" spellcheck="false" aria-describedby="help-mymemory-email">
+            <input type="email" id="mymemory-email" class="mt-input" placeholder="vous@domaine.com" data-i18n-placeholder="placeholderMyMemoryEmail" spellcheck="false" aria-describedby="help-mymemory-email">
             <p id="help-mymemory-email" class="mt-help-text" data-i18n="helpMyMemoryEmail">
               Renseigner une adresse e-mail permet de porter gratuitement votre quota de 5 000 à 50 000 caractères par jour, sans carte bancaire.
             </p>
@@ -237,11 +236,11 @@
             <div class="mt-toggle-info">
               <label for="auto-translate-on-open" class="mt-toggle-title" data-i18n="labelAutoTranslateOnOpen">Traduction automatique à l'ouverture (Mode Zéro-Clic)</label>
               <p id="help-auto-open" class="mt-help-text" data-i18n="helpAutoTranslateOnOpen">
-                Traduit automatiquement les e-mails reçus dès leur ouverture sans aucun clic, puis replie discrètement le bandeau de traduction.
+                Traduit automatiquement les e-mails reçus dès leur ouverture sans aucun clic (bouton Original disponible dans le bandeau).
               </p>
             </div>
             <span class="mt-toggle-switch">
-              <input type="checkbox" id="auto-translate-on-open" role="switch" aria-expanded="false" aria-controls="zero-click-suboptions" aria-describedby="help-auto-open" class="mt-toggle-input">
+              <input type="checkbox" id="auto-translate-on-open" role="switch" aria-controls="zero-click-suboptions" aria-describedby="help-auto-open" class="mt-toggle-input">
               <span class="mt-toggle-track" aria-hidden="true"><span class="mt-toggle-thumb"></span></span>
             </span>
           </div>
@@ -257,24 +256,24 @@
                 </label>
                 <label class="mt-radio-label">
                   <input type="radio" name="auto-translate-mode" value="selected" id="mode-selected">
-                  <span data-i18n="optModeSelected">Uniquement depuis les langues sélectionnées ci-dessous :</span>
+                  <span id="label-mode-selected" data-i18n="optModeSelected">Uniquement depuis les langues sélectionnées ci-dessous :</span>
                 </label>
               </div>
             </fieldset>
 
-            <div id="zero-click-langs-grid" class="mt-langs-grid mt-hidden">
-              <label class="mt-lang-chip"><input type="checkbox" value="en" class="mt-lang-chk"> English</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="de" class="mt-lang-chk"> Deutsch</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="es" class="mt-lang-chk"> Español</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="it" class="mt-lang-chk"> Italiano</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="pt" class="mt-lang-chk"> Português</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="nl" class="mt-lang-chk"> Nederlands</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="ru" class="mt-lang-chk"> Русский</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="ja" class="mt-lang-chk"> 日本語</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="zh-CN" class="mt-lang-chk"> 中文</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="ar" class="mt-lang-chk"> العربية</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="vi" class="mt-lang-chk"> Tiếng Việt</label>
-              <label class="mt-lang-chip"><input type="checkbox" value="pl" class="mt-lang-chk"> Polski</label>
+            <div id="zero-click-langs-grid" class="mt-langs-grid mt-hidden" role="group" aria-labelledby="label-mode-selected">
+              <label class="mt-lang-chip"><input type="checkbox" value="en" class="mt-lang-chk"> <span lang="en">English</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="de" class="mt-lang-chk"> <span lang="de">Deutsch</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="es" class="mt-lang-chk"> <span lang="es">Español</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="it" class="mt-lang-chk"> <span lang="it">Italiano</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="pt" class="mt-lang-chk"> <span lang="pt">Português</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="nl" class="mt-lang-chk"> <span lang="nl">Nederlands</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ru" class="mt-lang-chk"> <span lang="ru">Русский</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ja" class="mt-lang-chk"> <span lang="ja">日本語</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="zh-CN" class="mt-lang-chk"> <span lang="zh-CN">中文</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="ar" class="mt-lang-chk"> <span lang="ar">العربية</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="vi" class="mt-lang-chk"> <span lang="vi">Tiếng Việt</span></label>
+              <label class="mt-lang-chip"><input type="checkbox" value="pl" class="mt-lang-chk"> <span lang="pl">Polski</span></label>
             </div>
           </div>
         </div>
@@ -328,6 +327,11 @@
             <option value="id">Bahasa Indonesia</option>
             <option value="ms">Bahasa Melayu</option>
             <option value="th">ไทย</option>
+            <option value="bg">Български</option>
+            <option value="ca">Català</option>
+            <option value="hr">Hrvatski</option>
+            <option value="sk">Slovenčina</option>
+            <option value="sl">Slovenščina</option>
           </select>
           <p id="help-alternate-target" class="mt-help-text" data-i18n="helpAlternateTarget">
             Optionnel. Si l'e-mail reçu est déjà rédigé dans la langue cible principale (ex: déjà en français), bascule automatiquement vers cette langue d'alternance.
@@ -353,7 +357,7 @@
     </main>
 
     <footer class="mt-options-footer">
-      <p>Magic Translator · <a href="https://magic-clipper.mtfk.fr/" target="_blank" rel="noopener noreferrer" class="mt-footer-link">magic-softs</a></p>
+      <p>Magic Translator · <a href="https://mtfk.fr/" target="_blank" rel="noopener noreferrer" class="mt-footer-link">magic-softs</a></p>
     </footer>
   </div>
 
