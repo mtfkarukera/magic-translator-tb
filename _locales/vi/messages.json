@@ -243,7 +243,7 @@
     "message": "Cấp quyền truy cập trong 1 cú nhấp chuột"
   },
   "statusPermissionGranted": {
-    "message": "✓ Đã cấp quyền! Hãy nhấp vào «Lưu tùy chọn» ngay bây giờ để hoàn tất."
+    "message": "Đã cấp quyền! Hãy nhấp vào «Lưu tùy chọn» ngay bây giờ để hoàn tất."
   },
   "sectionErgonomicsTitle": {
     "message": "Tiện dụng & Hành vi"
@@ -435,13 +435,13 @@
     "message": "⏳ Đang tải…"
   },
   "statusGeminiModelsSynced": {
-    "message": "✓ Đã đồng bộ thành công {count} mô hình Gemini!"
+    "message": "Đã đồng bộ thành công {count} mô hình Gemini!"
   },
   "helpGeminiModelsSynced": {
     "message": "✓ Đã đồng bộ {count} mô hình khả dụng với Google AI Studio."
   },
   "errorGeminiModelsSync": {
-    "message": "⚠️ Lỗi đồng bộ: {error}"
+    "message": "Lỗi đồng bộ: {error}"
   },
   "errorInvalidUrl": {
     "message": "URL đã nhập không hợp lệ."

@@ -243,7 +243,7 @@
     "message": "1クリックでアクセスを許可"
   },
   "statusPermissionGranted": {
-    "message": "✓ 権限が付与されました！「設定を保存」をクリックして完了してください。"
+    "message": "権限が付与されました！「設定を保存」をクリックして完了してください。"
   },
   "sectionErgonomicsTitle": {
     "message": "操作性と動作"
@@ -435,13 +435,13 @@
     "message": "⏳ 読み込み中…"
   },
   "statusGeminiModelsSynced": {
-    "message": "✓ {count} 個の Gemini モデルを同期しました！"
+    "message": "{count} 個の Gemini モデルを同期しました！"
   },
   "helpGeminiModelsSynced": {
     "message": "✓ Google AI Studio から {count} 個の利用可能なモデルを同期しました。"
   },
   "errorGeminiModelsSync": {
-    "message": "⚠️ 同期エラー: {error}"
+    "message": "同期エラー: {error}"
   },
   "errorInvalidUrl": {
     "message": "入力された URL が正しくありません。"

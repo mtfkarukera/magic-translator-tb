@@ -243,7 +243,7 @@
     "message": "Grant access in 1 click"
   },
   "statusPermissionGranted": {
-    "message": "✓ Permission granted! Click \"Save Preferences\" now to finish."
+    "message": "Permission granted! Click \"Save Preferences\" now to finish."
   },
   "sectionErgonomicsTitle": {
     "message": "Ergonomics & Behavior"
@@ -435,13 +435,13 @@
     "message": "⏳ Loading…"
   },
   "statusGeminiModelsSynced": {
-    "message": "✓ {count} Gemini models synchronized successfully!"
+    "message": "{count} Gemini models synchronized successfully!"
   },
   "helpGeminiModelsSynced": {
     "message": "✓ {count} available models synchronized with Google AI Studio."
   },
   "errorGeminiModelsSync": {
-    "message": "⚠️ Synchronization error: {error}"
+    "message": "Synchronization error: {error}"
   },
   "errorInvalidUrl": {
     "message": "The entered URL is invalid."

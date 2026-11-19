@@ -1749,7 +1749,7 @@
           return;
         }
         const nomLang = NOMS_LANGUES[cible] || cible;
-        majStatut("✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
+        majStatut(t("statusAlreadyIn", { lang: nomLang }), "success");
       };
 
       try {
@@ -1958,7 +1958,7 @@
           majStatut(t("statusTranslatedPartial"), "error");
         } else if (utiliseAlternance) {
           const nomLang = NOMS_LANGUES[cible] || cible;
-          majStatut("✓ " + t("statusTranslatedAlternate", { lang: nomLang }), "success");
+          majStatut(t("statusTranslatedAlternate", { lang: nomLang }), "success");
         } else if (ui.selectSource.value === "auto" && derniereLangDetectee && languesSontEquivalentes(derniereLangDetectee, cible)) {
           if (isAutoOnOpen) {
             contenusOriginaux = null;
@@ -1966,12 +1966,12 @@
             return;
           }
           const nomLang = NOMS_LANGUES[cible] || cible;
-          majStatut("✓ " + t("statusAlreadyIn", { lang: nomLang }), "success");
+          majStatut(t("statusAlreadyIn", { lang: nomLang }), "success");
         } else if (derniereLangDetectee && ui.selectSource.value === "auto") {
           const nomLang = NOMS_LANGUES[derniereLangDetectee] || derniereLangDetectee;
-          majStatut("✓ " + t("statusTranslatedFrom", { lang: nomLang }), "success");
+          majStatut(t("statusTranslatedFrom", { lang: nomLang }), "success");
         } else {
-          majStatut("✓ " + t("statusTranslated"), "success");
+          majStatut(t("statusTranslated"), "success");
         }
 
         ui.btnOriginal.classList.remove("mt-hidden");
@@ -2255,12 +2255,16 @@
     el.classList.remove("error", "success", "mt-hidden");
     el.textContent = "";
 
+    const messagePropre = typeof message === "string"
+      ? message.replace(/^(?:[✓✔✅⚠⏳]\uFE0F?\s{0,4}){1,4}/u, "")
+      : "";
+
     if (srEl) {
-      // Les états visuels transitoires de chargement restent annoncés, puis le résultat final suit
-      srEl.textContent = message || "";
+      // Les états visuels transitoires de chargement restent annoncés, puis le résultat final sans icône décorative
+      srEl.textContent = messagePropre;
     }
 
-    if (!message) {
+    if (!messagePropre) {
       el.classList.add("is-empty");
       return;
     }
@@ -2272,17 +2276,23 @@
       spinner.className = "mt-spinner";
       spinner.setAttribute("aria-hidden", "true");
       el.appendChild(spinner);
-      el.appendChild(document.createTextNode(message));
+      el.appendChild(document.createTextNode(messagePropre));
     } else if (type === "error") {
       const icone = document.createElement("span");
       icone.setAttribute("aria-hidden", "true");
       icone.textContent = "⚠ ";
       el.appendChild(icone);
-      el.appendChild(document.createTextNode(message));
+      el.appendChild(document.createTextNode(messagePropre));
       el.classList.add("error");
+    } else if (type === "success") {
+      const icone = document.createElement("span");
+      icone.setAttribute("aria-hidden", "true");
+      icone.textContent = "✓ ";
+      el.appendChild(icone);
+      el.appendChild(document.createTextNode(messagePropre));
+      el.classList.add("success");
     } else {
-      el.textContent = message;
-      if (type === "success") el.classList.add("success");
+      el.textContent = messagePropre;
     }
   }
 

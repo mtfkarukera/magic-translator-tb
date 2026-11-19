@@ -232,7 +232,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusIcon.textContent = "⚠";
     }
 
-    statusText.textContent = texte;
+    // Garde défensif : retire tout préfixe décoratif déjà fourni par #status-icon
+    const textePropre = typeof texte === "string"
+      ? texte.replace(/^(?:[✓✔✅⚠⏳]\uFE0F?\s{0,4}){1,4}/u, "")
+      : "";
+    statusText.textContent = textePropre;
   }
 
   /**
@@ -341,6 +345,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       btnRefreshGeminiModels.textContent = t("btnRefreshingModels", "⏳ Chargement…");
     }
 
+    const afficherErreurSync = (msgErreur) => {
+      const libelle = t("errorGeminiModelsSync", "Erreur de synchronisation : {error}", { error: msgErreur });
+      if (helpGeminiModels) {
+        const icone = document.createElement("span");
+        icone.setAttribute("aria-hidden", "true");
+        icone.textContent = "⚠ ";
+        helpGeminiModels.replaceChildren(icone, document.createTextNode(libelle));
+      }
+      if (!silencieux) {
+        afficherStatut(libelle, "error");
+      }
+    };
+
     try {
       // Demande de permission sous geste utilisateur uniquement (clic explicite)
       if (!silencieux) {
@@ -399,36 +416,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           afficherStatut(
             t(
               "statusGeminiModelsSynced",
-              "✓ {count} modèles Gemini synchronisés avec succès !",
+              "{count} modèles Gemini synchronisés avec succès !",
               { count: reponse.models.length }
             ),
             "success"
           );
         }
       } else {
-        const err = (reponse && reponse.message) || "HTTP";
-        if (helpGeminiModels) {
-          helpGeminiModels.textContent = t(
-            "errorGeminiModelsSync",
-            "⚠️ Erreur de synchronisation : {error}",
-            { error: err }
-          );
-        }
-        if (!silencieux) {
-          afficherStatut(
-            t("errorGeminiModelsSync", "⚠️ Erreur de synchronisation : {error}", { error: err }),
-            "error"
-          );
-        }
+        afficherErreurSync((reponse && reponse.message) || "HTTP");
       }
     } catch (err) {
-      const msg = (err && err.message) || "Network error";
-      if (helpGeminiModels) {
-        helpGeminiModels.textContent = t("errorGeminiModelsSync", "⚠️ Erreur de synchronisation : {error}", { error: msg });
-      }
-      if (!silencieux) {
-        afficherStatut(t("errorGeminiModelsSync", "⚠️ Erreur de synchronisation : {error}", { error: msg }), "error");
-      }
+      afficherErreurSync((err && err.message) || "Network error");
     } finally {
       syncGeminiEnCours = false;
       if (btnRefreshGeminiModels) {
@@ -608,7 +606,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (accorde) {
             warningBanner.classList.add("mt-hidden");
             afficherStatut(
-              t("statusPermissionGranted", "✓ Autorisation accordée ! Cliquez maintenant sur « Enregistrer les préférences » pour finaliser."),
+              t("statusPermissionGranted", "Autorisation accordée ! Cliquez maintenant sur « Enregistrer les préférences » pour finaliser."),
               "success"
             );
             if (btnSave && !btnSave.disabled) {
@@ -940,7 +938,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (reponse && reponse.success) {
-        afficherStatut(`✓ ${t("statusTestSuccess", "Connexion réussie !")}`, "success");
+        afficherStatut(t("statusTestSuccess", "Connexion réussie !"), "success");
       } else {
         const msg = (reponse && reponse.message) || "HTTP";
         afficherStatut(`${t("statusTestError", "Échec de la connexion :")} ${msg}`, "error");
@@ -990,7 +988,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       afficherStatut(t("btnSaving", "Enregistrement…"), "loading");
       await browser.storage.local.set({ ...config, onboardingShown: true });
-      afficherStatut(`✓ ${t("statusSaved", "Préférences enregistrées avec succès !")}`, "success");
+      afficherStatut(t("statusSaved", "Préférences enregistrées avec succès !"), "success");
     } catch (err) {
       console.error("[MagicTranslator Options] Erreur sauvegarde :", err);
       afficherStatut(

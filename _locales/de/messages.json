@@ -243,7 +243,7 @@
     "message": "Zugriff mit 1 Klick erlauben"
   },
   "statusPermissionGranted": {
-    "message": "✓ Berechtigung erteilt! Klicken Sie jetzt auf „Einstellungen speichern“, um abzuschließen."
+    "message": "Berechtigung erteilt! Klicken Sie jetzt auf „Einstellungen speichern“, um abzuschließen."
   },
   "sectionErgonomicsTitle": {
     "message": "Ergonomie & Verhalten"
@@ -435,13 +435,13 @@
     "message": "⏳ Laden…"
   },
   "statusGeminiModelsSynced": {
-    "message": "✓ {count} Gemini-Modelle erfolgreich synchronisiert!"
+    "message": "{count} Gemini-Modelle erfolgreich synchronisiert!"
   },
   "helpGeminiModelsSynced": {
     "message": "✓ {count} verfügbare Modelle mit Google AI Studio synchronisiert."
   },
   "errorGeminiModelsSync": {
-    "message": "⚠️ Synchronisierungsfehler: {error}"
+    "message": "Synchronisierungsfehler: {error}"
   },
   "errorInvalidUrl": {
     "message": "Die eingegebene URL ist ungültig."
